@@ -1,11 +1,10 @@
 // SPDX-License-Identifier: MIT
 
-// This contract exclusively handles sending and receiving ethereum.
 pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract Goalify is Ownable(msg.sender) {
+contract Goalfi is Ownable(msg.sender) {
 
     // User struct to store user information.
     struct User {
@@ -15,7 +14,7 @@ contract Goalify is Ownable(msg.sender) {
 
     // Goal struct to store goal information.
     struct Goal {
-        uint goalPoolId;
+        uint goalId;
         string activity;
         string description;
         uint distance;
@@ -26,13 +25,6 @@ contract Goalify is Ownable(msg.sender) {
         uint startTimestamp;
         uint expiryTimestamp; 
         bool set;
-    }
-
-    // GoalPool struct to store goal pool information.
-    struct GoalPool {
-        string name; // Name of the goal pool.
-        uint[] goals; // List of goal IDs in the goal pool.
-        uint activeGoals;
     }
 
     // GoalParticipation struct to store staked amounts, failed stakes, and claimed rewards.
@@ -50,32 +42,28 @@ contract Goalify is Ownable(msg.sender) {
         CLAIMED   
     }
 
-    // Counter for the total number of users, goals, and goal pool.
+    // Counter for the total number of users, goals, and active goals.
     uint public userCount; 
-    uint public goalCount; 
-    uint public goalPoolCount;
+    uint public goalCount;
+    uint public activeGoalCount;
+    
+    uint public constant MAX_ACTIVE_GOALS = 10;
 
     // Contract Pool Fee.
     uint public constant FEE_PERCENTAGE = 2;
 
-    // Maximum number of goal pools allowed.
-    uint public constant MAX_GOAL_POOLS = 3;
-    uint public constant MAX_GOALS_PER_POOL = 3;
-
-    // Mappings to store user, goal, and goal pool data.
+    // Mappings to store user and goal data.
     mapping(address => User) public users;
     mapping(uint => Goal) public goals;
-    mapping(uint => GoalPool) public goalPools;
     mapping(address => bool) public userAddressUsed;
     mapping(address => bool) public uncompletedUsersId;
 
     // Events
     event UserCreated(address indexed walletAddress);
-    event GoalPoolCreated(uint indexed goalPoolId, string name);
-    event GoalCreated(uint indexed goalId, string activity, string description, uint distance, uint stake, uint goalPoolId, uint startTimestamp, uint expiryTimestamp);
+    event GoalCreated(uint indexed goalId, string activity, string description, uint distance, uint stake, uint startTimestamp, uint expiryTimestamp);
+    event UserJoinedGoal(address indexed walletAddress, uint indexed goalId, uint stake);
     event UserProgressUpdated(address indexed walletAddress, uint indexed goalId, UserProgress newStatus);
     event RewardsClaimed(address indexed walletAddress, uint indexed goalId);
-    event UserJoinedGoal(address indexed walletAddress, uint indexed goalId, uint stake);
 
     // Modifier to check if the user has not been created yet.
     modifier userNotCreated(address _walletAddress) {
@@ -89,7 +77,7 @@ contract Goalify is Ownable(msg.sender) {
         _;
     }
 
-    modifier goalExists (uint goalId) {
+    modifier goalExists(uint goalId) {
         require(goals[goalId].set, "goalExists: invalid goal id, goal does not exist");
         _;
     }
@@ -103,43 +91,31 @@ contract Goalify is Ownable(msg.sender) {
         _;
     }
 
-    // Function to create a new goal pool with a name. (Only Owner) 
-    function createGoalPool(string memory _name) public onlyOwner {
-        require(goalPoolCount < MAX_GOAL_POOLS, "Maximum number of goal pools reached");
-
-        goalPools[goalPoolCount] = GoalPool(_name, new uint[](0), 0);
-        goalPoolCount++;
-
-        emit GoalPoolCreated(goalPoolCount, _name);
-    }
-
-    // Function to create a new goal with a title, and goal pool ID. (Only Owner)
-    function createGoal(string memory _activity, string memory _description, uint _distance, uint _goalPoolId, uint _startTimestamp, uint _expiryTimestamp) public onlyOwner {
-        require(goalPools[_goalPoolId].activeGoals < MAX_GOALS_PER_POOL, "Maximum number of active goals per pool reached");
+    // Function to create a new goal. (Only Owner)
+    function createGoal(string memory _activity, string memory _description, uint _distance, uint _startTimestamp, uint _expiryTimestamp) public onlyOwner {
+        require(activeGoalCount < MAX_ACTIVE_GOALS, "Maximum number of active goals reached");
 
         Goal storage newGoal = goals[goalCount];
-        newGoal.goalPoolId = _goalPoolId;
+        newGoal.goalId = goalCount;
         newGoal.activity = _activity;
         newGoal.description = _description;
         newGoal.distance = _distance;
         newGoal.stake = 0;
         newGoal.failedStake = 0;
-        newGoal.participantAddresses =  new address[](0);
-        newGoal.startTimestamp= _startTimestamp;
+        newGoal.participantAddresses = new address[](0);
+        newGoal.startTimestamp = _startTimestamp;
         newGoal.expiryTimestamp = _expiryTimestamp;
         newGoal.set = true;
 
-        goalPools[_goalPoolId].goals.push(goalCount);
-        goalPools[_goalPoolId].activeGoals++;
-
-        emit GoalCreated(goalCount, _activity, _description, _distance, 0, _goalPoolId, _startTimestamp, _expiryTimestamp);
-
-        goalCount++;
+        emit GoalCreated(goalCount, _activity, _description, _distance, 0, _startTimestamp, _expiryTimestamp);
+        
+        activeGoalCount++;
+        goalCount++;   
     }
 
     // Function to create a new user with a wallet address.
     function createUser() public userNotCreated(msg.sender) {
-        require(msg.sender.balance >= 1000000000000000, "User must have at least 0.001 ETH in their wallet");
+        require(msg.sender.balance >= 0.001 ether, "User must have at least 0.001 ETH in their wallet");
 
         users[msg.sender].walletAddress = msg.sender;
 
@@ -152,8 +128,9 @@ contract Goalify is Ownable(msg.sender) {
 
     // Function to join a goal and pledge to the activity.
     function joinGoal(uint _goalId) public payable userExists(msg.sender) goalExists(_goalId) {
+        require(block.timestamp < goals[_goalId].startTimestamp, "Cannot join a goal that has already started.");
         require(goals[_goalId].expiryTimestamp > block.timestamp, "Cannot join an expired goal");
-        require(goals[_goalId].startTimestamp < block.timestamp, "Cannot join a goal that has started.");
+    
 
         require(msg.value > 0, "You must stake to join the pool.");
 
@@ -213,7 +190,7 @@ contract Goalify is Ownable(msg.sender) {
                 }
             }
         }
-        goalPools[goal.goalPoolId].activeGoals--;
+        activeGoalCount--;
     }
 
     // Given the user progress enum and the goal id, it counts matching users on that state, if you pass ANY it counts all users.
