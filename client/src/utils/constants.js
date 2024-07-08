@@ -1,4 +1,4 @@
-import abi from "./Gaolify.json";
+import abi from "./Goalfi.json";
 
 export const contractABI = abi.abi;
-export const contractAddress = "0x25bFCd49DcA8e7af7D4D01146B5C0124afd1faeA";
+export const contractAddress = "0xFd5f937489D97c6dd5C1d4f8AD0F92Eb15Bd09f8";
