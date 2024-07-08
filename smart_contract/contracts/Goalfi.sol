@@ -115,7 +115,7 @@ contract Goalfi is Ownable(msg.sender) {
 
     // Function to create a new user with a wallet address.
     function createUser() public userNotCreated(msg.sender) {
-        require(msg.sender.balance >= 0.001 ether, "User must have at least 0.001 ETH in their wallet");
+        require(msg.sender.balance >= 1000000000000000, "User must have at least 0.001 ETH in their wallet");
 
         users[msg.sender].walletAddress = msg.sender;
 
@@ -248,5 +248,10 @@ contract Goalfi is Ownable(msg.sender) {
         goal.participants[msg.sender].progress = UserProgress.CLAIMED;
 
         emit RewardsClaimed(msg.sender, _goalId);
+    }
+
+    // Function to get the participant addresses of a goal
+    function getParticipantAddresses(uint _goalId) public view goalExists(_goalId) returns (address[] memory) {
+        return goals[_goalId].participantAddresses;
     }
 }
