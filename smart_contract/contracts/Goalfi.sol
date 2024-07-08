@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 
 // This contract exclusively handles sending and receiving ethereum.
-
 pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
