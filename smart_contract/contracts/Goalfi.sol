@@ -98,6 +98,7 @@ contract Goalfi is Ownable(msg.sender) {
         Goal storage newGoal = goals[goalCount];
         newGoal.goalId = goalCount;
         newGoal.activity = _activity;
+        newGoal.description = _description;
         newGoal.distance = _distance;
         newGoal.stake = 0;
         newGoal.failedStake = 0;
@@ -127,8 +128,9 @@ contract Goalfi is Ownable(msg.sender) {
 
     // Function to join a goal and pledge to the activity.
     function joinGoal(uint _goalId) public payable userExists(msg.sender) goalExists(_goalId) {
+        require(block.timestamp < goals[_goalId].startTimestamp, "Cannot join a goal that has already started.");
         require(goals[_goalId].expiryTimestamp > block.timestamp, "Cannot join an expired goal");
-        require(goals[_goalId].startTimestamp < block.timestamp, "Cannot join a goal that has started.");
+    
 
         require(msg.value > 0, "You must stake to join the pool.");
 
