@@ -6,7 +6,7 @@ pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract Goalfi is Ownable(msg.sender) {
+contract Goalify is Ownable(msg.sender) {
 
     // User struct to store user information.
     struct User {
@@ -21,7 +21,7 @@ contract Goalfi is Ownable(msg.sender) {
         string description;
         uint distance;
         uint stake;
-        uint totalFailedStake;
+        uint failedStake;
         mapping(address => GoalParticipation) participants;
         address[] participantAddresses;
         uint startTimestamp;
@@ -124,7 +124,7 @@ contract Goalfi is Ownable(msg.sender) {
         newGoal.description = _description;
         newGoal.distance = _distance;
         newGoal.stake = 0;
-        newGoal.totalFailedStake = 0;
+        newGoal.failedStake = 0;
         newGoal.participantAddresses =  new address[](0);
         newGoal.startTimestamp= _startTimestamp;
         newGoal.expiryTimestamp = _expiryTimestamp;
@@ -208,7 +208,7 @@ contract Goalfi is Ownable(msg.sender) {
                 // Check if the user's progress is not marked as Failed or Completed
                 if (goal.participants[userAddress].progress != UserProgress.FAILED && goal.participants[userAddress].progress != UserProgress.COMPLETED) {                
                     goal.participants[userAddress].progress = UserProgress.FAILED;
-                    goal.totalFailedStake += goal.participants[userAddress].stakedAmount;
+                    goal.failedStake += goal.participants[userAddress].stakedAmount;
                     goal.participants[userAddress].stakedAmount = 0;
                     // Optionally, emit an event to signal that the user's progress has been updated to Failed
                 }
@@ -235,10 +235,10 @@ contract Goalfi is Ownable(msg.sender) {
     function calculateUserRewards(address userAddress, uint goalId) internal view returns (uint) {
         Goal storage goal = goals[goalId];
         uint userStakedAmount = goal.participants[userAddress].stakedAmount;
-        uint totalFailedStake = goal.totalFailedStake;
+        uint failedStake = goal.failedStake;
         uint numCompletedParticipants = countGoalParticipantsAtProgress(goalId, UserProgress.COMPLETED);
         uint claimFees = (userStakedAmount * FEE_PERCENTAGE) / 100;
-        uint rewardsFromFailedStake = totalFailedStake / numCompletedParticipants;
+        uint rewardsFromFailedStake = failedStake / numCompletedParticipants;
         uint userRewards = (userStakedAmount + rewardsFromFailedStake) - claimFees;
 
         return userRewards;
