@@ -1,5 +1,7 @@
-node_modules
-artifacts
-cache
-time.py
 .env
+.DS_Store
+node_modules
+.env
+cache
+artifacts
+time.py
