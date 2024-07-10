@@ -7,7 +7,7 @@ async function main() {
   
   console.log('Contract deployed successfully.');
 
-  console.log("Contract address: ",transactionsContract.address);
+  console.log("Contract address:",transactionsContract.address);
 }
 
 main()
