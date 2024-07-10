@@ -3,7 +3,7 @@ import React from 'react';
 const GoalCard = ({ goal, joinGoal }) => {
 
   return (
-    <div className="flex flex-col justify-between h-full white-glassmorphism p-6 mx-6 my-4 cursor-pointer hover:shadow-xl rounded-lg border border-gray-700 max-w-md w-lg">
+    <div className="flex flex-col justify-between h-full white-glassmorphism p-6 mx-10 my-4 cursor-pointer hover:shadow-xl rounded-lg border border-gray-700 w-full max-w-sm">
       <div>
         <div className="flex justify-between items-center w-full mb-4">
           <span className={`text-sm font-semibold px-5 py-2 rounded-full text-white border border-gray-700 shadow-lg ${goal.colour}`}>{goal.category}</span>
@@ -15,7 +15,7 @@ const GoalCard = ({ goal, joinGoal }) => {
             )}
           </div>
         </div>
-        <h3 className="text-lg font-semibold mb-8 text-white">{goal.title}</h3>
+        <h3 className="text-lg font-semibold mb-6 text-white">{goal.title}</h3>
         <p className="text-gray-300 mb-4">{goal.description}</p>
         <div className="text-sm text-gray-300 w-full">
           <div className="flex justify-between mb-2">
@@ -24,15 +24,14 @@ const GoalCard = ({ goal, joinGoal }) => {
           </div>
           <div className="flex justify-between mb-2">
             <span>Goal Duration</span>
-            <span>{goal.startTimestamp}</span>
+            <span>{goal.startTimestamp} days</span>
           </div>
           <div className="flex justify-between mb-2">
             <span>Total Staked</span>
             <span>{goal.currentDeposits} ETH</span>
           </div>
           <div className="relative pt-6 mb-4 w-full">
-            <div className="overflow-hidden h-3 text-xs flex rounded-full bg-sky-200">
-              <div style={{ width: '35%' }} className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-sky-500"></div>
+            <div className="overflow-hidden h-0.5 text-xs flex rounded-full bg-gray-700">
             </div>
           </div>
           <div className="flex justify-between mb-2">
