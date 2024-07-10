@@ -60,7 +60,6 @@ const fetchGoals = async (provider) => {
         category: goal.activity,
         title: goal.description,
         currentDeposits: ethers.formatUnits(goal.stake, 'ether'),
-        maxCapacity: 300,
         colour: "bg-blue-500",
         iconColor,
         icon,
@@ -98,7 +97,7 @@ const Homepage = () => {
         <p className="text-center mt-5 text-white font-light md:w-9/12 w-11/12 text-xl mb-10">
           Participate in various community goals and earn rewards for your accomplishments.
         </p>
-        <div className="grid sm:grid-cols-2 md:grid-cols-3 w-full mt-10">
+        <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-0 w-full mt-10"> 
           {goals.map((goal) => (
             <GoalCard key={goal.id} goal={goal} joinGoal={handleJoinGoal} />
           ))}
