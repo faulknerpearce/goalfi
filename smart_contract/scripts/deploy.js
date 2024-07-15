@@ -3,11 +3,12 @@ async function main() {
   const transactionsFactory = await hre.ethers.getContractFactory("Goalfi");
   const transactionsContract = await transactionsFactory.deploy();
 
+  console.log('Deploying Contract.');
+
   await transactionsContract.deployed();
   
   console.log('Contract deployed successfully.');
-
-  console.log("Contract address:",transactionsContract.address);
+  console.log("Contract address:", transactionsContract.address);
 }
 
 main()
