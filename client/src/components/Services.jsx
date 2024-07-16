@@ -4,7 +4,7 @@ import { FaChartBar } from "react-icons/fa6";
 import { FaBook } from "react-icons/fa6";
 
 const ServiceCard = ({ color, title, icon, subtitle }) => (
-  <div className="flex flex-row justify-between items-center white-glassmorphism p-3 m-2 cursor-pointer hover:shadow-xl w-300 h-50"> {/* Fixed size */}
+  <div className="flex flex-row justify-between items-center white-glassmorphism p-3 m-2 cursor-pointer hover:shadow-xl w-300 h-50 z-10"> {/* Fixed size */}
     <div className="flex flex-col flex-1">
       <h3 className="mt-2 text-white text-lg">{title}</h3>
       <p className="mt-1 text-white text-sm md:w-9/12">
@@ -15,7 +15,7 @@ const ServiceCard = ({ color, title, icon, subtitle }) => (
       {icon}
     </div>
   </div>
-)
+);
 
 const Services = () => (
   <div className="flex w-full justify-center items-center">
