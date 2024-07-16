@@ -8,22 +8,22 @@ const { ethereum } = window;
 
 export const TransactionsProvider = ({ children }) => {
   const [currentAccount, setCurrentAccount] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
   const [isUserCreated, setIsUserCreated] = useState(false);
+  const [loading, setLoading] = useState(false); 
 
   const checkUserExists = async (address) => {
     try {
       const provider = new ethers.BrowserProvider(ethereum);
       const contract = new ethers.Contract(contractAddress, contractABI, provider);
       const addressUsed = await contract.userAddressUsed(address);
-      
+
       console.log(`checkUserExists: checking address: ${address}`);
       console.log(`checkUserExists: address used: ${addressUsed}`);
-      
-      return addressUsed
+
+      return addressUsed;
     } catch (error) {
-      
       console.error("checkUserExists: Error checking user existence: ", error);
-      
       return false;
     }
   };
@@ -35,16 +35,14 @@ export const TransactionsProvider = ({ children }) => {
       if (accounts.length) {
         setCurrentAccount(accounts[0]);
         const userExists = await checkUserExists(accounts[0]);
-        
+
         console.log(`checkIfWalletIsConnected: User exists for ${accounts[0]}:`, userExists);
         setIsUserCreated(userExists);
       } else {
-
         console.log("checkIfWalletIsConnected: No accounts found");
       }
     } catch (error) {
       console.log(error);
-
       throw new Error("checkIfWalletIsConnected: No ethereum object");
     }
   };
@@ -55,14 +53,12 @@ export const TransactionsProvider = ({ children }) => {
       const accounts = await ethereum.request({ method: "eth_requestAccounts" });
       setCurrentAccount(accounts[0]);
       const userExists = await checkUserExists(accounts[0]);
-      
+
       console.log(`connectWallet: User exists for ${accounts[0]}:`, userExists);
 
       setIsUserCreated(userExists);
     } catch (error) {
-      
       console.log(error);
-
       throw new Error("connectWallet: No ethereum object");
     }
   };
@@ -71,16 +67,30 @@ export const TransactionsProvider = ({ children }) => {
     try {
       const provider = new ethers.BrowserProvider(ethereum);
       const signer = await provider.getSigner();
+      const address = await signer.getAddress();
+      const balance = await provider.getBalance(address);
+      const requiredGewi = 10000000000000000;
+
+      if (balance < requiredGewi) {
+        setErrorMessage("Your wallet balance is below the minimum required balance of 0.01 ETH.");
+        return false; 
+      }
+
+      setLoading(true); 
+
       const contract = new ethers.Contract(contractAddress, contractABI, signer);
       const tx = await contract.createUser();
       await tx.wait();
-      setIsUserCreated(true);
-      
-      console.log("createUser: User created successfully");
 
+      setIsUserCreated(true);
+      setErrorMessage(''); 
+      return true; 
     } catch (error) {
-      
       console.log("createUser: Error creating user: ", error);
+      setErrorMessage("Error creating user. Please try again.");
+      return false; 
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -92,9 +102,9 @@ export const TransactionsProvider = ({ children }) => {
         if (accounts.length) {
           setCurrentAccount(accounts[0]);
           const userExists = await checkUserExists(accounts[0]);
-          
+
           console.log(`User exists for ${accounts[0]}:`, userExists);
-          
+
           setIsUserCreated(userExists);
         } else {
           setCurrentAccount('');
@@ -105,7 +115,7 @@ export const TransactionsProvider = ({ children }) => {
   }, []);
 
   return (
-    <TransactionContext.Provider value={{ connectWallet, currentAccount, isUserCreated, createUser }}>
+    <TransactionContext.Provider value={{ connectWallet, currentAccount, isUserCreated, createUser, errorMessage, setErrorMessage, loading }}>
       {children}
     </TransactionContext.Provider>
   );
