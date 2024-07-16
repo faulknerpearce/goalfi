@@ -1,9 +1,10 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import { HiMenuAlt4 } from "react-icons/hi";
 import { AiOutlineClose } from "react-icons/ai";
 import { Link } from 'react-router-dom';
 import { TransactionContext } from "../context/TransactionContext";
 import { shortenAddress } from "../utils/shortenAddress";
+import Modal from "./InfoCard";
 import logo from "../../images/logo.png";
 
 const NavBarItem = ({ title, to, classprops }) => (
@@ -13,8 +14,22 @@ const NavBarItem = ({ title, to, classprops }) => (
 );
 
 const Navbar = () => {
-  const [toggleMenu, setToggleMenu] = React.useState(false);
+  const [toggleMenu, setToggleMenu] = useState(false);
+  const [showModal, setShowModal] = useState(false); // State for modal visibility
   const { currentAccount, connectWallet, isUserCreated, createUser } = useContext(TransactionContext);
+
+  const handleCreateAccountClick = () => {
+    setShowModal(true); 
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+  };
+
+  const handleConfirmModal = async () => {
+    setShowModal(false); 
+    await createUser(); 
+  };
 
   return (
     <nav className="w-full flex md:justify-center justify-between items-center p-4">
@@ -35,7 +50,7 @@ const Navbar = () => {
               {shortenAddress(currentAccount)}
             </li>
             {!isUserCreated && (
-              <li className="bg-[#0196ab] py-2 px-7 mx-4 rounded-full cursor-pointer hover:bg-[#228492]" onClick={createUser}>
+              <li className="bg-[#0196ab] py-2 px-7 mx-4 rounded-full cursor-pointer hover:bg-[#228492]" onClick={handleCreateAccountClick}>
                 Create Account
               </li>
             )}
@@ -68,7 +83,7 @@ const Navbar = () => {
                   {shortenAddress(currentAccount)}
                 </li>
                 {!isUserCreated && (
-                  <li className="bg-[#0196ab] py-2 px-7 mx-4 rounded-full cursor-pointer hover:bg-[#2546bd]" onClick={createUser}>
+                  <li className="bg-[#0196ab] py-2 px-7 mx-4 rounded-full cursor-pointer hover:bg-[#2546bd]" onClick={handleCreateAccountClick}>
                     Create Account
                   </li>
                 )}
@@ -77,6 +92,7 @@ const Navbar = () => {
           </ul>
         )}
       </div>
+      <Modal show={showModal} handleClose={handleCloseModal} handleConfirm={handleConfirmModal} />
     </nav>
   );
 };
