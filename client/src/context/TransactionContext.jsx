@@ -15,12 +15,15 @@ export const TransactionsProvider = ({ children }) => {
       const provider = new ethers.BrowserProvider(ethereum);
       const contract = new ethers.Contract(contractAddress, contractABI, provider);
       const addressUsed = await contract.userAddressUsed(address);
+      
       console.log(`checkUserExists: checking address: ${address}`);
       console.log(`checkUserExists: address used: ${addressUsed}`);
       
       return addressUsed
     } catch (error) {
+      
       console.error("checkUserExists: Error checking user existence: ", error);
+      
       return false;
     }
   };
@@ -32,13 +35,16 @@ export const TransactionsProvider = ({ children }) => {
       if (accounts.length) {
         setCurrentAccount(accounts[0]);
         const userExists = await checkUserExists(accounts[0]);
+        
         console.log(`checkIfWalletIsConnected: User exists for ${accounts[0]}:`, userExists);
         setIsUserCreated(userExists);
       } else {
+
         console.log("checkIfWalletIsConnected: No accounts found");
       }
     } catch (error) {
       console.log(error);
+
       throw new Error("checkIfWalletIsConnected: No ethereum object");
     }
   };
@@ -49,10 +55,14 @@ export const TransactionsProvider = ({ children }) => {
       const accounts = await ethereum.request({ method: "eth_requestAccounts" });
       setCurrentAccount(accounts[0]);
       const userExists = await checkUserExists(accounts[0]);
+      
       console.log(`connectWallet: User exists for ${accounts[0]}:`, userExists);
+
       setIsUserCreated(userExists);
     } catch (error) {
+      
       console.log(error);
+
       throw new Error("connectWallet: No ethereum object");
     }
   };
@@ -65,8 +75,11 @@ export const TransactionsProvider = ({ children }) => {
       const tx = await contract.createUser();
       await tx.wait();
       setIsUserCreated(true);
+      
       console.log("createUser: User created successfully");
+
     } catch (error) {
+      
       console.log("createUser: Error creating user: ", error);
     }
   };
@@ -79,7 +92,9 @@ export const TransactionsProvider = ({ children }) => {
         if (accounts.length) {
           setCurrentAccount(accounts[0]);
           const userExists = await checkUserExists(accounts[0]);
+          
           console.log(`User exists for ${accounts[0]}:`, userExists);
+          
           setIsUserCreated(userExists);
         } else {
           setCurrentAccount('');
