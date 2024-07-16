@@ -76,7 +76,7 @@ const fetchGoals = async (provider) => {
 };
 
 const Homepage = () => {
-  const { currentAccount, connectWallet } = useContext(TransactionContext);
+  const { currentAccount } = useContext(TransactionContext);
   const [goals, setGoals] = useState([]);
 
   useEffect(() => {
@@ -92,7 +92,7 @@ const Homepage = () => {
     <div className="flex w-full justify-center items-center">
       <div className="flex flex-col items-center justify-between md:p-20 py-12 px-4">
         <h1 className="text-3xl sm:text-5xl text-white py-2 text-gradient">
-          Invest in your goals
+          Invest in Your Fkn Goals
         </h1>
         <p className="text-center mt-5 text-white font-light md:w-9/12 w-11/12 text-xl mb-10">
           Participate in various community goals and earn rewards for your accomplishments.
