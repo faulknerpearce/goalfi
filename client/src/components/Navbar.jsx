@@ -4,7 +4,7 @@ import { AiOutlineClose } from "react-icons/ai";
 import { Link } from 'react-router-dom';
 import { TransactionContext } from "../context/TransactionContext";
 import { shortenAddress } from "../utils/shortenAddress";
-import Modal from "./InfoCard";
+import Modal from "./Modal";
 import logo from "../../images/logo.png";
 
 const NavBarItem = ({ title, to, classprops }) => (
@@ -16,10 +16,11 @@ const NavBarItem = ({ title, to, classprops }) => (
 const Navbar = () => {
   const [toggleMenu, setToggleMenu] = useState(false);
   const [showModal, setShowModal] = useState(false); // State for modal visibility
-  const { currentAccount, connectWallet, isUserCreated, createUser } = useContext(TransactionContext);
+  const { currentAccount, connectWallet, isUserCreated, createUser, errorMessage, setErrorMessage,loading } = useContext(TransactionContext);
 
   const handleCreateAccountClick = () => {
-    setShowModal(true); 
+    setShowModal(true);
+    setErrorMessage(""); // Clear previous error messages
   };
 
   const handleCloseModal = () => {
@@ -27,8 +28,10 @@ const Navbar = () => {
   };
 
   const handleConfirmModal = async () => {
-    setShowModal(false); 
-    await createUser(); 
+    const userCreated = await createUser();
+    if (userCreated) { // Close modal only if user creation is successful
+      setShowModal(false);
+    }
   };
 
   return (
@@ -92,7 +95,7 @@ const Navbar = () => {
           </ul>
         )}
       </div>
-      <Modal show={showModal} handleClose={handleCloseModal} handleConfirm={handleConfirmModal} />
+      <Modal show={showModal} handleClose={handleCloseModal} handleConfirm={handleConfirmModal} errorMessage={errorMessage} loading={loading} />
     </nav>
   );
 };
