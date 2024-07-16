@@ -14,7 +14,7 @@ const NavBarItem = ({ title, to, classprops }) => (
 
 const Navbar = () => {
   const [toggleMenu, setToggleMenu] = React.useState(false);
-  const { currentAccount, connectWallet } = useContext(TransactionContext);
+  const { currentAccount, connectWallet, isUserCreated, createUser } = useContext(TransactionContext);
 
   return (
     <nav className="w-full flex md:justify-center justify-between items-center p-4">
@@ -30,9 +30,16 @@ const Navbar = () => {
             Connect Wallet
           </li>
         ) : (
-          <li className="bg-[#0196ab] py-2 px-7 mx-4 rounded-full cursor-pointer hover:bg-[#228492]">
-            {shortenAddress(currentAccount)}
-          </li>
+          <>
+            <li className="bg-[#0196ab] py-2 px-7 mx-4 rounded-full cursor-pointer hover:bg-[#228492]">
+              {shortenAddress(currentAccount)}
+            </li>
+            {!isUserCreated && (
+              <li className="bg-[#0196ab] py-2 px-7 mx-4 rounded-full cursor-pointer hover:bg-[#228492]" onClick={createUser}>
+                Create Account
+              </li>
+            )}
+          </>
         )}
       </ul>
       <div className="flex relative">
@@ -56,9 +63,16 @@ const Navbar = () => {
                 Connect Wallet
               </li>
             ) : (
-              <li className="bg-[#0196ab] py-2 px-7 mx-4 rounded-full cursor-pointer hover:bg-[#2546bd]">
-                {shortenAddress(currentAccount)}
-              </li>
+              <>
+                <li className="bg-[#0196ab] py-2 px-7 mx-4 rounded-full cursor-pointer hover:bg-[#2546bd]">
+                  {shortenAddress(currentAccount)}
+                </li>
+                {!isUserCreated && (
+                  <li className="bg-[#0196ab] py-2 px-7 mx-4 rounded-full cursor-pointer hover:bg-[#2546bd]" onClick={createUser}>
+                    Create Account
+                  </li>
+                )}
+              </>
             )}
           </ul>
         )}
