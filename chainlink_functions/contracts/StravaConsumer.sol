@@ -39,8 +39,8 @@ contract StravaConsumer is FunctionsClient {
         string activityType
     );
 
-    address router = 0xb83E47C2bC239B3bf370bc41e1459A34b41238D0;
-    bytes32 donID = 0x66756e2d657468657265756d2d7365706f6c69612d3100000000000000000000;
+    address router = 0xb83E47C2bC239B3bf370bc41e1459A34b41238D0; // sepolia network 
+    bytes32 donID = 0x66756e2d657468657265756d2d7365706f6c69612d3100000000000000000000; // sepolia network
     uint32 gasLimit = 300000;
     uint64 public subscriptionId;
 
@@ -58,9 +58,9 @@ contract StravaConsumer is FunctionsClient {
         "const data = apiResponse.data;"
         "const activity = data.find(activity => activity.sport_type === activityType);"
         "if (activity) {"
+        "const startDate = new Date(activity.start_date).getTime() / 1000;" 
         "const result = {"
-        "start_date: activity.start_date,"
-        "sport_type: activity.sport_type,"
+        "start_date: startDate,"
         "distance: activity.distance"
         "};"
         "return Functions.encodeString(JSON.stringify(result));"
