@@ -1,5 +1,7 @@
 const { ethers } = require("ethers");
+const abi = require("../contract_abi/StravaConsumer.json");
 const dotenv = require("dotenv");
+
 
 dotenv.config();
 
@@ -11,68 +13,7 @@ async function requestActivityData(AccsessToken, activityType) {
   const provider = new ethers.JsonRpcProvider(sepoliaUrl);
   const wallet = new ethers.Wallet(walletPrivateKey, provider);
 
-  const contractABI = [
-    {
-      "inputs": [
-        {
-          "internalType": "string",
-          "name": "accessToken",
-          "type": "string"
-        },
-        {
-          "internalType": "string",
-          "name": "activityType",
-          "type": "string"
-        }
-      ],
-      "name": "getStravaActivity",
-      "outputs": [
-        {
-          "internalType": "bytes32",
-          "name": "",
-          "type": "bytes32"
-        }
-      ],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "getLastActivity",
-      "outputs": [
-        {
-          "components": [
-            {
-              "internalType": "string",
-              "name": "activityType",
-              "type": "string"
-            },
-            {
-              "internalType": "string",
-              "name": "activityData",
-              "type": "string"
-            }
-          ],
-          "internalType": "struct StravaConsumer.ActivityStruct",
-          "name": "",
-          "type": "tuple"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint64",
-          "name": "functionsSubscriptionId",
-          "type": "uint64"
-        }
-      ],
-      "stateMutability": "nonpayable",
-      "type": "constructor"
-    }
-  ];
+  const contractABI = abi.abi;
 
   const contract = new ethers.Contract(contractAddress, contractABI, wallet);
 

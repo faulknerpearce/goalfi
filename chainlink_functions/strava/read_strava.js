@@ -1,4 +1,5 @@
 const { ethers } = require("ethers");
+const abi = require("../contract_abi/StravaConsumer.json");
 const dotenv = require("dotenv");
 
 dotenv.config();
@@ -11,33 +12,7 @@ async function main() {
   const provider = new ethers.JsonRpcProvider(sepoliaUrl);
   const wallet = new ethers.Wallet(walletPrivateKey, provider);
 
-  const contractABI = [
-    {
-      "inputs": [],
-      "name": "getLastActivity",
-      "outputs": [
-        {
-          "components": [
-            {
-              "internalType": "string",
-              "name": "activityType",
-              "type": "string"
-            },
-            {
-              "internalType": "string",
-              "name": "activityData",
-              "type": "string"
-            }
-          ],
-          "internalType": "struct StravaConsumer.ActivityStruct",
-          "name": "",
-          "type": "tuple"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    }
-  ];
+  const contractABI = abi.abi;
 
   const contract = new ethers.Contract(contractAddress, contractABI, wallet);
 
