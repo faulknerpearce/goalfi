@@ -15,12 +15,12 @@ const NavBarItem = ({ title, to, classprops }) => (
 
 const Navbar = () => {
   const [toggleMenu, setToggleMenu] = useState(false);
-  const [showModal, setShowModal] = useState(false); // State for modal visibility
+  const [showModal, setShowModal] = useState(false); 
   const { currentAccount, connectWallet, isUserCreated, createUser, errorMessage, setErrorMessage,loading } = useContext(TransactionContext);
 
   const handleCreateAccountClick = () => {
     setShowModal(true);
-    setErrorMessage(""); // Clear previous error messages
+    setErrorMessage(""); 
   };
 
   const handleCloseModal = () => {
@@ -29,7 +29,7 @@ const Navbar = () => {
 
   const handleConfirmModal = async () => {
     const userCreated = await createUser();
-    if (userCreated) { // Close modal only if user creation is successful
+    if (userCreated) { 
       setShowModal(false);
     }
   };
@@ -37,7 +37,9 @@ const Navbar = () => {
   return (
     <nav className="w-full flex md:justify-center justify-between items-center p-4">
       <div className="md:flex-[0.5] flex-initial justify-center items-center">
-        <img src={logo} alt="logo" className="w-32 cursor-pointer" />
+        <Link to="/">
+          <img src={logo} alt="logo" className="w-32 cursor-pointer" />
+        </Link>
       </div>
       <ul className="text-white md:flex hidden list-none flex-row justify-between items-center flex-initial">
         {["Discover", "Dashboard", "Rewards", "About"].map((item, index) => (
@@ -54,7 +56,7 @@ const Navbar = () => {
             </li>
             {!isUserCreated && (
               <li className="bg-[#0196ab] py-2 px-7 mx-4 rounded-full cursor-pointer hover:bg-[#228492]" onClick={handleCreateAccountClick}>
-                Create Account
+                Verify Wallet
               </li>
             )}
           </>
@@ -87,7 +89,7 @@ const Navbar = () => {
                 </li>
                 {!isUserCreated && (
                   <li className="bg-[#0196ab] py-2 px-7 mx-4 rounded-full cursor-pointer hover:bg-[#2546bd]" onClick={handleCreateAccountClick}>
-                    Create Account
+                    Verify Wallet
                   </li>
                 )}
               </>
