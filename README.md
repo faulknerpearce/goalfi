@@ -1,6 +1,8 @@
 # Goalfi 🏁
 An accountability platform to reach your goals and take responsibility for your progress.
 
+![Alt text](client/images/goalfi.png)
+
 ## Introduction
 Goalfi is a decentralized web application that leverages blockchain technology to streamline the way individuals track and accomplish their goals. 
 By staking tokens as a commitment to their activity, users are held accountable for their progress. If a goal is not met, the tokens are forfeited and redistributed among users who have successfully accomplished their goals. 
