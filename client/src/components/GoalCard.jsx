@@ -1,6 +1,12 @@
+import { useNavigate } from 'react-router-dom';
 import React from 'react';
 
-const GoalCard = ({ goal, joinGoal }) => {
+const GoalCard = ({ goal, showJoinButton, showViewButton, joinGoal }) => {
+  const navigate = useNavigate();
+
+  const handleViewGoal = () => {
+    navigate('/discover');
+  };
 
   return (
     <div className="flex flex-col justify-between h-full white-glassmorphism p-6 mx-10 my-4 cursor-pointer hover:shadow-xl rounded-lg border border-gray-700 w-full max-w-sm">
@@ -24,28 +30,42 @@ const GoalCard = ({ goal, joinGoal }) => {
           </div>
           <div className="flex justify-between mb-2">
             <span>Goal Duration</span>
-            <span>{goal.startTimestamp} days</span>
+            <span>{goal.startTimestamp} Days</span>
           </div>
           <div className="flex justify-between mb-2">
             <span>Total Staked</span>
             <span>{goal.currentDeposits} ETH</span>
           </div>
           <div className="relative pt-6 mb-4 w-full">
-            <div className="overflow-hidden h-0.5 text-xs flex rounded-full bg-gray-700">
+            <div className="overflow-hidden h-1 text-xs flex rounded-full bg-gray-700">
             </div>
           </div>
           <div className="flex justify-between mb-2">
             <span>Remaining Time</span>
-            <span>{goal.expiryTimestamp}</span>
+            <span>
+              {goal.hours > 0 ? `${goal.hours} hours` : null}
+              {goal.hours > 0 && goal.minutes > 0 ? ' and ' : null}
+              {goal.minutes > 0 ? `${goal.minutes} minutes` : null}
+            </span>
           </div>
         </div>
       </div>
-      <button
-        onClick={() => joinGoal(goal.id)}
-        className={`text-white w-full py-2 rounded-full hover:bg-opacity-80 transition duration-200 mt-auto border border-gray-700 shadow-lg ${goal.colour}`}
-      >
-        Join Goal
-      </button>
+      <div>
+        {showViewButton && (
+          <button
+          onClick={handleViewGoal}
+          className={`text-white w-full py-2 rounded-full hover:bg-opacity-80 transition duration-200 mt-auto border border-gray-700 shadow-lg ${goal.colour}`}>
+            View Goal
+          </button>
+        )}
+        {showJoinButton && (
+          <button
+            onClick={() => joinGoal(goal.id)}
+            className={`text-white w-full py-2 rounded-full hover:bg-opacity-80 transition duration-200 mt-auto border border-gray-700 shadow-lg ${goal.colour} mt-2`}>
+              Join Goal
+          </button>
+        )}
+      </div>
     </div>
   );
 };
