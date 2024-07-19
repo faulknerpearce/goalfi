@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.24;
 
+import "@openzeppelin/contracts/access/Ownable.sol";
 import {FunctionsClient} from "@chainlink/contracts/src/v0.8/functions/v1_0_0/FunctionsClient.sol";
 import {FunctionsRequest} from "@chainlink/contracts/src/v0.8/functions/v1_0_0/libraries/FunctionsRequest.sol";
 
-contract StravaConsumer is FunctionsClient {
+contract StravaConsumer is Ownable(), FunctionsClient {
     using FunctionsRequest for FunctionsRequest.Request;
 
     bytes32 public lastRequestId;
@@ -38,38 +39,22 @@ contract StravaConsumer is FunctionsClient {
         bytes32 indexed requestId,
         string activityType
     );
-
+    
+    // Hardcoded for Sepolia
     address router = 0xb83E47C2bC239B3bf370bc41e1459A34b41238D0; // sepolia network 
     bytes32 donID = 0x66756e2d657468657265756d2d7365706f6c69612d3100000000000000000000; // sepolia network
     uint32 gasLimit = 300000;
     uint64 public subscriptionId;
 
-    string public source =
-        "const accessToken = args[0];"
-        "const activityType = args[1];"
-        "const apiResponse = await Functions.makeHttpRequest({"
-        "url: 'https://www.strava.com/api/v3/athlete/activities',"
-        "headers: { Authorization: `Bearer ${accessToken}` },"
-        "responseType: 'json'"
-        "});"
-        "if (apiResponse.error) {"
-        "throw Error('Request failed');"
-        "}"
-        "const data = apiResponse.data;"
-        "const activity = data.find(activity => activity.sport_type === activityType);"
-        "if (activity) {"
-        "const startDate = new Date(activity.start_date).getTime() / 1000;" 
-        "const result = {"
-        "start_date: startDate,"
-        "distance: activity.distance"
-        "};"
-        "return Functions.encodeString(JSON.stringify(result));"
-        "} else {"
-        "return Functions.encodeString(`No activities found for type: ${activityType}.`);"
-        "}";
-
-    constructor(uint64 functionsSubscriptionId) FunctionsClient(router) {
+    string public source;
+ 
+    constructor(uint64 functionsSubscriptionId, string memory _source) FunctionsClient(router) {
         subscriptionId = functionsSubscriptionId;
+        source = _source;
+    }
+
+    function setSource(string memory _source) external onlyOwner {
+        source = _source;
     }
 
     function getStravaActivity(string memory accessToken, string memory activityType) external returns (bytes32 requestId) {
