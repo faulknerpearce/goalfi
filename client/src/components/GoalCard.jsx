@@ -1,11 +1,20 @@
 import { useNavigate } from 'react-router-dom';
-import React from 'react';
+import React, { useState } from 'react';
 
 const GoalCard = ({ goal, showJoinButton, showViewButton, joinGoal }) => {
   const navigate = useNavigate();
+  const [amount, setAmount] = useState("");
 
   const handleViewGoal = () => {
     navigate('/discover');
+  };
+
+  const handleJoinGoal = () => {
+    if (amount && parseFloat(amount) > 0) {
+      joinGoal(goal.id, amount);
+    } else {
+      alert("Please enter a valid amount to join the goal.");
+    }
   };
 
   return (
@@ -53,17 +62,29 @@ const GoalCard = ({ goal, showJoinButton, showViewButton, joinGoal }) => {
       <div>
         {showViewButton && (
           <button
-          onClick={handleViewGoal}
-          className={`text-white w-full py-2 rounded-full hover:bg-opacity-80 transition duration-200 mt-auto border border-gray-700 shadow-lg ${goal.colour}`}>
+            onClick={handleViewGoal}
+            className={`text-white w-full py-2 rounded-full hover:bg-opacity-80 transition duration-200 mt-auto border border-gray-700 shadow-lg ${goal.colour}`}>
             View Goal
           </button>
         )}
         {showJoinButton && (
-          <button
-            onClick={() => joinGoal(goal.id)}
-            className={`text-white w-full py-2 rounded-full hover:bg-opacity-80 transition duration-200 mt-auto border border-gray-700 shadow-lg ${goal.colour} mt-2`}>
+          <>
+            <input
+              type="number"
+              min="0.001"
+              step="0.001"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              placeholder="Enter an amount to stake"
+              className="w-full mb-2 p-2 rounded-full border border-gray-700 text-center"
+            />
+            <button
+              onClick={handleJoinGoal}
+              disabled={!amount || parseFloat(amount) <= 0}
+              className={`text-white w-full py-2 rounded-full hover:bg-opacity-80 transition duration-200 mt-auto border border-gray-700 shadow-lg ${goal.colour} mt-2`}>
               Join Goal
-          </button>
+            </button>
+          </>
         )}
       </div>
     </div>
