@@ -94,6 +94,29 @@ export const TransactionsProvider = ({ children }) => {
     }
   };
 
+  const joinGoal = async (goalId, amount) => {
+    try {
+      if (!currentAccount) throw new Error("Wallet is not connected");
+  
+      const provider = new ethers.BrowserProvider(ethereum);
+      const signer = await provider.getSigner();
+      const contract = new ethers.Contract(contractAddress, contractABI, signer);
+  
+      if (typeof amount !== 'string') {
+        amount = amount.toString();
+      }
+      const parsedAmount = ethers.parseEther(amount); 
+  
+      const tx = await contract.joinGoal(goalId, { value: parsedAmount});
+      await tx.wait();
+  
+      alert("Successfully joined the goal!");
+    } catch (error) {
+      console.error("Failed to join goal:", error);
+      alert("Failed to join the goal. Please try again.");
+    }
+  }
+
   useEffect(() => {
     checkIfWalletIsConnected();
 
@@ -115,7 +138,7 @@ export const TransactionsProvider = ({ children }) => {
   }, []);
 
   return (
-    <TransactionContext.Provider value={{ connectWallet, currentAccount, isUserCreated, createUser, errorMessage, setErrorMessage, loading }}>
+    <TransactionContext.Provider value={{ connectWallet, currentAccount, isUserCreated, createUser, joinGoal, errorMessage, setErrorMessage, loading }}>
       {children}
     </TransactionContext.Provider>
   );
