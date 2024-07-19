@@ -1,21 +1,22 @@
 require("@chainlink/env-enc").config();
+const path = require('path');
 const fs = require('fs');
 
 async function main() {
 
-    const source = fs.readFileSync('source.js', 'utf8');
+    const source = fs.readFileSync(path.resolve(__dirname, 'source.js'), 'utf8');
 
     const subscriptionId = process.env.SUBSCRIPTION_ID;
 
-    const GoalfiFactory = await ethers.getContractFactory("StravaConsumer");
-    const GoalfiContract = await GoalfiFactory.deploy(subscriptionId, source);
+    const StravaConsumerFactory = await ethers.getContractFactory("StravaConsumer");
+    const StravaConsumerContract = await StravaConsumerFactory.deploy(subscriptionId, source);
     
     console.log('Deploying Contract.');
   
-    await GoalfiContract.waitForDeployment();
+    await StravaConsumerContract.waitForDeployment();
   
     console.log('Contract deployed successfully.');
-    console.log("Contract address:", await GoalfiContract.getAddress());
+    console.log("Contract address:", await StravaConsumerContract.getAddress());
   }
   
   main()
