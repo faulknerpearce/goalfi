@@ -7,15 +7,26 @@ import { fetchGoals } from "../utils/fetchGoals";
 const Discover = () => {
   const { currentAccount, joinGoal } = useContext(TransactionContext);
   const [goals, setGoals] = useState([]);
+  const [goalsFetched, setGoalsFetched] = useState(false);
 
   useEffect(() => {
-    const provider = new ethers.BrowserProvider(window.ethereum);
-    provider.send("eth_requestAccounts", []).then(() => {
-      fetchGoals(provider)
-        .then(fetchedGoals => setGoals(fetchedGoals))
-        .catch(error => console.error("Error fetching goals:", error));
-    });
-  }, [currentAccount]);
+    if (currentAccount && !goalsFetched) {
+      const fetchData = async () => {
+        try {
+          const provider = new ethers.BrowserProvider(window.ethereum);
+          await provider.send("eth_requestAccounts", []);
+          const fetchedGoals = await fetchGoals(provider);
+          setGoals(fetchedGoals);
+          setGoalsFetched(true);
+        } catch (error) {
+          console.error("Error fetching goals:", error);
+          setGoalsFetched(true); // Set to true even if fetching fails to prevent retrying
+        }
+      };
+
+      fetchData();
+    }
+  }, [currentAccount, goalsFetched]);
 
   return (
     <div className="flex w-full justify-center items-center">
@@ -26,7 +37,7 @@ const Discover = () => {
         <p className="text-center mt-5 text-white font-light md:w-9/12 w-11/12 text-xl mb-10">
           Explore various community goals and join the ones that suit you.
         </p>
-        <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-10 w-full mt-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 w-full mt-10">
           {goals.map((goal) => (
             <GoalCard key={goal.id} goal={goal} showJoinButton={true} joinGoal={joinGoal} />
           ))}
