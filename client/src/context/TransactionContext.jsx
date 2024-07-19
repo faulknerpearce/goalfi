@@ -115,7 +115,7 @@ export const TransactionsProvider = ({ children }) => {
       console.error("Failed to join goal:", error);
       alert("Failed to join the goal. Please try again.");
     }
-  }
+  };
 
   useEffect(() => {
     checkIfWalletIsConnected();
