@@ -54,7 +54,7 @@ export const fetchGoals = async (provider) => {
     for (let i = 0; i < goalCount; i++) {
       const goal = await contract.goals(i);
       
-      if (goal.expiryTimestamp > currentTimestamp && fetchedGoals.length < 3){
+      if (goal.expiryTimestamp > currentTimestamp ){
         const participantAddresses = await contract.getParticipantAddresses(i); 
         const { iconColor, icon, stravaAPICall } = getIconAndColor(goal.activity);
   
