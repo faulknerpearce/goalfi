@@ -7,21 +7,40 @@ import { fetchGoals } from "../utils/fetchGoals";
 const Homepage = () => {
   const { currentAccount } = useContext(TransactionContext);
   const [goals, setGoals] = useState([]);
-  const [goalsFetched, setGoalsFetched] = useState(false); 
+  const [goalsFetched, setGoalsFetched] = useState(false);
+
   useEffect(() => {
     if (currentAccount && !goalsFetched) {
       const provider = new ethers.BrowserProvider(window.ethereum);
       provider.send("eth_requestAccounts", []).then(() => {
         fetchGoals(provider)
           .then(fetchedGoals => {
-            setGoals(fetchedGoals);
-            setGoalsFetched(true); 
+            const goalTypes = ['RUNNING', 'WALKING', 'CYCLING'];
+            const goalsByCategory = {};
+
+            // Initialize categories
+            goalTypes.forEach(type => {
+              goalsByCategory[type] = [];
+            });
+
+            // Group goals by category and limit to 3 per category
+            fetchedGoals.forEach(goal => {
+              if (goalsByCategory[goal.category] && goalsByCategory[goal.category].length < 3) {
+                goalsByCategory[goal.category].push(goal);
+              }
+            });
+
+            // Select one goal from each category
+            const filteredGoals = goalTypes.map(type => goalsByCategory[type][0]).filter(Boolean);
+
+            setGoals(filteredGoals);
+            setGoalsFetched(true);
           })
           .catch(error => console.error("Error fetching goals:", error));
       });
     }
-  }, [currentAccount, goalsFetched]); 
-  
+  }, [currentAccount, goalsFetched]);
+
   return (
     <div className="flex w-full justify-center items-center">
       <div className="flex flex-col items-center justify-between md:p-20 py-12 px-4">
@@ -31,7 +50,7 @@ const Homepage = () => {
         <p className="text-center mt-5 text-white font-light md:w-9/12 w-11/12 text-xl mb-10">
           Participate in various community goals and earn rewards for your accomplishments.
         </p>
-        <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-10 w-full mt-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10 w-full mt-10">
           {goals.map((goal) => (
             <GoalCard key={goal.id} goal={goal} showViewButton={true} />
           ))}
