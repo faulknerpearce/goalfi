@@ -5,13 +5,8 @@ import GoalCard from "../components/GoalCard";
 import { fetchGoals } from "../utils/fetchGoals";
 
 const Discover = () => {
-  const { currentAccount } = useContext(TransactionContext);
+  const { currentAccount, joinGoal } = useContext(TransactionContext);
   const [goals, setGoals] = useState([]);
-
-  const joinGoal = async (goalId) => {
-    console.log(`Joining goal with id: ${goalId}`);
-    // Add your logic to join the goal here
-  };
 
   useEffect(() => {
     const provider = new ethers.BrowserProvider(window.ethereum);
@@ -31,7 +26,7 @@ const Discover = () => {
         <p className="text-center mt-5 text-white font-light md:w-9/12 w-11/12 text-xl mb-10">
           Explore various community goals and join the ones that suit you.
         </p>
-        <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-0 w-full mt-10">
+        <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-10 w-full mt-10">
           {goals.map((goal) => (
             <GoalCard key={goal.id} goal={goal} showJoinButton={true} joinGoal={joinGoal} />
           ))}
