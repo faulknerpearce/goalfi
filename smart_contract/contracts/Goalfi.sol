@@ -53,14 +53,15 @@ contract Goalfi is Ownable(msg.sender), FunctionsClient {
         bytes err;
     }
 
-    string public source;
-
-    // Hardcoded for Sepolia
-    address router = 0xb83E47C2bC239B3bf370bc41e1459A34b41238D0; // Sepolia Network.
-    bytes32 donID = 0x66756e2d657468657265756d2d7365706f6c69612d3100000000000000000000; // Sepolia Network.
+    // Hardcoded for Avalanche Fuji
+    // Supported networks https://docs.chain.link/chainlink-functions/supported-networks
+    address router = 0xA9d587a00A31A52Ed70D6026794a8FC5E2F5dCb0; 
+    bytes32 donID = 0x66756e2d6176616c616e6368652d66756a692d31000000000000000000000000; 
     uint32 gasLimit = 300000;
+    
     bytes32[] public requestIds;
     uint64 public subscriptionId;
+    string public source; // The javascript code that the chainlink nodes will execute.
 
     bytes32 public lastRequestId;
     bytes public lastResponse;
@@ -295,7 +296,7 @@ contract Goalfi is Ownable(msg.sender), FunctionsClient {
             require(users[walletAddress].walletAddress != address(0), "fulfillRequest: user must exist");
             require(goals[goalId].set, "fulfillRequest: goal must exist");
 
-            goals[goalId].participants[walletAddress].userDistance = distance;
+            goals[goalId].participants[walletAddress].userDistance = distance; 
         }
 
         requests[requestId].fulfilled = true;
