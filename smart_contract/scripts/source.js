@@ -9,10 +9,11 @@ if (apiResponse.error) {
   throw Error('Request failed');
 }
 const data = apiResponse.data;
-const activity = data.find(activity => activity.sport_type === activityType);
+const activity = data.find(activity => activity.sport_type === activityType && !activity.manual);
+
 if (activity) {
-  const distance = Math.round(Number(activity.distance));
-  return Functions.encodeUint256(distance);
+  const fetchedDistance = Math.round(Number(activity.distance));
+  return Functions.encodeUint256(fetchedDistance);
 } else {
   return Functions.encodeString(`No activities found for type: ${activityType}.`);
 }
