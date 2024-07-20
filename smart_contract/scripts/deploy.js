@@ -4,7 +4,7 @@ const path = require('path');
 async function main() {
 
     const source = fs.readFileSync(path.resolve(__dirname, 'source.js'), 'utf8');
-    const subscriptionId = process.env.SEPOLIA_SUBSCRIPTION_ID;
+    const subscriptionId = process.env.FUJI_SUBSCRIPTION_ID; // using the avalanche fuji testnet.
 
     // Deploy the contract using the factory.
     const GoalfiFactory = await ethers.getContractFactory("Goalfi");
