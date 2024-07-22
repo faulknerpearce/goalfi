@@ -9,11 +9,18 @@ if (apiResponse.error) {
   throw Error('Request failed');
 }
 const data = apiResponse.data;
-const activity = data.find(activity => activity.sport_type === activityType && !activity.manual);
 
-if (activity) {
-  const fetchedDistance = Math.round(Number(activity.distance));
-  return Functions.encodeUint256(fetchedDistance);
+let totalDistance = 0;
+
+// Filters activities based on the activity type and ensure they are not manually added.
+const activities = data.filter(activity => activity.sport_type === activityType && !activity.manual);
+
+if (activities) {
+    activities.forEach(activity => {
+        totalDistance += Math.round(Number(activity.distance));
+    });
+  
+    return Functions.encodeUint256(totalDistance);
 } else {
-  return Functions.encodeString(`No activities found for type: ${activityType}.`);
+    return Functions.encodeString(`No activities found for type: ${activityType}.`);
 }
