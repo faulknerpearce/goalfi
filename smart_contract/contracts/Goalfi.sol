@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
+pragma solidity 0.8.20;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import {FunctionsClient} from "@chainlink/contracts/src/v0.8/functions/v1_0_0/FunctionsClient.sol";
@@ -7,6 +7,11 @@ import {FunctionsRequest} from "@chainlink/contracts/src/v0.8/functions/v1_0_0/l
 
 contract Goalfi is Ownable(msg.sender), FunctionsClient {
     using FunctionsRequest for FunctionsRequest.Request;
+
+    struct ActivityStruct {
+        string activityType;
+        string activityData;
+    }
 
     struct User {
         address walletAddress;
@@ -41,11 +46,6 @@ contract Goalfi is Ownable(msg.sender), FunctionsClient {
         CLAIMED
     }
 
-    struct RequestDetails {
-        address walletAddress;
-        uint goalId;
-    }
-
     struct RequestStatus {
         bool fulfilled;
         bool exists;
@@ -53,17 +53,21 @@ contract Goalfi is Ownable(msg.sender), FunctionsClient {
         bytes err;
     }
 
-    // Hardcoded for Avalanche Fuji
-    // Supported networks https://docs.chain.link/chainlink-functions/supported-networks
-    address router = 0xA9d587a00A31A52Ed70D6026794a8FC5E2F5dCb0; 
-    bytes32 donID = 0x66756e2d6176616c616e6368652d66756a692d31000000000000000000000000; 
+    struct RequestDetails {
+        address walletAddress;
+        uint goalId;
+    }
+
+    // Hardcoded for Fuji
+    address router = 0xA9d587a00A31A52Ed70D6026794a8FC5E2F5dCb0; // Fuji network 
+    bytes32 donID = 0x66756e2d6176616c616e6368652d66756a692d31000000000000000000000000; // Fuji network
     uint32 gasLimit = 300000;
-    
-    bytes32[] public requestIds;
-    uint64 public subscriptionId;
-    string public source; // The javascript code that the chainlink nodes will execute.
 
     bytes32 public lastRequestId;
+    uint64 public subscriptionId;
+    string public source;
+
+    bytes32[] public requestIds;
     bytes public lastResponse;
     bytes public lastError;
 
@@ -77,11 +81,15 @@ contract Goalfi is Ownable(msg.sender), FunctionsClient {
     mapping(address => User) public users;
     mapping(uint => Goal) public goals;
     mapping(address => bool) public userAddressUsed;
+
     mapping(bytes32 => RequestStatus) public requests;
+    mapping(bytes32 => ActivityStruct) public activities;
     mapping(bytes32 => RequestDetails) public requestDetails;
-   
-    event Response(bytes32 indexed requestId, bytes response, bytes err);
-    event RequestSent(bytes32 indexed requestId, string activityType);
+    
+
+    event Response(bytes32 indexed requestId,string activityData,bytes response,bytes err);
+    event RequestSent(bytes32 indexed requestId,string activityType);
+
     event UserCreated(address indexed walletAddress);
     event GoalCreated(uint indexed goalId, string activity, string description, uint distance, uint startTimestamp, uint expiryTimestamp);
     event UserJoinedGoal(address indexed walletAddress, uint indexed goalId, uint stake);
@@ -111,7 +119,7 @@ contract Goalfi is Ownable(msg.sender), FunctionsClient {
         }
         _;
     }
-
+ 
     constructor(uint64 functionsSubscriptionId, string memory _source) FunctionsClient(router) {
         subscriptionId = functionsSubscriptionId;
         source = _source;
@@ -238,10 +246,10 @@ contract Goalfi is Ownable(msg.sender), FunctionsClient {
         emit RewardsClaimed(msg.sender, _goalId);
     }
 
-    function getStravaActivity(string memory accessToken, string memory activityType, address walletAddress, uint goalId) public returns (bytes32 requestId) {
+    function executeRequest(string memory accessToken, string memory activityType, address walletAddress, uint goalId) external returns (bytes32 requestId) {
         require(users[walletAddress].walletAddress != address(0), "getStravaActivity: user must exist");
         require(goals[goalId].set, "getStravaActivity: goal must exist");
-
+        
         string[] memory args = new string[](2);
         args[0] = accessToken;
         args[1] = activityType;
@@ -257,6 +265,11 @@ contract Goalfi is Ownable(msg.sender), FunctionsClient {
             donID
         );
 
+        activities[lastRequestId] = ActivityStruct({
+            activityType: activityType,
+            activityData: ""
+        });
+        
         requests[lastRequestId] = RequestStatus({
             exists: true,
             fulfilled: false,
@@ -268,6 +281,7 @@ contract Goalfi is Ownable(msg.sender), FunctionsClient {
             walletAddress: walletAddress,
             goalId: goalId
         });
+
 
         requestIds.push(lastRequestId);
 
@@ -287,23 +301,28 @@ contract Goalfi is Ownable(msg.sender), FunctionsClient {
         lastResponse = response;
 
         if (response.length > 0) {
+            ActivityStruct storage activity = activities[requestId];
+            activity.activityData = string(response);
+
             uint256 distance = abi.decode(response, (uint256));
 
             RequestDetails memory details = requestDetails[requestId];
             address walletAddress = details.walletAddress;
             uint goalId = details.goalId;
 
-            require(users[walletAddress].walletAddress != address(0), "fulfillRequest: user must exist");
-            require(goals[goalId].set, "fulfillRequest: goal must exist");
-
-            goals[goalId].participants[walletAddress].userDistance = distance; 
+            goals[goalId].participants[walletAddress].userDistance = distance;
         }
 
         requests[requestId].fulfilled = true;
         requests[requestId].response = response;
         requests[requestId].err = err;
 
-        emit Response(requestId, response, err);
+        emit Response(requestId, string(response), response, err);
+    }
+
+    function getLastActivity() public view returns (ActivityStruct memory) {
+        require(requestIds.length > 0, "No activities found");
+        return activities[requestIds[requestIds.length - 1]];
     }
 
     function getUserDistance(address walletAddress, uint goalId) public view goalExists(goalId) userExists(walletAddress) returns (uint) {
