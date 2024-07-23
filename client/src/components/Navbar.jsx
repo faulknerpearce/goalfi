@@ -42,20 +42,20 @@ const Navbar = () => {
         </Link>
       </div>
       <ul className="text-white md:flex hidden list-none flex-row justify-between items-center flex-initial">
-        {["Discover", "Dashboard", "Rewards", "About"].map((item, index) => (
+        {["Discover", "Dashboard", "About"].map((item, index) => (
           <NavBarItem key={item + index} title={item} to={`/${item.toLowerCase()}`} />
         ))}
         {!currentAccount ? (
-          <li className="bg-[#0196ab] py-2 px-7 mx-4 rounded-full cursor-pointer hover:bg-[#228492]" onClick={connectWallet}>
+          <li className="py-2 px-7 mx-4 rounded-full cursor-pointer bg-orange-600 hover:bg-orange-700" onClick={connectWallet}>
             Connect Wallet
           </li>
         ) : (
           <>
-            <li className="bg-[#0196ab] py-2 px-7 mx-4 rounded-full cursor-pointer hover:bg-[#228492]">
+            <li className="py-2 px-7 mx-4 rounded-full cursor-pointer bg-orange-600 hover:bg-orange-700">
               {shortenAddress(currentAccount)}
             </li>
             {!isUserCreated && (
-              <li className="bg-[#0196ab] py-2 px-7 mx-4 rounded-full cursor-pointer hover:bg-[#228492]" onClick={handleCreateAccountClick}>
+              <li className="py-2 px-7 mx-4 rounded-full cursor-pointer bg-orange-600 hover:bg-orange-700" onClick={handleCreateAccountClick}>
                 Verify Wallet
               </li>
             )}
@@ -79,16 +79,16 @@ const Navbar = () => {
               (item, index) => <NavBarItem key={item + index} title={item} to={`/${item.toLowerCase()}`} classprops="my-2 text-lg" />,
             )}
             {!currentAccount ? (
-              <li className="bg-[#0196ab] py-2 px-7 mx-4 rounded-full cursor-pointer hover:bg-[#2546bd]" onClick={connectWallet}>
+              <li className="py-2 px-7 mx-4 rounded-full cursor-pointer bg-orange-600 hover:bg-orange-700" onClick={connectWallet}>
                 Connect Wallet
               </li>
             ) : (
               <>
-                <li className="bg-[#0196ab] py-2 px-7 mx-4 rounded-full cursor-pointer hover:bg-[#2546bd]">
+                <li className="py-2 px-7 mx-4 rounded-full cursor-pointer bg-orange-600 hover:bg-orange-700">
                   {shortenAddress(currentAccount)}
                 </li>
                 {!isUserCreated && (
-                  <li className="bg-[#0196ab] py-2 px-7 mx-4 rounded-full cursor-pointer hover:bg-[#2546bd]" onClick={handleCreateAccountClick}>
+                  <li className="py-2 px-7 mx-4 rounded-full cursor-pointer bg-orange-600 hover:bg-orange-700" onClick={handleCreateAccountClick}>
                     Verify Wallet
                   </li>
                 )}
