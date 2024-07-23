@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.24;
+pragma solidity 0.8.20;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import {FunctionsClient} from "@chainlink/contracts/src/v0.8/functions/v1_0_0/FunctionsClient.sol";
@@ -40,9 +40,9 @@ contract StravaConsumer is Ownable(), FunctionsClient {
         string activityType
     );
     
-    // Hardcoded for Sepolia
-    address router = 0xb83E47C2bC239B3bf370bc41e1459A34b41238D0; // sepolia network 
-    bytes32 donID = 0x66756e2d657468657265756d2d7365706f6c69612d3100000000000000000000; // sepolia network
+    // Hardcoded for Fuji
+    address router = 0xA9d587a00A31A52Ed70D6026794a8FC5E2F5dCb0; // Fuji network 
+    bytes32 donID = 0x66756e2d6176616c616e6368652d66756a692d31000000000000000000000000; // Fuji network
     uint32 gasLimit = 300000;
     uint64 public subscriptionId;
 
