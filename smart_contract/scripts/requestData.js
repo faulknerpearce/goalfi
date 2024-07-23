@@ -17,7 +17,7 @@ async function requestActivityData(AccsessToken, activityType, walletAddress, go
 const accsessToken = process.env.ACCESS_TOKEN; // Update this daily.
 const activityType = 'Run';
 const walletAddress = '0x96af4089a5bE5e29efB631Fee00FF0b1005985BB'; 
-const goalId = '1'; // Change for new goals.
+const goalId = '0'; // Change for new goals.
 
 requestActivityData(accsessToken, activityType, walletAddress, goalId)
 .then(() => process.exit(0)).catch((error) => {
