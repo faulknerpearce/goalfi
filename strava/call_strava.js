@@ -66,6 +66,7 @@ const main = async () => {
       console.log(`\nStart Timestamp: ${Math.round(startDate)}`);
       console.log(`Sport Type: ${activity.sport_type}`);
       console.log(`Distance: ${Math.round(activity.distance)} meters`);
+      console.log(`Manual: ${activity.manual}`)
     });
 
   } catch (error) {
