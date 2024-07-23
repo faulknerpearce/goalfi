@@ -15,6 +15,6 @@ async function getUserDistance(walletAddress, goalId) {
 
 // Hardcoded for testing
 const walletAddress = '0x96af4089a5bE5e29efB631Fee00FF0b1005985BB';
-const goalId = '1';
+const goalId = '0';
 
 getUserDistance(walletAddress, goalId).catch(console.error);
