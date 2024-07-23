@@ -3,11 +3,13 @@ import { ethers } from "ethers";
 import { TransactionContext } from "../context/TransactionContext";
 import { GoalCard } from "../components";
 import { fetchGoals } from "../utils/fetchGoals";
+import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 
 const Homepage = () => {
   const { currentAccount } = useContext(TransactionContext);
   const [goals, setGoals] = useState([]);
   const [goalsFetched, setGoalsFetched] = useState(false);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
     if (currentAccount && !goalsFetched) {
@@ -41,6 +43,14 @@ const Homepage = () => {
     }
   }, [currentAccount, goalsFetched]);
 
+  const nextGoal = () => {
+    setCurrentIndex((prevIndex) => (prevIndex + 1) % goals.length);
+  };
+
+  const prevGoal = () => {
+    setCurrentIndex((prevIndex) => (prevIndex - 1 + goals.length) % goals.length);
+  };
+
   return (
     <div className="flex w-full justify-center items-center">
       <div className="flex flex-col items-center justify-between md:p-20 py-12 px-4">
@@ -50,10 +60,24 @@ const Homepage = () => {
         <p className="text-center mt-5 text-white font-light md:w-9/12 w-11/12 text-xl mb-10">
           Participate in various community goals and earn rewards for your accomplishments.
         </p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10 w-full mt-10">
-          {goals.map((goal) => (
-            <GoalCard key={goal.id} goal={goal} showViewButton={true} />
-          ))}
+        <div className="flex justify-center items-center w-full mt-10">
+          <button
+            onClick={prevGoal}
+            className="text-white px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-full mr-8"
+          >
+            <FaArrowLeft />
+          </button>
+          <div className="flex justify-center items-center w-full max-w-md mx-4">
+            {goals.length > 0 && (
+              <GoalCard key={goals[currentIndex].id} goal={goals[currentIndex]} showViewButton={true} />
+            )}
+          </div>
+          <button
+            onClick={nextGoal}
+            className="text-white px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-full ml-8"
+          >
+            <FaArrowRight />
+          </button>
         </div>
       </div>
     </div>
