@@ -88,7 +88,7 @@ contract Goalfi is Ownable(msg.sender), FunctionsClient {
     
 
     event Response(bytes32 indexed requestId,string activityData,bytes response,bytes err);
-    event RequestSent(bytes32 indexed requestId,string activityType);
+    event APIRequestSent(bytes32 indexed requestId,string activityType);
 
     event UserCreated(address indexed walletAddress);
     event GoalCreated(uint indexed goalId, string activity, string description, uint distance, uint startTimestamp, uint expiryTimestamp);
@@ -285,7 +285,7 @@ contract Goalfi is Ownable(msg.sender), FunctionsClient {
 
         requestIds.push(lastRequestId);
 
-        emit RequestSent(lastRequestId, activityType);
+        emit APIRequestSent(lastRequestId, activityType);
 
         return lastRequestId;
     }
@@ -332,4 +332,8 @@ contract Goalfi is Ownable(msg.sender), FunctionsClient {
     function getParticipantAddresses(uint _goalId) public view goalExists(_goalId) returns (address[] memory) {
         return goals[_goalId].participantAddresses;
     }
+
+    function getParticipantProgress(uint _goalId, address _userAddress) public view goalExists(_goalId) returns (UserProgress) {
+    return goals[_goalId].participants[_userAddress].progress;
+}
 }
