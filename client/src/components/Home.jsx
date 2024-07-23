@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import { ethers } from "ethers";
 import { TransactionContext } from "../context/TransactionContext";
-import GoalCard from "../components/GoalCard";
+import { GoalCard } from "../components";
 import { fetchGoals } from "../utils/fetchGoals";
 
 const Homepage = () => {
@@ -13,7 +13,7 @@ const Homepage = () => {
     if (currentAccount && !goalsFetched) {
       const provider = new ethers.BrowserProvider(window.ethereum);
       provider.send("eth_requestAccounts", []).then(() => {
-        fetchGoals(provider)
+        fetchGoals(provider, false)
           .then(fetchedGoals => {
             const goalTypes = ['RUNNING', 'WALKING', 'CYCLING'];
             const goalsByCategory = {};
