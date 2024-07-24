@@ -49,7 +49,7 @@ const GoalCard = ({ goal, showJoinButton, showViewButton, joinGoal }) => {
             <div className="overflow-hidden h-1 text-xs flex rounded-full bg-gray-700">
             </div>
           </div>
-          <div className="flex justify-between mb-2">
+          <div className="flex justify-between mb-4">
             <span>Remaining Time</span>
             <span>
               {goal.hours > 0 ? `${goal.hours} hours` : null}
