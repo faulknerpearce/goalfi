@@ -1,8 +1,8 @@
 import React, { useContext, useEffect, useState } from "react";
 import { ethers } from "ethers";
 import { TransactionContext } from "../context/TransactionContext";
-import GoalCard from "../components/GoalCard";
-import InfoCard from "../pages/InfoCard";
+import UserGoalCard from "./UserGoalCard";
+import DashboardCard from "./DashboardCard";
 import { fetchGoals } from "../utils/fetchGoals";
 import { getGoalsForUser } from "../utils/getGoalsForUser";
 import { AreaChart, Area, Tooltip, ResponsiveContainer, YAxis } from 'recharts';
@@ -13,7 +13,6 @@ const Dashboard = () => {
   const [goals, setGoals] = useState([]);
   const [completedGoals, setCompletedGoals] = useState(0);
   const [failedGoals, setFailedGoals] = useState(0);
-  const [totalWon, setTotalWon] = useState(0);
   const [totalGoalsJoined, setTotalGoalsJoined] = useState(0);
   const [showActiveGoals, setShowActiveGoals] = useState(true);
   const [goalsFetched, setGoalsFetched] = useState(false);
@@ -23,25 +22,29 @@ const Dashboard = () => {
       const provider = new ethers.BrowserProvider(window.ethereum);
       const userGoals = await getGoalsForUser(currentAccount);
 
-      
-      const [activeGoals, expiredGoals] = await Promise.all([
-        fetchGoals(provider, false),
-        fetchGoals(provider, true),
-      ]);
+      const [activeGoals, expiredGoals] = await Promise.all([fetchGoals(provider, false), fetchGoals(provider, true),]);
 
       const allGoals = [...activeGoals, ...expiredGoals];
+      
       const userGoalDetails = allGoals.filter(goal => userGoals.some(userGoal => userGoal.goalId === goal.id));
 
-      const completed = userGoalDetails.filter(goal => goal.completed).length;
-      const failed = userGoalDetails.filter(goal => goal.failed).length;
-      const total = userGoalDetails.reduce((acc, goal) => acc + parseFloat(goal.currentDeposits), 0);
+      let completedCount = 0;
+      let failedCount = 0;
+
+      userGoalDetails.forEach(goal => {
+        const userGoal = userGoals.find(userGoal => userGoal.goalId === goal.id);
+        
+        if (Number(userGoal.progress) === 4 || Number(userGoal.progress) === 3){
+          completedCount++;
+        } else if (Number(userGoal.progress) === 2) {
+          failedCount++;
+        }
+      });
+      
       const totalJoined = userGoalDetails.length;
-
-      console.log(userGoalDetails);
-
-      setCompletedGoals(completed);
-      setFailedGoals(failed);
-      setTotalWon(total);
+  
+      setCompletedGoals(completedCount);
+      setFailedGoals(failedCount);
       setTotalGoalsJoined(totalJoined);
       setGoals(userGoalDetails);
     };
@@ -73,19 +76,19 @@ const Dashboard = () => {
         <div className="flex flex-col w-full mb-10 white-glassmorphism p-6 rounded-lg border border-gray-700 max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row justify-between items-stretch w-full gap-10">
             <div className="flex flex-col justify-between h-full md:w-1/4 space-y-4">
-              <InfoCard
+              <DashboardCard
                 title="Goals Completed"
                 value={completedGoals}
                 icon={<FaTrophy fontSize={21} className="text-white" />}
                 height="h-22"
               />
-              <InfoCard
+              <DashboardCard
                 title="Goals Failed"
                 value={failedGoals}
                 icon={<FaTimesCircle fontSize={21} className="text-white" />}
                 height="h-22"
               />
-              <InfoCard
+              <DashboardCard
                 title="Goals Joined"
                 value={totalGoalsJoined}
                 icon={<FaTasks fontSize={21} className="text-white" />}
@@ -96,13 +99,13 @@ const Dashboard = () => {
               <div className="white-glassmorphism p-6 rounded-lg border border-gray-700 h-full flex justify-center items-center">
                 <div className="text-center">
                   <h3 className="text-lg font-semibold text-white mb-5">Total Amount Won</h3>
-                  <p className="text-white text-xl">{`${totalWon} AVAX`}</p>
+                  <p className="text-white text-xl">{`${12.34} AVAX`}</p> 
                 </div>
               </div>
             </div>
             <div className="flex flex-col justify-between w-full md:w-1/2 h-full">
               <div className="white-glassmorphism p-6 rounded-lg border border-gray-700 h-full">
-                <h3 className="text-lg font-semibold text-white mb-4">Earnings</h3>
+                <h3 className="text-lg font-semibold text-white mb-4">Progress</h3>
                 <ResponsiveContainer width="100%" height={200}>
                   <AreaChart data={earningsData}>
                     <defs>
@@ -121,10 +124,10 @@ const Dashboard = () => {
           </div>
         </div>
         <h1 className="text-3xl sm:text-5xl text-white py-2 text-gradient">
-          Your Activity
+          Your Goals
         </h1>
         <p className="text-center mt-5 text-white font-light md:w-9/12 w-11/12 text-xl mb-10">
-          Here are the goals you have joined.
+          View all the goals you have participated in.
         </p>
         <div className="flex justify-center space-x-4 mb-10">
           <button
@@ -142,7 +145,7 @@ const Dashboard = () => {
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 w-full max-w-7xl mx-auto mt-10">
           {displayedGoals.map((goal) => (
-            <GoalCard key={goal.id} goal={goal} showViewButton={true} />
+            <UserGoalCard key={goal.id} goal={goal} showClaimButton={true} />
           ))}
         </div>
       </div>
