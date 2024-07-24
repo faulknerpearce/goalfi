@@ -12,7 +12,7 @@ const ServiceCard = ({ color, title, icon, subtitle }) => (
       {icon}
     </div>
     <div className="flex flex-col flex-1 items-center text-center">
-      <h3 className="mt-2 text-white text-xl">{title}</h3>
+      <h3 className="mt-2 text-white text-2xl">{title}</h3>
       <p className="mt-4 text-white text-sm md:w-9/12">
         {subtitle}
       </p>
