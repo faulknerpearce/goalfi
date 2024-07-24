@@ -16,69 +16,89 @@ function convertTimeToHoursAndMinutes(timestamp) {
   };
 }
 
-const getIconAndColor = (activity) => {
-    switch (activity) {
-      case "RUNNING":
-        return {
-          stravaAPICall: 'Run',
-          iconColor: "bg-[#2952E3]",
-          icon: <FaRunning fontSize={21} className="text-white" />,
-        };
-      case "CYCLING":
-        return {
-          stravaAPICall: 'Ride',
-          iconColor: "bg-[#298150]",
-          icon: <FaBiking fontSize={21} className="text-white" />,
-        };
-      case "WALKING":
-        return {
-          stravaAPICall: 'Walk',
-          iconColor: "bg-[#F84550]",
-          icon: <FaWalking fontSize={21} className="text-white" />,
-        };
-      default:
-        return {
-          stravaAPICall: null,
-          iconColor: "bg-gray-500",
-          icon: <FaRunning fontSize={21} className="text-white" />, 
-        };
-    }
-  };
-  
-export const fetchGoals = async (provider) => {
-    const currentTimestamp = Math.floor(Date.now() / 1000);
-    const contract = new ethers.Contract(contractAddress, contractABI, provider);
-    const goalCount = await contract.goalCount();
-    const fetchedGoals = [];
-  
-    for (let i = 0; i < goalCount; i++) {
-      const goal = await contract.goals(i);
-      
-      if (goal.expiryTimestamp > currentTimestamp ){
-        const participantAddresses = await contract.getParticipantAddresses(i); 
-        const { iconColor, icon, stravaAPICall } = getIconAndColor(goal.activity);
-  
-        console.log("Goal fetched:", goal);
-        console.log("Strava API Call:", stravaAPICall);
+function calculateGoalDuration(startTimestamp, expiryTimestamp) {
+  const startTime = new Date(Number(startTimestamp) * 1000);
+  const expiryTime = new Date(Number(expiryTimestamp) * 1000);
 
-        const remainingTime = convertTimeToHoursAndMinutes(goal.expiryTimestamp); // chage to start timestamp
-  
-        fetchedGoals.push({
-          id: i,
-          category: goal.activity,
-          title: goal.description,
-          currentDeposits: ethers.formatUnits(goal.stake, 'ether'),
-          colour: "bg-blue-500",
-          iconColor,
-          icon,
-          hours: remainingTime.hours,
-          minutes: remainingTime.minutes,
-          participants: participantAddresses.length, 
-          participantAddresses, // Store the actual addresses for further use if needed
-          stravaAPICall // convert running to run, walking to walk, cycling to ride for the strava api call.
-        });
-      }
-    }
-  
-    return fetchedGoals;
+  const timeDifferenceInMilliseconds = expiryTime - startTime;
+  const timeDifferenceInDays = Math.floor(timeDifferenceInMilliseconds / (1000 * 60 * 60 * 24));
+  const timeDifferenceInHours = Math.floor((timeDifferenceInMilliseconds % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+
+  return {
+    days: timeDifferenceInDays,
+    hours: timeDifferenceInHours
   };
+}
+
+const getIconAndColor = (activity) => {
+  switch (activity) {
+    case "RUNNING":
+      return {
+        stravaAPICall: 'Run',
+        iconColor: "bg-[#2952E3]",
+        icon: <FaRunning fontSize={21} className="text-white" />,
+      };
+    case "CYCLING":
+      return {
+        stravaAPICall: 'Ride',
+        iconColor: "bg-[#298150]",
+        icon: <FaBiking fontSize={21} className="text-white" />,
+      };
+    case "WALKING":
+      return {
+        stravaAPICall: 'Walk',
+        iconColor: "bg-[#F84550]",
+        icon: <FaWalking fontSize={21} className="text-white" />,
+      };
+    default:
+      return {
+        stravaAPICall: null,
+        iconColor: "bg-gray-500",
+        icon: <FaRunning fontSize={21} className="text-white" />,
+      };
+  }
+};
+
+export const fetchGoals = async (provider, getExpired) => {
+  const currentTimestamp = Math.floor(Date.now() / 1000);
+  const contract = new ethers.Contract(contractAddress, contractABI, provider);
+  const goalCount = await contract.goalCount();
+  const fetchedGoals = [];
+
+  for (let i = 0; i < goalCount; i++) {
+    const goal = await contract.goals(i);
+    const participantAddresses = await contract.getParticipantAddresses(i);
+
+    const { iconColor, icon, stravaAPICall } = getIconAndColor(goal.activity);
+    const goalDuration = calculateGoalDuration(goal.startTimestamp, goal.expiryTimestamp);
+
+    console.log("Goal fetched:", goal);
+    console.log("Strava API Call:", stravaAPICall);
+
+    const remainingTime = convertTimeToHoursAndMinutes(goal.expiryTimestamp);
+
+    const isActive = goal.expiryTimestamp > currentTimestamp;
+    const includeGoal = getExpired ? !isActive : isActive;
+
+    if (includeGoal) {
+      fetchedGoals.push({
+        id: i,
+        category: goal.activity,
+        title: goal.description,
+        currentDeposits: ethers.formatUnits(goal.stake, 'ether'),
+        colour: "bg-orange-700",
+        buttonColour:"bg-orange-600",
+        iconColor,
+        icon,
+        duration: goalDuration,
+        hours: remainingTime.hours,
+        minutes: remainingTime.minutes,
+        participants: participantAddresses.length,
+        participantAddresses,
+        stravaAPICall
+      });
+    }
+  }
+
+  return fetchedGoals;
+};
