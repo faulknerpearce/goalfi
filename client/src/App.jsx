@@ -4,7 +4,6 @@ import { Navbar, Home, Services } from './components';
 
 import Discover from './pages/Discover';
 import Dashboard from './pages/Dashboard';
-import Rewards from './pages/Rewards';
 import About from './pages/About';
 
 const App = () => (
@@ -15,7 +14,6 @@ const App = () => (
         <Route path="/" element={<div><Home /><Services /></div>} />
         <Route path="/discover" element={<Discover />} />
         <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/rewards" element={<Rewards />} />
         <Route path="/about" element={<About />} />
       </Routes>
     </div>
