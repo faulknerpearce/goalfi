@@ -10,6 +10,7 @@ const Homepage = () => {
   const [goals, setGoals] = useState([]);
   const [goalsFetched, setGoalsFetched] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [animationClass, setAnimationClass] = useState("");
 
   useEffect(() => {
     if (currentAccount && !goalsFetched) {
@@ -44,11 +45,19 @@ const Homepage = () => {
   }, [currentAccount, goalsFetched]);
 
   const nextGoal = () => {
-    setCurrentIndex((prevIndex) => (prevIndex + 1) % goals.length);
+    setAnimationClass("slide-out-left");
+    setTimeout(() => {
+      setCurrentIndex((prevIndex) => (prevIndex + 1) % goals.length);
+      setAnimationClass("slide-in-right");
+    }, 400);
   };
 
   const prevGoal = () => {
-    setCurrentIndex((prevIndex) => (prevIndex - 1 + goals.length) % goals.length);
+    setAnimationClass("slide-out-right");
+    setTimeout(() => {
+      setCurrentIndex((prevIndex) => (prevIndex - 1 + goals.length) % goals.length);
+      setAnimationClass("slide-in-left");
+    }, 400);
   };
 
   return (
@@ -57,7 +66,7 @@ const Homepage = () => {
         <h1 className="text-3xl sm:text-5xl text-white py-2 text-gradient">
           Invest in Your Goals
         </h1>
-        <p className="text-center mt-5 text-white font-light md:w-9/12 w-11/12 text-xl mb-10">
+        <p className="text-center mt-5 text-white font-light md:w-9/12 w-11/12 text-2xl mb-10">
           Participate in various community goals and earn rewards for your accomplishments.
         </p>
         <div className="flex justify-center items-center w-full mt-10">
@@ -69,7 +78,9 @@ const Homepage = () => {
           </button>
           <div className="flex justify-center items-center w-full max-w-md mx-4">
             {goals.length > 0 && (
-              <GoalCard key={goals[currentIndex].id} goal={goals[currentIndex]} showViewButton={true} />
+              <div className={`w-full ${animationClass}`}>
+                <GoalCard key={goals[currentIndex].id} goal={goals[currentIndex]} showViewButton={true} />
+              </div>
             )}
           </div>
           <button
