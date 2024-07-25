@@ -1,8 +1,13 @@
 import React from 'react';
 
-const UserGoalCard = ({ goal, showClaimButton, showFetchButton, Claim }) => {
-
+const UserGoalCard = ({ goal, progress }) => {
   const handleClaimRewards = () => {
+    console.log(`Claiming rewards for goal: ${goal.id}`);
+    // Implement claim rewards logic here
+  };
+
+  const handleFetchData = () => {
+    console.log(`Fetching data for: ${goal.id}`);
     // Implement claim rewards logic here
   };
 
@@ -30,7 +35,11 @@ const UserGoalCard = ({ goal, showClaimButton, showFetchButton, Claim }) => {
           </div>
           <div className="flex justify-between mb-2">
             <span>Goal Duration</span>
-            <span>{goal.startTimestamp} Days</span>
+            <span>
+            {goal.durationDays === 1 ? '1 day' : goal.durationDays > 1 ? `${goal.durationDays} days` : null}
+            {goal.durationDays > 0 && goal.durationHours > 0 ? ' and ' : null}
+            {goal.durationHours === 1 ? '1 hour' : goal.durationHours > 1 ? `${goal.durationHours} hours` : null}
+            </span>
           </div>
           <div className="flex justify-between mb-2">
             <span>Total Staked</span>
@@ -52,19 +61,38 @@ const UserGoalCard = ({ goal, showClaimButton, showFetchButton, Claim }) => {
             </div>
           )}
           {isGoalClosed && (
-            <div className="flex justify-center mb-2 text-white text-xl">
+            <div className="flex justify-center text-white text-xl">
               Goal Closed
             </div>
           )}
         </div>
       </div>
       <div>
-        {showClaimButton && (
+        {Number(progress) === 1 && (
+          <button
+          onClick={handleFetchData}
+          className={`text-white w-full py-2 rounded-full hover:bg-opacity-80 transition duration-200 mt-auto border border-gray-700 shadow-lg ${goal.buttonColour}`}>
+           View Progress
+        </button>
+        )}  
+        {Number(progress) === 2 && (
+          <button
+          className={`text-white w-full py-2 rounded-full hover:bg-opacity-80 transition duration-200 mt-auto border border-gray-700 shadow-lg ${goal.failedButtonColour}`}>
+           Goal Failed
+        </button>
+        )}
+        {Number(progress) === 3 && (
           <button
             onClick={handleClaimRewards}
             className={`text-white w-full py-2 rounded-full hover:bg-opacity-80 transition duration-200 mt-auto border border-gray-700 shadow-lg ${goal.buttonColour}`}>
             Claim Rewards
           </button>
+        )}
+        {Number(progress) === 4 && (
+          <button
+          className={`text-white w-full py-2 rounded-full hover:bg-opacity-80 transition duration-200 mt-auto border border-gray-700 shadow-lg ${goal.claimedButtonColour}`}>
+           Rewards Claimed
+        </button>
         )}
       </div>
     </div>
