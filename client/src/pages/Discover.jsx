@@ -19,8 +19,7 @@ const Discover = () => {
           setGoals(fetchedGoals);
           setGoalsFetched(true);
         } catch (error) {
-          console.error("Error fetching goals:", error);
-          setGoalsFetched(true); // Set to true even if fetching fails to prevent retrying
+          setGoalsFetched(true);
         }
       };
 
