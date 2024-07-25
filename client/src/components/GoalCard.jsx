@@ -23,11 +23,7 @@ const GoalCard = ({ goal, showJoinButton, showViewButton, joinGoal }) => {
         <div className="flex justify-between items-center w-full mb-4">
           <span className={`text-sm font-semibold px-5 py-2 rounded-full text-white border border-gray-700 shadow-lg ${goal.iconColor}`}>{goal.category}</span>
           <div className={`w-10 h-10 rounded-full flex justify-center items-center border border-gray-700 ${goal.iconColor}`}>
-            {typeof goal.icon === 'string' ? (
-              <img src={goal.icon} alt="icon" className="w-full h-full" />
-            ) : (
-              goal.icon
-            )}
+            {typeof goal.icon === 'string' ? (<img src={goal.icon} alt="icon" className="w-full h-full" />) : (goal.icon)}
           </div>
         </div>
         <h3 className="text-lg font-semibold mb-6 text-white">{goal.title}</h3>
@@ -39,7 +35,11 @@ const GoalCard = ({ goal, showJoinButton, showViewButton, joinGoal }) => {
           </div>
           <div className="flex justify-between mb-2">
             <span>Goal Duration</span>
-            <span>{goal.startTimestamp} Days</span>
+            <span>
+            {goal.durationDays === 1 ? '1 day' : goal.durationDays > 1 ? `${goal.durationDays} days` : null}
+            {goal.durationDays > 0 && goal.durationHours > 0 ? ' and ' : null}
+            {goal.durationHours === 1 ? '1 hour' : goal.durationHours > 1 ? `${goal.durationHours} hours` : null}
+            </span>
           </div>
           <div className="flex justify-between mb-2">
             <span>Total Staked</span>
@@ -50,12 +50,13 @@ const GoalCard = ({ goal, showJoinButton, showViewButton, joinGoal }) => {
             </div>
           </div>
           <div className="flex justify-between mb-4">
-            <span>Remaining Time</span>
-            <span>
-              {goal.hours > 0 ? `${goal.hours} hours` : null}
-              {goal.hours > 0 && goal.minutes > 0 ? ' and ' : null}
-              {goal.minutes > 0 ? `${goal.minutes} minutes` : null}
-            </span>
+          <span>Remaining Time to Join</span>
+              <span>
+                {goal.hours > 1 ? `${goal.hours} hours` : null}
+                {goal.hours === 1 ? `${goal.hours} hour` : null}
+                {goal.hours > 0 && goal.minutes > 0 ? ' and ' : null}
+                {goal.minutes > 0 ? `${goal.minutes} minutes` : null}
+              </span>
           </div>
         </div>
       </div>
@@ -64,7 +65,7 @@ const GoalCard = ({ goal, showJoinButton, showViewButton, joinGoal }) => {
           <button
             onClick={handleViewGoal}
             className={`text-white w-full py-2 rounded-full hover:bg-opacity-80 transition duration-200 mt-auto border border-gray-700 shadow-lg ${goal.buttonColour}`}>
-            View Goal
+            View Goals
           </button>
         )}
         {showJoinButton && (
