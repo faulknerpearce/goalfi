@@ -51,7 +51,7 @@ const Navbar = () => {
           </li>
         ) : (
           <>
-            <li className="py-2 px-7 mx-4 rounded-full cursor-pointer bg-orange-600 hover:bg-orange-700">
+            <li className="py-2 px-7 mx-4 rounded-full cursor-pointer bg-gray-500 hover:bg-gray-600">
               {shortenAddress(currentAccount)}
             </li>
             {!isUserCreated && (
@@ -84,7 +84,7 @@ const Navbar = () => {
               </li>
             ) : (
               <>
-                <li className="py-2 px-7 mx-4 rounded-full cursor-pointer bg-orange-600 hover:bg-orange-700">
+                <li className="py-2 px-7 mx-4 rounded-full cursor-pointer bg-gray-500 hover:bg-gray-600">
                   {shortenAddress(currentAccount)}
                 </li>
                 {!isUserCreated && (
