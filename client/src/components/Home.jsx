@@ -4,16 +4,17 @@ import { TransactionContext } from "../context/TransactionContext";
 import { GoalCard } from "../components";
 import { fetchGoals } from "../utils/fetchGoals";
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
+import Loader from "../components/Loader"; // Import the Loader component
 
 const Homepage = () => {
   const { currentAccount } = useContext(TransactionContext);
   const [goals, setGoals] = useState([]);
-  const [goalsFetched, setGoalsFetched] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [animationClass, setAnimationClass] = useState("");
 
   useEffect(() => {
-    if (currentAccount && !goalsFetched) {
+    if (currentAccount) {
       const provider = new ethers.BrowserProvider(window.ethereum);
       provider.send("eth_requestAccounts", []).then(() => {
         fetchGoals(provider, false)
@@ -21,28 +22,28 @@ const Homepage = () => {
             const goalTypes = ['RUNNING', 'WALKING', 'CYCLING'];
             const goalsByCategory = {};
 
-            // Initialize categories
             goalTypes.forEach(type => {
               goalsByCategory[type] = [];
             });
 
-            // Group goals by category and limit to 3 per category
             fetchedGoals.forEach(goal => {
               if (goalsByCategory[goal.category] && goalsByCategory[goal.category].length < 3) {
                 goalsByCategory[goal.category].push(goal);
               }
             });
 
-            // Select one goal from each category
             const filteredGoals = goalTypes.map(type => goalsByCategory[type][0]).filter(Boolean);
 
             setGoals(filteredGoals);
-            setGoalsFetched(true);
+            setLoading(false);  // Loading complete
           })
-          .catch(error => console.error("Error fetching goals:", error));
+          .catch(error => {
+            console.error("Error fetching goals:", error);
+            setLoading(false);  // Stop loading even if there's an error
+          });
       });
     }
-  }, [currentAccount, goalsFetched]);
+  }, [currentAccount]);
 
   const nextGoal = () => {
     setAnimationClass("slide-out-left");
@@ -77,11 +78,7 @@ const Homepage = () => {
             <FaArrowLeft />
           </button>
           <div className="flex justify-center items-center w-full max-w-md mx-4">
-            {goals.length > 0 && (
-              <div className={`w-full ${animationClass}`}>
-                <GoalCard key={goals[currentIndex].id} goal={goals[currentIndex]} showViewButton={true} />
-              </div>
-            )}
+            {loading ? (<Loader />  ) : (goals.length > 0 && (<div className={`w-full ${animationClass}`}><GoalCard key={goals[currentIndex].id} goal={goals[currentIndex]} showViewButton={true} /></div>))}
           </div>
           <button
             onClick={nextGoal}
