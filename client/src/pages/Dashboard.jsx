@@ -22,21 +22,25 @@ const Dashboard = () => {
       const provider = new ethers.BrowserProvider(window.ethereum);
       const userGoals = await getGoalsForUser(currentAccount);
 
-      const [activeGoals, expiredGoals] = await Promise.all([fetchGoals(provider, false), fetchGoals(provider, true),]);
+      const [activeGoals, expiredGoals] = await Promise.all([fetchGoals(provider, false), fetchGoals(provider, true)]);
 
       const allGoals = [...activeGoals, ...expiredGoals];
       
-      const userGoalDetails = allGoals.filter(goal => userGoals.some(userGoal => userGoal.goalId === goal.id));
+      const userGoalDetails = allGoals.map(goal => {
+        const userGoal = userGoals.find(userGoal => userGoal.goalId === goal.id);
+        return {
+          ...goal,
+          progress: userGoal ? userGoal.progress : null, // Include progress in userGoalDetails
+        };
+      }).filter(goal => goal.progress !== null); // Only include goals the user has joined
 
       let completedCount = 0;
       let failedCount = 0;
 
       userGoalDetails.forEach(goal => {
-        const userGoal = userGoals.find(userGoal => userGoal.goalId === goal.id);
-        
-        if (Number(userGoal.progress) === 4 || Number(userGoal.progress) === 3){
+        if (Number(goal.progress) === 4 || Number(goal.progress) === 3){
           completedCount++;
-        } else if (Number(userGoal.progress) === 2) {
+        } else if (Number(goal.progress) === 2) {
           failedCount++;
         }
       });
@@ -68,7 +72,6 @@ const Dashboard = () => {
   const displayedGoals = showActiveGoals
     ? goals.filter(goal => goal.hours > 0 || goal.minutes > 0)
     : goals.filter(goal => goal.hours <= 0 && goal.minutes <= 0);
-
 
   return (
     <div className="flex flex-col w-full justify-center items-center">
@@ -131,21 +134,19 @@ const Dashboard = () => {
         </p>
         <div className="flex justify-center space-x-4 mb-10">
           <button
-            className={`text-white px-10 py-2 rounded-full ${showActiveGoals ? "bg-orange-700 hover:bg-orange-800" : "bg-gray-500 hover:bg-gray-600"}`}
-            onClick={() => setShowActiveGoals(true)}
-          >
-            Active Goals
+            className={`text-white px-10 py-2 rounded-full ${showActiveGoals ? "bg-orange-700" : "bg-gray-500 hover:bg-gray-600" }`}
+            onClick={() => setShowActiveGoals(true)}>
+              Active Goals
           </button>
           <button
-            className={`text-white px-10 py-3 rounded-full ${!showActiveGoals ? "bg-orange-700 hover:bg-orange-800" : "bg-gray-500 hover:bg-gray-600"}`}
-            onClick={() => setShowActiveGoals(false)}
-          >
-            Past Goals
+            className={`text-white px-10 py-3 rounded-full ${!showActiveGoals ? "bg-orange-700" : "bg-gray-500 hover:bg-gray-600" }`}
+            onClick={() => setShowActiveGoals(false)}>
+              Past Goals
           </button>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 w-full max-w-7xl mx-auto mt-10">
           {displayedGoals.map((goal) => (
-            <UserGoalCard key={goal.id} goal={goal} showClaimButton={true} />
+            <UserGoalCard key={goal.id} goal={goal} progress={goal.progress} />
           ))}
         </div>
       </div>
