@@ -1,11 +1,12 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { HiMenuAlt4 } from "react-icons/hi";
 import { AiOutlineClose } from "react-icons/ai";
 import { Link } from 'react-router-dom';
 import { TransactionContext } from "../context/TransactionContext";
 import { shortenAddress } from "../utils/shortenAddress";
-import Modal from "./Modal";
 import logo from "../../images/logo.png";
+import Modal from "./Modal";
+import { generateAuthUrl, main } from '../strava/oauth';
 
 const NavBarItem = ({ title, to, classprops }) => (
   <li className={`mx-4 cursor-pointer ${classprops}`}>
@@ -15,12 +16,33 @@ const NavBarItem = ({ title, to, classprops }) => (
 
 const Navbar = () => {
   const [toggleMenu, setToggleMenu] = useState(false);
-  const [showModal, setShowModal] = useState(false); 
-  const { currentAccount, connectWallet, isUserCreated, createUser, errorMessage, setErrorMessage,loading } = useContext(TransactionContext);
+  const { currentAccount, connectWallet, isUserCreated, createUser } = useContext(TransactionContext);
+  const [showModal, setShowModal] = useState(false);
+
+  useEffect(() => {
+    const handleRedirect = async () => {
+      const url = window.location.href;
+      const urlParams = new URLSearchParams(new URL(url).search);
+      const code = urlParams.get('code');
+
+      if (code && currentAccount) {
+        try {
+          await main(url, currentAccount); // remove this once testing is done.
+          console.log('Fetched Token Data.')
+
+          urlParams.delete('code');
+          window.history.replaceState({}, document.title, window.location.pathname);
+        } catch (error) {
+          console.error('Error handling redirect:', error.message);
+        }
+      }
+    };
+
+    handleRedirect();
+  }, [currentAccount]);
 
   const handleCreateAccountClick = () => {
     setShowModal(true);
-    setErrorMessage(""); 
   };
 
   const handleCloseModal = () => {
@@ -29,7 +51,7 @@ const Navbar = () => {
 
   const handleConfirmModal = async () => {
     const userCreated = await createUser();
-    if (userCreated) { 
+    if (userCreated) {
       setShowModal(false);
     }
   };
@@ -59,6 +81,16 @@ const Navbar = () => {
                 Verify Wallet
               </li>
             )}
+            <li className="py-2 px-7 mx-4 rounded-full cursor-pointer bg-orange-600 hover:bg-orange-700" onClick={() => {
+              if (currentAccount) {
+                const authUrl = generateAuthUrl();
+                window.location.href = authUrl;
+              } else {
+                console.error('Navbar: No wallet connected');
+              }
+            }}>
+              Connect to Strava
+            </li>
           </>
         )}
       </ul>
@@ -92,12 +124,23 @@ const Navbar = () => {
                     Verify Wallet
                   </li>
                 )}
+                <li className="py-2 px-7 mx-4 rounded-full cursor-pointer bg-orange-600 hover:bg-orange-700" onClick={() => {
+                  if (currentAccount) {
+                    const authUrl = generateAuthUrl();
+                    window.location.href = authUrl;
+                  } else {
+                    console.error('Navbar: No wallet connected');
+                  }
+                }}>
+                  Connect to Strava
+                </li>
               </>
             )}
           </ul>
         )}
       </div>
-      <Modal show={showModal} handleClose={handleCloseModal} handleConfirm={handleConfirmModal} errorMessage={errorMessage} loading={loading} />
+      {/* Modal for creating user */}
+      <Modal show={showModal} handleClose={handleCloseModal} handleConfirm={handleConfirmModal} />
     </nav>
   );
 };
