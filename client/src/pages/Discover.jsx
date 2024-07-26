@@ -3,26 +3,30 @@ import { ethers } from "ethers";
 import { TransactionContext } from "../context/TransactionContext";
 import GoalCard from "../components/GoalCard";
 import { fetchGoals } from "../utils/fetchGoals";
+import Loader from "../components/Loader";
 
 const Discover = () => {
   const { currentAccount, joinGoal } = useContext(TransactionContext);
   const [goals, setGoals] = useState([]);
   const [goalsFetched, setGoalsFetched] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (currentAccount && !goalsFetched) {
       const fetchData = async () => {
         try {
+          setLoading(true);
           const provider = new ethers.BrowserProvider(window.ethereum);
           await provider.send("eth_requestAccounts", []);
           const fetchedGoals = await fetchGoals(provider);
           setGoals(fetchedGoals);
-          setGoalsFetched(true);
         } catch (error) {
+          console.error("Error fetching goals:", error);
+        } finally {
           setGoalsFetched(true);
+          setLoading(false);
         }
       };
-
       fetchData();
     }
   }, [currentAccount, goalsFetched]);
@@ -36,10 +40,14 @@ const Discover = () => {
         <p className="text-center mt-5 text-white font-light md:w-9/12 w-11/12 text-xl mb-10">
           Explore various community goals and join the ones that suit you.
         </p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 w-full mt-10">
-          {goals.map((goal) => (
-            <GoalCard key={goal.id} goal={goal} showJoinButton={true} joinGoal={joinGoal} />
-          ))}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 w-full mt-10">
+          {loading ? (
+            <Loader />  // Display loader when loading is true
+          ) : (
+            goals.map((goal) => (
+              <GoalCard key={goal.id} goal={goal} showJoinButton={true} joinGoal={joinGoal} />
+            ))
+          )}
         </div>
       </div>
     </div>
