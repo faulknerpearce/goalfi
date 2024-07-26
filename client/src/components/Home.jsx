@@ -4,12 +4,12 @@ import { TransactionContext } from "../context/TransactionContext";
 import { GoalCard } from "../components";
 import { fetchGoals } from "../utils/fetchGoals";
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
-import Loader from "../components/Loader"; // Import the Loader component
+import Loader from "../components/Loader"; 
 
 const Homepage = () => {
   const { currentAccount } = useContext(TransactionContext);
   const [goals, setGoals] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [animationClass, setAnimationClass] = useState("");
 
@@ -17,6 +17,7 @@ const Homepage = () => {
     if (currentAccount) {
       const provider = new ethers.BrowserProvider(window.ethereum);
       provider.send("eth_requestAccounts", []).then(() => {
+        setLoading(true);
         fetchGoals(provider, false)
           .then(fetchedGoals => {
             const goalTypes = ['RUNNING', 'WALKING', 'CYCLING'];
@@ -35,11 +36,11 @@ const Homepage = () => {
             const filteredGoals = goalTypes.map(type => goalsByCategory[type][0]).filter(Boolean);
 
             setGoals(filteredGoals);
-            setLoading(false);  // Loading complete
+            setLoading(false);  
           })
           .catch(error => {
             console.error("Error fetching goals:", error);
-            setLoading(false);  // Stop loading even if there's an error
+            setLoading(false); 
           });
       });
     }
