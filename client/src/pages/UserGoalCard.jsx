@@ -1,9 +1,9 @@
 import React from 'react';
 
-const UserGoalCard = ({ goal, progress }) => {
+const UserGoalCard = ({ goal, progress, claimRewards }) => {
+  
   const handleClaimRewards = () => {
-    console.log(`Claiming rewards for goal: ${goal.id}`);
-    // Implement claim rewards logic here
+    claimRewards(goal.id);
   };
 
   const handleFetchData = () => {
@@ -61,7 +61,7 @@ const UserGoalCard = ({ goal, progress }) => {
             </div>
           )}
           {isGoalClosed && (
-            <div className="flex justify-center text-white text-xl">
+            <div className="flex mt-6 justify-center text-white text-xl">
               Goal Closed
             </div>
           )}
