@@ -1,21 +1,22 @@
 import React, { useContext, useEffect, useState } from "react";
-import { ethers } from "ethers";
-import { TransactionContext } from "../context/TransactionContext";
 import UserGoalCard from "./UserGoalCard";
 import DashboardCard from "./DashboardCard";
+import { ethers } from "ethers";
+import { TransactionContext } from "../context/TransactionContext";
 import { fetchGoals } from "../utils/fetchGoals";
 import { getGoalsForUser } from "../utils/getGoalsForUser";
 import { AreaChart, Area, Tooltip, ResponsiveContainer, YAxis } from 'recharts';
 import { FaTrophy, FaTimesCircle, FaTasks } from "react-icons/fa";
 
 const Dashboard = () => {
-  const { currentAccount } = useContext(TransactionContext);
+  const { currentAccount, claimRewards } = useContext(TransactionContext);
   const [goals, setGoals] = useState([]);
   const [completedGoals, setCompletedGoals] = useState(0);
   const [failedGoals, setFailedGoals] = useState(0);
   const [totalGoalsJoined, setTotalGoalsJoined] = useState(0);
   const [showActiveGoals, setShowActiveGoals] = useState(true);
   const [goalsFetched, setGoalsFetched] = useState(false);
+  const [goalHistory, setGoalHistory] = useState([]);
 
   useEffect(() => {
     const fetchUserGoals = async () => {
@@ -30,27 +31,37 @@ const Dashboard = () => {
         const userGoal = userGoals.find(userGoal => userGoal.goalId === goal.id);
         return {
           ...goal,
-          progress: userGoal ? userGoal.progress : null, // Include progress in userGoalDetails
+          progress: userGoal ? userGoal.progress : null, 
         };
-      }).filter(goal => goal.progress !== null); // Only include goals the user has joined
+      }).filter(goal => goal.progress !== null); 
 
       let completedCount = 0;
       let failedCount = 0;
+      let history = [];
+      let progressValue = 0;
 
       userGoalDetails.forEach(goal => {
         if (Number(goal.progress) === 4 || Number(goal.progress) === 3){
           completedCount++;
+          progressValue += 1;
         } else if (Number(goal.progress) === 2) {
           failedCount++;
+          progressValue -= 1;
         }
+
+        history.push({
+          date: new Date(goal.expiryTimestamp * 1000).toLocaleDateString(),
+          progress: progressValue
+        });
       });
-      
+
       const totalJoined = userGoalDetails.length;
-  
+
       setCompletedGoals(completedCount);
       setFailedGoals(failedCount);
       setTotalGoalsJoined(totalJoined);
       setGoals(userGoalDetails);
+      setGoalHistory(history);
     };
 
     if (currentAccount && !goalsFetched) {
@@ -58,16 +69,6 @@ const Dashboard = () => {
       setGoalsFetched(true);
     }
   }, [currentAccount]);
-
-  const earningsData = [
-    { earnings: 400 },
-    { earnings: 300 },
-    { earnings: 350 },
-    { earnings: 178 },
-    { earnings: 289 },
-    { earnings: 275 },
-    { earnings: 300 }
-  ];
 
   const displayedGoals = showActiveGoals
     ? goals.filter(goal => goal.hours > 0 || goal.minutes > 0)
@@ -110,16 +111,16 @@ const Dashboard = () => {
               <div className="white-glassmorphism p-6 rounded-lg border border-gray-700 h-full">
                 <h3 className="text-lg font-semibold text-white mb-4">Progress</h3>
                 <ResponsiveContainer width="100%" height={200}>
-                  <AreaChart data={earningsData}>
+                  <AreaChart data={goalHistory}>
                     <defs>
-                      <linearGradient id="colorEarnings" x1="0" y1="0" x2="0" y2="1">
+                      <linearGradient id="colorProgress" x1="0" y1="0" x2="0" y2="1">
                         <stop offset="5%" stopColor="#82ca9d" stopOpacity={0.9}/>
                         <stop offset="95%" stopColor="#82ca9d" stopOpacity={0}/>
                       </linearGradient>
                     </defs>
                     <YAxis hide={true} domain={['dataMin', 'dataMax']} />
                     <Tooltip />
-                    <Area type="monotone" dataKey="earnings" stroke="#82ca9d" fillOpacity={1} fill="url(#colorEarnings)" />
+                    <Area type="monotone" dataKey="progress" stroke="#82ca9d" fillOpacity={1} fill="url(#colorProgress)" />
                   </AreaChart>
                 </ResponsiveContainer>
               </div>
@@ -146,7 +147,7 @@ const Dashboard = () => {
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 w-full max-w-7xl mx-auto mt-10">
           {displayedGoals.map((goal) => (
-            <UserGoalCard key={goal.id} goal={goal} progress={goal.progress} />
+            <UserGoalCard key={goal.id} goal={goal} progress={goal.progress} claimRewards={claimRewards}/>
           ))}
         </div>
       </div>
