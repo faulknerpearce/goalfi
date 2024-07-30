@@ -117,6 +117,22 @@ export const TransactionsProvider = ({ children }) => {
     }
   };
 
+  const claimRewards = async (goalId) => {
+    try {
+      const provider = new ethers.BrowserProvider(ethereum);
+      const signer = await provider.getSigner();
+      const contract = new ethers.Contract(contractAddress, contractABI, signer);
+      const tx = await contract.claimRewards(goalId);
+      setLoading(true);
+      await tx.wait();
+      console.log(`Claim rewards tx hash: ${tx.hash}`);
+    } catch (error) {
+      console.error("Failed to Claim Rewards:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     checkIfWalletIsConnected();
 
@@ -138,7 +154,7 @@ export const TransactionsProvider = ({ children }) => {
   }, []);
 
   return (
-    <TransactionContext.Provider value={{ connectWallet, currentAccount, isUserCreated, createUser, joinGoal, errorMessage, setErrorMessage, loading }}>
+    <TransactionContext.Provider value={{ connectWallet, currentAccount, isUserCreated, createUser, joinGoal, claimRewards, errorMessage, setErrorMessage, loading }}>
       {children}
     </TransactionContext.Provider>
   );
