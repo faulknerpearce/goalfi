@@ -16,6 +16,7 @@ contract Goalfi is Ownable(msg.sender), FunctionsClient {
     struct User {
         address walletAddress;
         mapping(uint => GoalParticipation) goalParticipations;
+        uint totalRewards;
     }
 
     struct Goal {
@@ -75,7 +76,6 @@ contract Goalfi is Ownable(msg.sender), FunctionsClient {
     uint public goalCount;
     uint public activeGoalCount;
 
-    uint public constant MAX_ACTIVE_GOALS = 10;
     uint public constant FEE_PERCENTAGE = 2;
 
     mapping(address => User) public users;
@@ -130,8 +130,6 @@ contract Goalfi is Ownable(msg.sender), FunctionsClient {
     }
 
     function createGoal(string memory _activity, string memory _description, uint _distance, uint _startTimestamp, uint _expiryTimestamp) public onlyOwner {
-        require(activeGoalCount < MAX_ACTIVE_GOALS, "Maximum number of active goals reached");
-
         Goal storage newGoal = goals[goalCount];
         newGoal.goalId = goalCount;
         newGoal.activity = _activity;
@@ -242,6 +240,7 @@ contract Goalfi is Ownable(msg.sender), FunctionsClient {
 
         goal.stake -= userRewards;
         goal.participants[msg.sender].progress = UserProgress.CLAIMED;
+        users[msg.sender].totalRewards += userRewards;
 
         emit RewardsClaimed(msg.sender, _goalId);
     }
@@ -334,6 +333,10 @@ contract Goalfi is Ownable(msg.sender), FunctionsClient {
     }
 
     function getParticipantProgress(uint _goalId, address _userAddress) public view goalExists(_goalId) returns (UserProgress) {
-    return goals[_goalId].participants[_userAddress].progress;
-}
+        return goals[_goalId].participants[_userAddress].progress;
+    }
+
+    function getUserTotalRewards(address walletAddress) public view userExists(walletAddress) returns (uint) {
+        return users[walletAddress].totalRewards;
+    }
 }
