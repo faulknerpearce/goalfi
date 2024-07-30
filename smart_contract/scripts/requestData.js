@@ -1,9 +1,24 @@
 const { getContractInstance } = require("../utils/getContractInstance");
 const dotenv = require("dotenv");
+const readline = require("readline");
 
 dotenv.config();
 
+// Function to prompt the user for input
+function askQuestion(query) {
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  });
+
+  return new Promise((resolve) => rl.question(query, (ans) => {
+    rl.close();
+    resolve(ans);
+  }));
+}
+
 async function requestActivityData(AccsessToken, activityType, walletAddress, goalId) {
+  
   const contract = getContractInstance();
 
   console.log(`Requesting activity data for sport type: ${activityType}`);
@@ -13,13 +28,19 @@ async function requestActivityData(AccsessToken, activityType, walletAddress, go
   console.log(`Activity data request sent for ${activityType}, transaction hash: ${tx.hash}`);
 }
 
-// Hardcoded for testing 
-const accsessToken = process.env.ACCESS_TOKEN; // Update this daily.
-const activityType = 'Run';
-const walletAddress = '0x96af4089a5bE5e29efB631Fee00FF0b1005985BB'; 
-const goalId = '0'; // Change for new goals.
+async function main(){
 
-requestActivityData(accsessToken, activityType, walletAddress, goalId)
+  const accsessToken = await askQuestion('Enter the Access Token: ');
+  const activityType = await askQuestion('Enter the Activity Type: ');
+  const walletAddress = await askQuestion('Enter the Wallet Adddress: ');
+  const goalId = await askQuestion('Enter the Goal ID: ');
+
+  await requestActivityData(accsessToken, activityType, walletAddress, goalId);
+  
+  console.log("Request Data Executed.");
+}
+
+main()
 .then(() => process.exit(0)).catch((error) => {
   console.error(error);
   process.exit(1);
