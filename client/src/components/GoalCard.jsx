@@ -1,18 +1,29 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Loader from './Loader'
 
 const GoalCard = ({ goal, showJoinButton, showViewButton, joinGoal }) => {
   const navigate = useNavigate();
   const [amount, setAmount] = useState("");
   const [isFlipped, setIsFlipped] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleViewGoal = () => {
     navigate('/discover');
   };
 
-  const handleJoinGoal = () => {
+  const handleJoinGoal = async () => {
     if (amount && parseFloat(amount) > 0) {
-      joinGoal(goal.id, amount);
+      setIsLoading(true);
+      try {
+        await joinGoal(goal.id, amount);
+        // Optionally, handle success notification or other actions
+      } catch (error) {
+        console.error("Error joining goal:", error);
+        // Optionally, handle error notification
+      } finally {
+        setIsLoading(false);
+      }
     } else {
       alert("Please enter a valid amount to join the goal.");
     }
@@ -90,21 +101,27 @@ const GoalCard = ({ goal, showJoinButton, showViewButton, joinGoal }) => {
               </div>
           </div>
         
-          <input
-            type="number"
-            min="0.001"
-            step="0.001"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            placeholder="Enter an amount to stake"
-            className="w-full mt-20 mb-20 p-2 rounded-full border border-gray-700 text-center"
-          />
-          <button
-            onClick={handleJoinGoal}
-            disabled={!amount || parseFloat(amount) <= 0}
-            className={`text-white w-full py-2 rounded-full hover:bg-opacity-80 transition duration-200 border border-gray-700 shadow-lg ${goal.buttonColour} mt-2`}>
-            Confirm
-          </button>
+          {isLoading ? (
+            <Loader />
+          ) : (
+            <>
+              <input
+                type="number"
+                min="0.001"
+                step="0.001"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                placeholder="Enter an amount to stake"
+                className="w-full mt-20 mb-20 p-2 rounded-full border border-gray-700 text-center"
+              />
+              <button
+                onClick={handleJoinGoal}
+                disabled={!amount || parseFloat(amount) <= 0}
+                className={`text-white w-full py-2 rounded-full hover:bg-opacity-80 transition duration-200 border border-gray-700 shadow-lg ${goal.buttonColour} mt-2`}>
+                Confirm
+              </button>
+            </>
+          )}
           <button
             onClick={() => setIsFlipped(false)}
             className={`text-white w-full py-2 rounded-full hover:bg-opacity-80 transition duration-200 mt-2 border border-gray-700 shadow-lg ${goal.claimedButtonColour} mt-2`}>
