@@ -40,9 +40,9 @@ const Discover = () => {
         <p className="text-center mt-5 text-white font-light md:w-9/12 w-11/12 text-xl mb-10">
           Explore various community goals and join the ones that suit you.
         </p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 w-full mt-10">
+        <div className={`grid w-full mt-10 ${loading ? "flex justify-center items-center" : "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5"}`}>
           {loading ? (
-            <Loader />  // Display loader when loading is true
+            <Loader /> 
           ) : (
             goals.map((goal) => (
               <GoalCard key={goal.id} goal={goal} showJoinButton={true} joinGoal={joinGoal} />
