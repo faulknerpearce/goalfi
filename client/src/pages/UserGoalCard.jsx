@@ -1,14 +1,13 @@
 import React from 'react';
 
-const UserGoalCard = ({ goal, progress, claimRewards }) => {
+const UserGoalCard = ({ goal, progress, claimRewards}) => {
   
   const handleClaimRewards = () => {
     claimRewards(goal.id);
   };
 
   const handleFetchData = () => {
-    console.log(`Fetching data for: ${goal.id}`);
-    // Implement claim rewards logic here
+    console.log(`Fetching data: Goal ID: ${goal.id}. Activty Type: ${goal.stravaAPICall}. Wallet Address `);
   };
 
   const isGoalClosed = goal.hours < 0 && goal.minutes < 0;
