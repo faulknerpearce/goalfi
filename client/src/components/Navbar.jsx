@@ -6,7 +6,6 @@ import { TransactionContext } from "../context/TransactionContext";
 import { shortenAddress } from "../utils/shortenAddress";
 import logo from "../../images/logo.png";
 import Modal from "./Modal";
-import { generateAuthUrl, main } from '../strava/oauth';
 
 const NavBarItem = ({ title, to, classprops }) => (
   <li className={`mx-4 cursor-pointer ${classprops}`}>
@@ -19,6 +18,20 @@ const Navbar = () => {
   const { currentAccount, connectWallet, isUserCreated, createUser } = useContext(TransactionContext);
   const [showModal, setShowModal] = useState(false);
 
+  const handleStravaConnect = async () => {
+    try {
+      const response = await fetch('/api/generate-auth-url');
+      const data = await response.json();
+      if (data.authUrl) {
+        window.location.href = data.authUrl;
+      } else {
+        console.error('Failed to generate authorization URL');
+      }
+    } catch (error) {
+      console.error('Error fetching authorization URL:', error.message);
+    }
+  };
+
   useEffect(() => {
     const handleRedirect = async () => {
       const url = window.location.href;
@@ -27,9 +40,16 @@ const Navbar = () => {
 
       if (code && currentAccount) {
         try {
-          await main(url, currentAccount); // remove this once testing is done.
-          console.log('Fetched Token Data.')
+          // Send the authorization code to the backend
+          await fetch('/api/exchange-token', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ code, walletAddress: currentAccount }),
+          });
 
+          // Clear the code from the URL
           urlParams.delete('code');
           window.history.replaceState({}, document.title, window.location.pathname);
         } catch (error) {
@@ -81,14 +101,7 @@ const Navbar = () => {
                 Verify Wallet
               </li>
             )}
-            <li className="py-2 px-7 mx-4 rounded-full cursor-pointer bg-orange-600 hover:bg-orange-700" onClick={() => {
-              if (currentAccount) {
-                const authUrl = generateAuthUrl();
-                window.location.href = authUrl;
-              } else {
-                console.error('Navbar: No wallet connected');
-              }
-            }}>
+            <li className="py-2 px-7 mx-4 rounded-full cursor-pointer bg-orange-600 hover:bg-orange-700" onClick={handleStravaConnect}>
               Connect to Strava
             </li>
           </>
@@ -124,14 +137,7 @@ const Navbar = () => {
                     Verify Wallet
                   </li>
                 )}
-                <li className="py-2 px-7 mx-4 rounded-full cursor-pointer bg-orange-600 hover:bg-orange-700" onClick={() => {
-                  if (currentAccount) {
-                    const authUrl = generateAuthUrl();
-                    window.location.href = authUrl;
-                  } else {
-                    console.error('Navbar: No wallet connected');
-                  }
-                }}>
+                <li className="py-2 px-7 mx-4 rounded-full cursor-pointer bg-orange-600 hover:bg-orange-700" onClick={handleStravaConnect}>
                   Connect to Strava
                 </li>
               </>
@@ -139,7 +145,6 @@ const Navbar = () => {
           </ul>
         )}
       </div>
-      {/* Modal for creating user */}
       <Modal show={showModal} handleClose={handleCloseModal} handleConfirm={handleConfirmModal} />
     </nav>
   );
