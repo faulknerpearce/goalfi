@@ -8,17 +8,20 @@ import {FunctionsRequest} from "@chainlink/contracts/src/v0.8/functions/v1_0_0/l
 contract Goalfi is Ownable(msg.sender), FunctionsClient {
     using FunctionsRequest for FunctionsRequest.Request;
 
+    // Struct representing an activity's type and data.
     struct ActivityStruct {
         string activityType;
         string activityData;
     }
 
+    // Struct representing a user in the system.
     struct User {
         address walletAddress;
         mapping(uint => GoalParticipation) goalParticipations;
         uint totalRewards;
     }
 
+    // Struct representing a goal within the system.
     struct Goal {
         uint goalId;
         string activity;
@@ -33,12 +36,14 @@ contract Goalfi is Ownable(msg.sender), FunctionsClient {
         bool set;
     }
 
+    // Struct representing a participant's details in a goal.
     struct GoalParticipation {
         uint stakedAmount;
         uint userDistance;
         UserProgress progress;
     }
 
+    // Enum representing the possible states of a user's progress in a goal.
     enum UserProgress {
         ANY,
         JOINED,
@@ -47,6 +52,7 @@ contract Goalfi is Ownable(msg.sender), FunctionsClient {
         CLAIMED
     }
 
+     // Struct representing the status of a data request.
     struct RequestStatus {
         bool fulfilled;
         bool exists;
@@ -54,6 +60,7 @@ contract Goalfi is Ownable(msg.sender), FunctionsClient {
         bytes err;
     }
 
+    // Struct representing details of a data request.
     struct RequestDetails {
         address walletAddress;
         uint goalId;
@@ -97,21 +104,25 @@ contract Goalfi is Ownable(msg.sender), FunctionsClient {
     event RewardsClaimed(address indexed walletAddress, uint indexed goalId);
     event GoalEvaluated(uint indexed goalId);
 
+    // Modifier to ensure a user has not already been created.
     modifier userNotCreated(address _walletAddress) {
         require(!userAddressUsed[_walletAddress], "User can only create an account once");
         _;
     }
 
+    // Modifier to ensure a user exists.
     modifier userExists(address _walletAddress) {
         require(users[_walletAddress].walletAddress != address(0), "User must exist");
         _;
     }
 
+    // Modifier to ensure a goal exists
     modifier goalExists(uint goalId) {
         require(goals[goalId].set, "goalExists: invalid goal id, goal does not exist");
         _;
     }
 
+    // Modifier to mark a goal as failed if it has expire
     modifier markFailedIfExpired(uint _goalId, address _walletAddress) {
         require(goals[_goalId].set, "markFailedIfExpired: invalid goal id, goal does not exist");
         if (goals[_goalId].expiryTimestamp < block.timestamp) {
@@ -119,16 +130,19 @@ contract Goalfi is Ownable(msg.sender), FunctionsClient {
         }
         _;
     }
- 
+    
+    // Initializes the contract with the given subscription ID and source code.
     constructor(uint64 functionsSubscriptionId, string memory _source) FunctionsClient(router) {
         subscriptionId = functionsSubscriptionId;
         source = _source;
     }
 
+    // Sets the JavaScript source for Chainlink Functions requests.
     function setSource(string memory _source) external onlyOwner {
         source = _source;
     }
 
+    // Creates a new goal with specified parameters.
     function createGoal(string memory _activity, string memory _description, uint _distance, uint _startTimestamp, uint _expiryTimestamp) public onlyOwner {
         Goal storage newGoal = goals[goalCount];
         newGoal.goalId = goalCount;
@@ -145,6 +159,7 @@ contract Goalfi is Ownable(msg.sender), FunctionsClient {
         goalCount++;
     }
 
+    // Creates a new user account if not already created.
     function createUser() public userNotCreated(msg.sender) {
         require(msg.sender.balance >= 1000000000000000, "User must have at least 0.001 ETH in their wallet");
 
@@ -154,7 +169,8 @@ contract Goalfi is Ownable(msg.sender), FunctionsClient {
 
         emit UserCreated(msg.sender);
     }
-
+    
+    // Allows a user to join a goal with a specified stake.
     function joinGoal(uint _goalId) public payable userExists(msg.sender) goalExists(_goalId) {
         require(block.timestamp < goals[_goalId].startTimestamp, "Cannot join a goal that has already started.");
         require(goals[_goalId].expiryTimestamp > block.timestamp, "Cannot join an expired goal");
@@ -168,7 +184,7 @@ contract Goalfi is Ownable(msg.sender), FunctionsClient {
         emit UserJoinedGoal(msg.sender, _goalId, msg.value);
     }
 
-    // Function to check if a user has completed a goal and mark them accordingly
+    // Checks if a user has completed a goal and updates their status.
     function evaluateUserProgress(address walletAddress, uint goalId) internal {
         Goal storage goal = goals[goalId];
         GoalParticipation storage participation = goal.participants[walletAddress];
@@ -185,7 +201,7 @@ contract Goalfi is Ownable(msg.sender), FunctionsClient {
         }
     }
 
-    // Function to evaluate and close a goal
+    // Evaluates and closes a goal, marking user progress as necessary.
     function closeGoal(uint _goalId) public onlyOwner goalExists(_goalId) {
         require(block.timestamp >= goals[_goalId].expiryTimestamp, "closeGoal: Goal must be expired");
 
@@ -199,6 +215,7 @@ contract Goalfi is Ownable(msg.sender), FunctionsClient {
         emit GoalEvaluated(_goalId);
     }
 
+    // Counts the number of participants in a goal with a specific progress status.
     function countGoalParticipantsAtProgress(uint _goalId, UserProgress progress) public view goalExists(_goalId) returns (uint) {
         Goal storage goal = goals[_goalId];
         uint matches = 0;
@@ -211,6 +228,7 @@ contract Goalfi is Ownable(msg.sender), FunctionsClient {
         return matches;
     }
 
+    // Calculates the rewards for a user based on their participation in a goal.
     function calculateUserRewards(address userAddress, uint goalId) internal view returns (uint) {
         Goal storage goal = goals[goalId];
         uint userStakedAmount = goal.participants[userAddress].stakedAmount;
@@ -223,6 +241,7 @@ contract Goalfi is Ownable(msg.sender), FunctionsClient {
         return userRewards;
     }
 
+    // Allows a user to claim rewards for completing a goal.
     function claimRewards(uint _goalId) public payable userExists(msg.sender) goalExists(_goalId) {
         require(block.timestamp >= goals[_goalId].expiryTimestamp, "claimRewards: Goal must be expired");
 
@@ -245,6 +264,7 @@ contract Goalfi is Ownable(msg.sender), FunctionsClient {
         emit RewardsClaimed(msg.sender, _goalId);
     }
 
+    // Initiates a Chainlink request to fetch activity data for a specific goal.
     function executeRequest(string memory accessToken, string memory activityType, address walletAddress, uint goalId) external returns (bytes32 requestId) {
         require(users[walletAddress].walletAddress != address(0), "getStravaActivity: user must exist");
         require(goals[goalId].set, "getStravaActivity: goal must exist");
@@ -289,6 +309,7 @@ contract Goalfi is Ownable(msg.sender), FunctionsClient {
         return lastRequestId;
     }
 
+    // Handles the fulfillment of a Chainlink request, updating user data accordingly.
     function fulfillRequest(
         bytes32 requestId,
         bytes memory response,
@@ -319,23 +340,28 @@ contract Goalfi is Ownable(msg.sender), FunctionsClient {
         emit Response(requestId, string(response), response, err);
     }
 
+    // Retrieves the most recent activity data.
     function getLastActivity() public view returns (ActivityStruct memory) {
         require(requestIds.length > 0, "No activities found");
         return activities[requestIds[requestIds.length - 1]];
     }
 
+    // Retrieves the distance recorded for a user in a specific goal.
     function getUserDistance(address walletAddress, uint goalId) public view goalExists(goalId) userExists(walletAddress) returns (uint) {
         return goals[goalId].participants[walletAddress].userDistance;
     }
 
+    // Retrieves the list of participant addresses in a specific goal.
     function getParticipantAddresses(uint _goalId) public view goalExists(_goalId) returns (address[] memory) {
         return goals[_goalId].participantAddresses;
     }
 
+    // Retrieves the progress status of a user in a specific goal.
     function getParticipantProgress(uint _goalId, address _userAddress) public view goalExists(_goalId) returns (UserProgress) {
         return goals[_goalId].participants[_userAddress].progress;
     }
 
+    // Retrieves the total rewards accumulated by a user.
     function getUserTotalRewards(address walletAddress) public view userExists(walletAddress) returns (uint) {
         return users[walletAddress].totalRewards;
     }
