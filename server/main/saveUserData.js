@@ -1,20 +1,41 @@
 const fs = require('fs');
 const path = require('path');
 
+// Function to save or update user data in a JSON file
 const saveUserData = (walletAddress, tokenData) => {
-  const usersDir = path.resolve(__dirname, 'users');
-  if (!fs.existsSync(usersDir)) {
-    fs.mkdirSync(usersDir);
-  }
+  try {
+    // Define the path to the 'users' directory
+    const usersDir = path.resolve(__dirname, 'users');
 
-  const filePath = path.join(usersDir, `${walletAddress}.json`);
-  const data = {
-    wallet_address: walletAddress,
-    access_token: tokenData.access_token,
-    refresh_token: tokenData.refresh_token,
-    expires_in: tokenData.expires_in,
-  };
-  fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
+    // Ensure the 'users' directory exists
+    if (!fs.existsSync(usersDir)) {
+      fs.mkdirSync(usersDir, { recursive: true });
+    }
+
+    // Define the path to the users.json file within the 'users' directory
+    const filePath = path.join(usersDir, 'users.json');
+
+    let usersData = {};
+
+    // Read existing data from the file if it exists
+    if (fs.existsSync(filePath)) {
+      const fileData = fs.readFileSync(filePath);
+      usersData = JSON.parse(fileData);
+    }
+
+    // Update or add the user's data
+    usersData[walletAddress] = {
+      'Access Token': tokenData.access_token,
+      'Refresh Token': tokenData.refresh_token,
+      'Expires At': Date.now() + (tokenData.expires_in * 1000), // Save the expiry time in milliseconds
+    };
+
+    // Write the updated data back to the file
+    fs.writeFileSync(filePath, JSON.stringify(usersData, null, 2));
+    console.log(`User data for ${walletAddress} saved successfully.`);
+  } catch (error) {
+    console.error(`Error saving user data for ${walletAddress}:`, error.message);
+  }
 };
 
 module.exports = saveUserData;
