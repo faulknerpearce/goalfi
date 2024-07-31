@@ -7,7 +7,7 @@ const UserGoalCard = ({ goal, progress, claimRewards, requestData}) => {
   };
 
   const handleFetchData = () => {
-    requestData(goal.id, goal.stravaAPICall);
+    requestData(goal.stravaAPICall, goal.id);
   };
 
   const handleViewData = () => {
