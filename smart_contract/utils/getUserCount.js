@@ -1,13 +1,12 @@
 const { getContractInstance } = require("./getContractInstance");
 
+// Asynchronously retrieves and logs the total user count in the smart contract.
 async function getUserCount() {
     try {
-        // Get the contract instance to interact with the smart contract.
         const contract = getContractInstance();
 
         console.log(`Getting the user count for contract address: ${contract.address}`)
 
-        // Call the userCount method from the smart contract to get the number of users.
         const userCount = await contract.userCount();
         
         console.log(`User Count: ${userCount.toString()}`);
@@ -16,6 +15,7 @@ async function getUserCount() {
     }
 }
 
+// Execute the main function and handle the process exit based on success or error
 getUserCount()
     .then(() => process.exit(0))  
     .catch((error) => {

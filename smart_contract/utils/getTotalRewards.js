@@ -1,5 +1,5 @@
 const { getContractInstance } = require("./getContractInstance");
-
+const { ethers } = require('ethers');
 const readline = require("readline");
 
 // Function to prompt the user for input.
@@ -15,28 +15,26 @@ function askQuestion(query) {
     }));
 }
 
-// Asynchronously retrieves and logs the total distance covered by a user for a specific goal.
-async function getUserDistance(walletAddress, goalId) {
+// Asynchronously retrieves and logs the total rewards for a given wallet address.
+async function getTotalRewards(walletAddress) {
     try {
+
+        console.log(`Getting the Total Rewards for Wallet Address: ${walletAddress}`)
         const contract = getContractInstance();
         
-        console.log(`Getting the total distance for wallet address: ${walletAddress}`)
+        const total = await contract.getUserTotalRewards(walletAddress);
+        const totalParsed = ethers.utils.formatUnits(total, 18);
         
-        const distance = await contract.getUserDistance(walletAddress, goalId);
-        console.log("User Distance:", distance.toString());
-
+        console.log(`Total Rewards: ${totalParsed} AVAX`); 
     } catch (error) {
-        console.error("Error reading user distance:", error);
+        console.error(`Error: ${error.message}`);
     }
 }
 
-// Main function to execute the user distance retrieval process.
-async function main(){
-
+// Main function to execute the total rewards retrieval process.
+async function main() {
     const walletAddress = await askQuestion('Enter the Wallet Address: ');
-    const goalId =  await askQuestion('Enter the Goal ID: ');
-
-    await getUserDistance(walletAddress, goalId)
+    await getTotalRewards(walletAddress);
 }
 
 // Execute the main function and handle the process exit based on success or error.
