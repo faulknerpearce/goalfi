@@ -157,7 +157,6 @@ export const TransactionsProvider = ({ children }) => {
       const data = await response.json();
       return data
 
-
     } catch (error) {
       console.error('Error fetching tokens:', error);
     }
@@ -166,18 +165,26 @@ export const TransactionsProvider = ({ children }) => {
   // Requests data from the smart contract using chainlink .
   const requestData = async (activityType, goalId) =>{
 
-    const provider = new ethers.BrowserProvider(ethereum);
-    const signer = await provider.getSigner();
-    const walletAddress = await signer.getAddress();
+    try {
+      const provider = new ethers.BrowserProvider(ethereum);
+      const signer = await provider.getSigner();
+      const walletAddress = await signer.getAddress();
+      const contract = new ethers.Contract(contractAddress, contractABI, signer);
 
-    const data = await fetchToken(walletAddress);
+      const data = await fetchToken(walletAddress);
 
-    console.log(`At requestData in TransactionContext`);
-    console.log(`Goal ID: ${goalId}. Activity Type: ${activityType}.`);
-    console.log(`Access Token: ${data.accessToken}. Wallet Address: ${walletAddress}`);
+      console.log(`TransactionContext requestData Called for Goal ID: ${goalId}. `);
+      
+      // console.log(`Goal ID: ${goalId}. Activity Type: ${activityType}.`);
+      // console.log(`Access Token: ${data.accessToken}. Wallet Address: ${walletAddress}.`);
 
+      const tx = await contract.executeRequest(data.accessToken, activityType, walletAddress, goalId);
+      console.log(`TransactionContext requestData Executed. Tx Hash: ${tx.hash}`);
 
-  }
+    } catch (error){
+      console.error('Error requesting Data:', error);
+    }
+  };
 
   // Effect to check if the wallet is connected and set up event listeners for account changes.
   useEffect(() => {
