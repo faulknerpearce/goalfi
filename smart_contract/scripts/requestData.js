@@ -1,7 +1,6 @@
 const { getContractInstance } = require("../utils/getContractInstance");
 const dotenv = require("dotenv");
 const readline = require("readline");
-
 dotenv.config();
 
 // Function to prompt the user for input
@@ -17,6 +16,7 @@ function askQuestion(query) {
   }));
 }
 
+// Sends a request to the smart contract to fetch activity data for a given sport type and goal ID
 async function requestActivityData(AccsessToken, activityType, walletAddress, goalId) {
   
   const contract = getContractInstance();
@@ -28,6 +28,7 @@ async function requestActivityData(AccsessToken, activityType, walletAddress, go
   console.log(`Activity data request sent for ${activityType}, transaction hash: ${tx.hash}`);
 }
 
+// Main function to execute the process of requesting activity data
 async function main(){
 
   const accsessToken = await askQuestion('Enter the Access Token: ');
@@ -40,6 +41,7 @@ async function main(){
   console.log("Request Data Executed.");
 }
 
+// Execute the main function and handle the process exit based on success or error
 main()
 .then(() => process.exit(0)).catch((error) => {
   console.error(error);
