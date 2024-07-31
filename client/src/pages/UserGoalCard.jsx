@@ -1,14 +1,18 @@
 import React from 'react';
 
-const UserGoalCard = ({ goal, progress, claimRewards}) => {
-  
+const UserGoalCard = ({ goal, progress, claimRewards, requestData}) => {
+
   const handleClaimRewards = () => {
     claimRewards(goal.id);
   };
 
   const handleFetchData = () => {
-    console.log(`Fetching data: Goal ID: ${goal.id}. Activty Type: ${goal.stravaAPICall}. Wallet Address `);
+    requestData(goal.id, goal.stravaAPICall);
   };
+
+  const handleViewData = () => {
+    // Once the data has been requested view it in the contract.
+  }
 
   const isGoalClosed = goal.hours < 0 && goal.minutes < 0;
 
@@ -71,7 +75,7 @@ const UserGoalCard = ({ goal, progress, claimRewards}) => {
           <button
           onClick={handleFetchData}
           className={`text-white w-full py-2 rounded-full hover:bg-opacity-80 transition duration-200 mt-auto border border-gray-700 shadow-lg ${goal.buttonColour}`}>
-           View Progress
+           Request Progress
         </button>
         )}  
         {Number(progress) === 2 && (
