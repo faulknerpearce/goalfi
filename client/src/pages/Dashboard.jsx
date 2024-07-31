@@ -7,9 +7,10 @@ import { fetchGoals } from "../utils/fetchGoals";
 import { getGoalsForUser } from "../utils/getGoalsForUser";
 import { AreaChart, Area, Tooltip, ResponsiveContainer, YAxis } from 'recharts';
 import { FaTrophy, FaTimesCircle, FaTasks } from "react-icons/fa";
+import Loader from "../components/Loader";
 
 const Dashboard = () => {
-  const { currentAccount, claimRewards, requestData} = useContext(TransactionContext);
+  const { currentAccount, claimRewards, requestData } = useContext(TransactionContext);
   const [goals, setGoals] = useState([]);
   const [completedGoals, setCompletedGoals] = useState(0);
   const [failedGoals, setFailedGoals] = useState(0);
@@ -17,56 +18,62 @@ const Dashboard = () => {
   const [showActiveGoals, setShowActiveGoals] = useState(true);
   const [goalsFetched, setGoalsFetched] = useState(false);
   const [goalHistory, setGoalHistory] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fetchUserGoals = async () => {
-      const provider = new ethers.BrowserProvider(window.ethereum);
-      const userGoals = await getGoalsForUser(currentAccount);
+      setLoading(true);
+      try {
+        const provider = new ethers.BrowserProvider(window.ethereum);
+        const userGoals = await getGoalsForUser(currentAccount);
 
-      const [activeGoals, expiredGoals] = await Promise.all([fetchGoals(provider, false), fetchGoals(provider, true)]);
+        const [activeGoals, expiredGoals] = await Promise.all([fetchGoals(provider, false), fetchGoals(provider, true)]);
 
-      const allGoals = [...activeGoals, ...expiredGoals];
-      
-      const userGoalDetails = allGoals.map(goal => {
-        const userGoal = userGoals.find(userGoal => userGoal.goalId === goal.id);
-        return {
-          ...goal,
-          progress: userGoal ? userGoal.progress : null, 
-        };
-      }).filter(goal => goal.progress !== null); 
+        const allGoals = [...activeGoals, ...expiredGoals];
+        
+        const userGoalDetails = allGoals.map(goal => {
+          const userGoal = userGoals.find(userGoal => userGoal.goalId === goal.id);
+          return {
+            ...goal,
+            progress: userGoal ? userGoal.progress : null, 
+          };
+        }).filter(goal => goal.progress !== null); 
 
-      let completedCount = 0;
-      let failedCount = 0;
-      let history = [];
-      let progressValue = 0;
+        let completedCount = 0;
+        let failedCount = 0;
+        let history = [];
+        let progressValue = 0;
 
-      userGoalDetails.forEach(goal => {
-        if (Number(goal.progress) === 4 || Number(goal.progress) === 3){
-          completedCount++;
-          progressValue ++;
-        } else if (Number(goal.progress) === 2) {
-          failedCount++;
-          progressValue --;
-        }
+        userGoalDetails.forEach(goal => {
+          if (Number(goal.progress) === 4 || Number(goal.progress) === 3) {
+            completedCount++;
+            progressValue++;
+          } else if (Number(goal.progress) === 2) {
+            failedCount++;
+            progressValue--;
+          }
 
-        history.push({
-          date: new Date(goal.expiryTimestamp * 1000).toLocaleDateString(),
-          progress: progressValue
+          history.push({
+            date: new Date(goal.expiryTimestamp * 1000).toLocaleDateString(),
+            progress: progressValue
+          });
         });
-      });
 
-      const totalJoined = userGoalDetails.length;
-
-      setCompletedGoals(completedCount);
-      setFailedGoals(failedCount);
-      setTotalGoalsJoined(totalJoined);
-      setGoals(userGoalDetails);
-      setGoalHistory(history);
+        setCompletedGoals(completedCount);
+        setFailedGoals(failedCount);
+        setTotalGoalsJoined(userGoalDetails.length);
+        setGoals(userGoalDetails);
+        setGoalHistory(history);
+      } catch (error) {
+        console.error("Error fetching user goals:", error);
+      } finally {
+        setLoading(false);
+        setGoalsFetched(true);
+      }
     };
 
     if (currentAccount && !goalsFetched) {
       fetchUserGoals();
-      setGoalsFetched(true);
     }
   }, [currentAccount]);
 
@@ -146,9 +153,15 @@ const Dashboard = () => {
           </button>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 w-full max-w-7xl mx-auto mt-10">
-          {displayedGoals.map((goal) => (
-            <UserGoalCard key={goal.id} goal={goal} progress={goal.progress} claimRewards={claimRewards} requestData={requestData}/> 
-          ))}
+          {loading ? (
+              <div className="col-span-1 sm:col-span-2 md:col-span-3 flex justify-center">
+                <Loader />
+              </div>
+            ) : (
+              displayedGoals.map((goal) => (
+                <UserGoalCard key={goal.id} goal={goal} progress={goal.progress} claimRewards={claimRewards} requestData={requestData}/> 
+              ))
+            )}
         </div>
       </div>
     </div>
