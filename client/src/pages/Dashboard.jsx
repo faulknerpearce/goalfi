@@ -9,7 +9,7 @@ import { AreaChart, Area, Tooltip, ResponsiveContainer, YAxis } from 'recharts';
 import { FaTrophy, FaTimesCircle, FaTasks } from "react-icons/fa";
 
 const Dashboard = () => {
-  const { currentAccount, claimRewards } = useContext(TransactionContext);
+  const { currentAccount, claimRewards, fetchToken} = useContext(TransactionContext);
   const [goals, setGoals] = useState([]);
   const [completedGoals, setCompletedGoals] = useState(0);
   const [failedGoals, setFailedGoals] = useState(0);
@@ -43,10 +43,10 @@ const Dashboard = () => {
       userGoalDetails.forEach(goal => {
         if (Number(goal.progress) === 4 || Number(goal.progress) === 3){
           completedCount++;
-          progressValue += 1;
+          progressValue ++;
         } else if (Number(goal.progress) === 2) {
           failedCount++;
-          progressValue -= 1;
+          progressValue --;
         }
 
         history.push({
@@ -147,7 +147,7 @@ const Dashboard = () => {
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 w-full max-w-7xl mx-auto mt-10">
           {displayedGoals.map((goal) => (
-            <UserGoalCard key={goal.id} goal={goal} progress={goal.progress} claimRewards={claimRewards}/>
+            <UserGoalCard key={goal.id} goal={goal} progress={goal.progress} claimRewards={claimRewards} fetchData={fetchToken}/> 
           ))}
         </div>
       </div>
