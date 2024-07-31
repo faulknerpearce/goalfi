@@ -1,9 +1,8 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const axios = require('axios');
-const fs = require('fs');
-const path = require('path');
 const saveUserData = require('./saveUserData');
+const getToken = require('./getToken');
 
 require('dotenv').config();
 
@@ -16,7 +15,6 @@ app.get('/api/generate-auth-url', (req, res) => {
   const authUrl = `https://www.strava.com/oauth/authorize?client_id=${process.env.CLIENT_ID}&response_type=code&redirect_uri=${process.env.REDIRECT_URL}&approval_prompt=auto&scope=read_all,activity:read_all&state=${state}`;
   res.json({ authUrl });
 });
-
 
 // Endpoint to handle the Strava OAuth token exchange
 app.post('/api/exchange-token', async (req, res) => {
@@ -41,17 +39,16 @@ app.post('/api/exchange-token', async (req, res) => {
   }
 });
 
-// Endpoint to retrieve user token data
-app.get('/api/user-token/:walletAddress', (req, res) => {
-  const { walletAddress } = req.params;
-  const usersDir = path.resolve(__dirname, 'users');
-  const filePath = path.join(usersDir, `${walletAddress}.json`);
+// Endpoint to handle token retrieval
+app.post('/api/get-token', async (req, res) => {
+  const { walletAddress } = req.body;
 
-  if (fs.existsSync(filePath)) {
-    const data = fs.readFileSync(filePath);
-    res.json(JSON.parse(data));
-  } else {
-    res.status(404).send('User not found');
+  try {
+    const accessToken = await getToken(walletAddress);
+    res.json({ accessToken });
+  } catch (error) {
+    console.error('Error getting token:', error.message);
+    res.status(500).send('Error getting token');
   }
 });
 
