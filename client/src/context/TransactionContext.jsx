@@ -133,6 +133,35 @@ export const TransactionsProvider = ({ children }) => {
     }
   };
 
+  // Fetch token using wallet address
+  const fetchToken = async () => {
+    try {
+      const provider = new ethers.BrowserProvider(ethereum);
+      const signer = await provider.getSigner();
+      const walletAddress = await signer.getAddress();
+
+      const response = await fetch('/api/get-token', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ walletAddress }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      
+      console.log(`At fetchTokn in TransactionContext`);
+      console.log(`Access Token: ${data.accessToken}. Wallet Address: ${walletAddress}`);
+
+    } catch (error) {
+      console.error('Error fetching tokens:', error);
+    }
+  };
+
   useEffect(() => {
     checkIfWalletIsConnected();
 
@@ -154,7 +183,18 @@ export const TransactionsProvider = ({ children }) => {
   }, []);
 
   return (
-    <TransactionContext.Provider value={{ connectWallet, currentAccount, isUserCreated, createUser, joinGoal, claimRewards, errorMessage, setErrorMessage, loading }}>
+    <TransactionContext.Provider value={{
+      connectWallet,
+      currentAccount,
+      isUserCreated,
+      createUser,
+      joinGoal,
+      claimRewards,
+      fetchToken,
+      errorMessage,
+      setErrorMessage,
+      loading
+    }}>
       {children}
     </TransactionContext.Provider>
   );
