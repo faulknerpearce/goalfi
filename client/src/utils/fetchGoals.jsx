@@ -70,11 +70,8 @@ export const fetchGoals = async (provider, getExpired) => {
     const participantAddresses = await contract.getParticipantAddresses(i);
 
     const { iconColor, icon, stravaAPICall } = getIconAndColor(goal.activity);
+    
     const goalDuration = calculateGoalDuration(goal.startTimestamp, goal.expiryTimestamp);
-
-    console.log("Goal fetched:", goal);
-    console.log("Strava API Call:", stravaAPICall);
-
     const remainingTime = convertTimeToHoursAndMinutes(goal.expiryTimestamp);
 
     const isActive = goal.expiryTimestamp > currentTimestamp;
