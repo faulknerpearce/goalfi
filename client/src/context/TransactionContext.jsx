@@ -12,6 +12,7 @@ export const TransactionsProvider = ({ children }) => {
   const [isUserCreated, setIsUserCreated] = useState(false);
   const [loading, setLoading] = useState(false); 
 
+  // Checks if a user exists in the smart contract for the given address.
   const checkUserExists = async (address) => {
     try {
       const provider = new ethers.BrowserProvider(ethereum);
@@ -28,6 +29,7 @@ export const TransactionsProvider = ({ children }) => {
     }
   };
 
+  // Checks if the wallet is connected and updates the state accordingly.
   const checkIfWalletIsConnected = async () => {
     try {
       if (!ethereum) return alert("Please install MetaMask.");
@@ -47,6 +49,7 @@ export const TransactionsProvider = ({ children }) => {
     }
   };
 
+  // Connects the user's wallet using MetaMask and updates the state.
   const connectWallet = async () => {
     try {
       if (!ethereum) return alert("connectWallet: Please install MetaMask.");
@@ -63,6 +66,7 @@ export const TransactionsProvider = ({ children }) => {
     }
   };
 
+  // Creates a new user in the smart contract.
   const createUser = async () => {
     try {
       const provider = new ethers.BrowserProvider(ethereum);
@@ -94,6 +98,7 @@ export const TransactionsProvider = ({ children }) => {
     }
   };
 
+  // Allows the user to join a goal in the smart contract.
   const joinGoal = async (goalId, amount) => {
     try {
       if (!currentAccount) throw new Error("Wallet is not connected");
@@ -117,6 +122,7 @@ export const TransactionsProvider = ({ children }) => {
     }
   };
 
+  // Allows the user to claim rewards for a completed goal.
   const claimRewards = async (goalId) => {
     try {
       const provider = new ethers.BrowserProvider(ethereum);
@@ -133,13 +139,9 @@ export const TransactionsProvider = ({ children }) => {
     }
   };
 
-  // Fetch token using wallet address
-  const fetchToken = async () => {
+  // Fetch token using wallet address from the backend server.
+  const fetchToken = async (walletAddress) => {
     try {
-      const provider = new ethers.BrowserProvider(ethereum);
-      const signer = await provider.getSigner();
-      const walletAddress = await signer.getAddress();
-
       const response = await fetch('/api/get-token', {
         method: 'POST',
         headers: {
@@ -153,15 +155,31 @@ export const TransactionsProvider = ({ children }) => {
       }
 
       const data = await response.json();
-      
-      console.log(`At fetchTokn in TransactionContext`);
-      console.log(`Access Token: ${data.accessToken}. Wallet Address: ${walletAddress}`);
+      return data
+
 
     } catch (error) {
       console.error('Error fetching tokens:', error);
     }
   };
 
+  // Requests data from the smart contract using chainlink .
+  const requestData = async (activityType, goalId) =>{
+
+    const provider = new ethers.BrowserProvider(ethereum);
+    const signer = await provider.getSigner();
+    const walletAddress = await signer.getAddress();
+
+    const data = await fetchToken(walletAddress);
+
+    console.log(`At requestData in TransactionContext`);
+    console.log(`Goal ID: ${goalId}. Activity Type: ${activityType}.`);
+    console.log(`Access Token: ${data.accessToken}. Wallet Address: ${walletAddress}`);
+
+
+  }
+
+  // Effect to check if the wallet is connected and set up event listeners for account changes.
   useEffect(() => {
     checkIfWalletIsConnected();
 
@@ -190,7 +208,7 @@ export const TransactionsProvider = ({ children }) => {
       createUser,
       joinGoal,
       claimRewards,
-      fetchToken,
+      requestData,
       errorMessage,
       setErrorMessage,
       loading
