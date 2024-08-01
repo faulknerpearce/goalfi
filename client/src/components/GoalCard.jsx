@@ -23,6 +23,8 @@ const GoalCard = ({ goal, showJoinButton, showViewButton, joinGoal }) => {
         // Optionally, handle error notification
       } finally {
         setIsLoading(false);
+        setIsFlipped(false);
+
       }
     } else {
       alert("Please enter a valid amount to join the goal.");
@@ -67,10 +69,10 @@ const GoalCard = ({ goal, showJoinButton, showViewButton, joinGoal }) => {
               <div className="flex justify-between mb-4">
                 <span>Remaining Time to Join</span>
                 <span>
-                  {goal.hours > 1 ? `${goal.hours} hours` : null}
-                  {goal.hours === 1 ? `${goal.hours} hour` : null}
-                  {goal.hours > 0 && goal.minutes > 0 ? ' and ' : null}
-                  {goal.minutes > 0 ? `${goal.minutes} minutes` : null}
+                  {goal.RemaingHours > 1 ? `${goal.RemaingHours} hours` : null}
+                  {goal.RemaingHours === 1 ? `${goal.RemaingHours} hour` : null}
+                  {goal.RemaingHours > 0 && goal.RemaingMinutes > 0 ? ' and ' : null}
+                  {goal.RemaingMinutes > 0 ? `${goal.RemaingMinutes} minutes` : null}
                 </span>
               </div>
             </div>
@@ -79,14 +81,14 @@ const GoalCard = ({ goal, showJoinButton, showViewButton, joinGoal }) => {
             {showViewButton && (
               <button
                 onClick={handleViewGoal}
-                className={`text-white w-full py-2 rounded-full hover:bg-opacity-80 transition duration-200 mt-auto border border-gray-700 shadow-lg ${goal.buttonColour}`}>
+                className={`text-white w-full py-2 rounded-full hover:bg-opacity-80 transition duration-200 mt-auto border border-gray-700 shadow-lg ${goal.activeButtonColour}`}>
                 View Goals
               </button>
             )}
             {showJoinButton && (
               <button
                 onClick={() => setIsFlipped(true)}
-                className={`text-white w-full py-2 rounded-full hover:bg-opacity-80 transition duration-200 mt-auto border border-gray-700 shadow-lg ${goal.buttonColour} mt-2`}>
+                className={`text-white w-full py-2 rounded-full hover:bg-opacity-80 transition duration-200 mt-auto border border-gray-700 shadow-lg ${goal.activeButtonColour} mt-2`}>
                 Join Goal
               </button>
             )}
@@ -117,14 +119,14 @@ const GoalCard = ({ goal, showJoinButton, showViewButton, joinGoal }) => {
               <button
                 onClick={handleJoinGoal}
                 disabled={!amount || parseFloat(amount) <= 0}
-                className={`text-white w-full py-2 rounded-full hover:bg-opacity-80 transition duration-200 border border-gray-700 shadow-lg ${goal.buttonColour} mt-2`}>
+                className={`text-white w-full py-2 rounded-full hover:bg-opacity-80 transition duration-200 border border-gray-700 shadow-lg ${goal.activeButtonColour} mt-2`}>
                 Confirm
               </button>
             </>
           )}
           <button
             onClick={() => setIsFlipped(false)}
-            className={`text-white w-full py-2 rounded-full hover:bg-opacity-80 transition duration-200 mt-2 border border-gray-700 shadow-lg ${goal.claimedButtonColour} mt-2`}>
+            className={`text-white w-full py-2 rounded-full hover:bg-opacity-80 transition duration-200 mt-2 border border-gray-700 shadow-lg ${goal.nonActiveButtonColour} mt-2`}>
             Cancel
           </button>
         </div>
