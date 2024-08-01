@@ -2,7 +2,7 @@ import { ethers } from "ethers";
 import { contractABI, contractAddress } from "./constants";
 import { FaRunning, FaBiking, FaWalking } from "react-icons/fa";
 
-function convertTimeToHoursAndMinutes(timestamp) {
+function calculateRemainingTime(timestamp) {
   const currentTime = new Date();
   const expiryTime = new Date(Number(timestamp) * 1000);
 
@@ -14,6 +14,23 @@ function convertTimeToHoursAndMinutes(timestamp) {
     hours: timeDifferenceInHours,
     minutes: timeDifferenceInMinutes
   };
+}
+
+function calculateRemainingTimeToJoin(startTimestamp) {
+  
+  const startTime = new Date(Number(startTimestamp) * 1000);
+  const currentTimestamp = new Date().getTime();
+
+  const timeDifferenceInMilliseconds = startTime - currentTimestamp;
+
+  const timeDifferenceInHours = Math.floor(timeDifferenceInMilliseconds / 3600000);
+  const timeDifferenceInMinutes = Math.floor((timeDifferenceInMilliseconds % 3600000) / 60000);
+  
+  return {
+    RemaingHours: timeDifferenceInHours,
+    RemaingMinutes: timeDifferenceInMinutes
+  };
+  
 }
 
 function calculateGoalDuration(startTimestamp, expiryTimestamp) {
@@ -72,9 +89,10 @@ export const fetchGoals = async (provider, getExpired) => {
     const { iconColor, icon, stravaAPICall } = getIconAndColor(goal.activity);
     
     const goalDuration = calculateGoalDuration(goal.startTimestamp, goal.expiryTimestamp);
-    const remainingTime = convertTimeToHoursAndMinutes(goal.expiryTimestamp);
+    const remainingTime = calculateRemainingTime(goal.expiryTimestamp);
+    const remainingTimeToJoin = calculateRemainingTimeToJoin(goal.startTimestamp)
 
-    const isActive = goal.expiryTimestamp > currentTimestamp;
+    const isActive = goal.startTimestamp > currentTimestamp;
     const includeGoal = getExpired ? !isActive : isActive;
 
     if (includeGoal) {
@@ -84,15 +102,16 @@ export const fetchGoals = async (provider, getExpired) => {
         title: goal.description,
         currentDeposits: ethers.formatUnits(goal.stake, 'ether'),
         colour: "bg-orange-700",
-        buttonColour:"bg-orange-600",
-        failedButtonColour:'bg-gray-500',
-        claimedButtonColour: 'bg-gray-500',
+        activeButtonColour:"bg-orange-600",
+        nonActiveButtonColour:'bg-gray-500',
         iconColor,
         icon,
         durationDays: goalDuration.days,
         durationHours: goalDuration.hours,
         hours: remainingTime.hours,
         minutes: remainingTime.minutes,
+        RemaingHours: remainingTimeToJoin.RemaingHours,
+        RemaingMinutes: remainingTimeToJoin.RemaingMinutes,
         participants: participantAddresses.length,
         participantAddresses,
         stravaAPICall
