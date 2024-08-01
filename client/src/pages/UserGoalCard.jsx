@@ -74,26 +74,26 @@ const UserGoalCard = ({ goal, progress, claimRewards, requestData}) => {
         {Number(progress) === 1 && (
           <button
           onClick={handleFetchData}
-          className={`text-white w-full py-2 rounded-full hover:bg-opacity-80 transition duration-200 mt-auto border border-gray-700 shadow-lg ${goal.buttonColour}`}>
+          className={`text-white w-full py-2 rounded-full hover:bg-opacity-80 transition duration-200 mt-auto border border-gray-700 shadow-lg ${goal.activeButtonColour}`}>
            Request Progress
         </button>
         )}  
         {Number(progress) === 2 && (
           <button
-          className={`text-white w-full py-2 rounded-full hover:bg-opacity-80 transition duration-200 mt-auto border border-gray-700 shadow-lg ${goal.failedButtonColour}`}>
+          className={`text-white w-full py-2 rounded-full hover:bg-opacity-80 transition duration-200 mt-auto border border-gray-700 shadow-lg ${goal.nonActiveButtonColour}`}>
            Goal Failed
         </button>
         )}
         {Number(progress) === 3 && (
           <button
             onClick={handleClaimRewards}
-            className={`text-white w-full py-2 rounded-full hover:bg-opacity-80 transition duration-200 mt-auto border border-gray-700 shadow-lg ${goal.buttonColour}`}>
+            className={`text-white w-full py-2 rounded-full hover:bg-opacity-80 transition duration-200 mt-auto border border-gray-700 shadow-lg ${goal.activeButtonColour}`}>
             Claim Rewards
           </button>
         )}
         {Number(progress) === 4 && (
           <button
-          className={`text-white w-full py-2 rounded-full hover:bg-opacity-80 transition duration-200 mt-auto border border-gray-700 shadow-lg ${goal.claimedButtonColour}`}>
+          className={`text-white w-full py-2 rounded-full hover:bg-opacity-80 transition duration-200 mt-auto border border-gray-700 shadow-lg ${goal.nonActiveButtonColour}`}>
            Rewards Claimed
         </button>
         )}
