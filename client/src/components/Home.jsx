@@ -6,6 +6,7 @@ import { fetchGoals } from "../utils/fetchGoals";
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 import Loader from "../components/Loader"; 
 
+// Homepage component displays a list of goals and allows navigation between them.
 const Homepage = () => {
   const { currentAccount } = useContext(TransactionContext);
   const [goals, setGoals] = useState([]);
@@ -46,6 +47,7 @@ const Homepage = () => {
     }
   }, [currentAccount]);
 
+  // Function to navigate to the next goal in the list.
   const nextGoal = () => {
     setAnimationClass("slide-out-left");
     setTimeout(() => {
@@ -54,6 +56,7 @@ const Homepage = () => {
     }, 400);
   };
 
+  // Function to navigate to the previous goal in the list.
   const prevGoal = () => {
     setAnimationClass("slide-out-right");
     setTimeout(() => {
@@ -66,7 +69,7 @@ const Homepage = () => {
     <div className="flex w-full justify-center items-center">
       <div className="flex flex-col items-center justify-between md:p-20 py-12 px-4">
         <h1 className="text-3xl sm:text-5xl text-white py-2 text-gradient">
-          Invest in Your Goals
+          Gamify Your Goals
         </h1>
         <p className="text-center mt-5 text-white font-light md:w-9/12 w-11/12 text-2xl mb-10">
           Participate in various community goals and earn rewards for your accomplishments.
@@ -77,9 +80,21 @@ const Homepage = () => {
             className="text-white px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-full mr-8"
           >
             <FaArrowLeft />
-          </button>
-          <div className="flex justify-center items-center w-full max-w-md mx-4">
-            {loading ? (<Loader />  ) : (goals.length > 0 && (<div className={`w-full ${animationClass}`}><GoalCard key={goals[currentIndex].id} goal={goals[currentIndex]} showViewButton={true} /></div>))}
+            </button>
+          <div className="flex flex-col justify-center items-center w-full max-w-md mx-4">
+            {loading ? ( <Loader />) : ( goals.length > 0 && ( <div className={`w-full ${animationClass}`}> <GoalCard
+                    key={goals[currentIndex].id}
+                    goal={goals[currentIndex]}
+                    showViewButton={true} />
+                </div>))}
+            <div className="flex mt-4">
+              {goals.map((goal, index) => (
+                <span
+                  key={index}
+                  className={`h-2 w-2 mx-1 rounded-full ${index === currentIndex ? 'bg-white' : 'bg-gray-400'}`}
+                ></span>
+              ))}
+            </div>
           </div>
           <button
             onClick={nextGoal}
