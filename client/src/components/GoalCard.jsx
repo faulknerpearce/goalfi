@@ -2,16 +2,19 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Loader from './Loader'
 
+// The GoalCard component displays goal details and allows users to join or view goals.
 const GoalCard = ({ goal, showJoinButton, showViewButton, joinGoal }) => {
   const navigate = useNavigate();
   const [amount, setAmount] = useState("");
   const [isFlipped, setIsFlipped] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
+  // Function to navigate to the discover page to view goals.
   const handleViewGoal = () => {
     navigate('/discover');
   };
 
+  // Function to handle joining a goal with a specified amount.
   const handleJoinGoal = async () => {
     if (amount && parseFloat(amount) > 0) {
       setIsLoading(true);
