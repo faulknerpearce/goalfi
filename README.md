@@ -1,5 +1,5 @@
 # Goalfi 🏁
-An web3 application designed to motivate goal completion. 
+## A web3 application designed to motivate users to compete to complete their goals. 
 
 ![Alt text](client/images/goalfi.png)
 
