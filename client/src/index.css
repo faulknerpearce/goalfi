@@ -133,7 +133,7 @@ body {
 
 .flip-card {
   position: relative;
-  width: 400px;
+  width: 384px;
   height: 400px;
   transform-style: preserve-3d;
   transition: transform 0.6s;
