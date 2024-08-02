@@ -10,12 +10,17 @@ const UserGoalCard = ({ goal, progress, claimRewards, requestData}) => {
     requestData(goal.stravaAPICall, goal.id);
   };
 
-  const handleViewData = () => {
-    // Once the data has been requested view it in the contract.
+  const getProgressPercent = () => {
+    if (goal.distance > 0) {
+      const progressPercent = (goal.userDistance / goal.distance) * 100;
+      return parseFloat(progressPercent).toFixed(2);
+    }
+    return 0;
   }
 
   const isGoalClosed = goal.hours < 0 && goal.minutes < 0;
-
+  const progressPercent = getProgressPercent(); // Calculate the Progress percent.
+  
   return (
     <div className="flex flex-col justify-between h-full white-glassmorphism p-6 mx-10 my-4 cursor-pointer hover:shadow-xl rounded-lg border border-gray-700 w-full max-w-sm">
       <div>
@@ -48,9 +53,15 @@ const UserGoalCard = ({ goal, progress, claimRewards, requestData}) => {
             <span>Total Staked</span>
             <span>{goal.currentDeposits} AVAX</span>
           </div>
+          
           <div className="relative pt-6 mb-4 w-full">
-            <div className="overflow-hidden h-1 text-xs flex rounded-full bg-gray-700">
+            <div className="overflow-hidden h-2 text-xs flex rounded-full bg-gray-700">
+              <div className="bg-blue-600 h-full" style={{  width: `${progressPercent}%` }}></div>
             </div>
+            <div className="flex justify-between mt-4">
+            <span>Goal Progress</span>
+            <span>{progressPercent} %</span>
+          </div>
           </div>
           {!isGoalClosed && (
             <div className="flex justify-between mb-4">
@@ -65,7 +76,7 @@ const UserGoalCard = ({ goal, progress, claimRewards, requestData}) => {
           )}
           {isGoalClosed && (
             <div className="flex mt-6 justify-center text-white text-xl">
-              Goal Closed
+              Goal Expired
             </div>
           )}
         </div>
