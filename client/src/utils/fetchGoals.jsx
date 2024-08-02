@@ -2,6 +2,7 @@ import { ethers } from "ethers";
 import { contractABI, contractAddress } from "./constants";
 import { FaRunning, FaBiking, FaWalking } from "react-icons/fa";
 
+// Function to calculate the remaining time until a given goal expires.
 function calculateRemainingTime(timestamp) {
   const currentTime = new Date();
   const expiryTime = new Date(Number(timestamp) * 1000);
@@ -15,7 +16,7 @@ function calculateRemainingTime(timestamp) {
     minutes: timeDifferenceInMinutes
   };
 }
-
+// Function to calculate the remaining time until a goal can no longer be joined.
 function calculateRemainingTimeToJoin(startTimestamp) {
   
   const startTime = new Date(Number(startTimestamp) * 1000);
@@ -33,6 +34,7 @@ function calculateRemainingTimeToJoin(startTimestamp) {
   
 }
 
+// Function to calculate the duration of a goal in days and hours.
 function calculateGoalDuration(startTimestamp, expiryTimestamp) {
   const startTime = new Date(Number(startTimestamp) * 1000);
   const expiryTime = new Date(Number(expiryTimestamp) * 1000);
@@ -47,6 +49,7 @@ function calculateGoalDuration(startTimestamp, expiryTimestamp) {
   };
 }
 
+// Function to map activity types to corresponding icons and colors.
 const getIconAndColor = (activity) => {
   switch (activity) {
     case "RUNNING":
@@ -76,8 +79,9 @@ const getIconAndColor = (activity) => {
   }
 };
 
+// Function to fetch goals from the blockchain and format the data for display.
 export const fetchGoals = async (provider, getExpired) => {
-  const currentTimestamp = Math.floor(Date.now() / 1000);
+  const currentTimestamp = Math.floor(Date.now() / 1000); 
   const contract = new ethers.Contract(contractAddress, contractABI, provider);
   const goalCount = await contract.goalCount();
   const fetchedGoals = [];
@@ -92,15 +96,16 @@ export const fetchGoals = async (provider, getExpired) => {
     const remainingTime = calculateRemainingTime(goal.expiryTimestamp);
     const remainingTimeToJoin = calculateRemainingTimeToJoin(goal.startTimestamp)
 
-    const isActive = goal.startTimestamp > currentTimestamp;
-    const includeGoal = getExpired ? !isActive : isActive;
+    const isActive = goal.startTimestamp > currentTimestamp; // Determine if the goal is active.
+    const includeGoal = getExpired ? !isActive : isActive; // Include the goal based on its status and the filter.
 
     if (includeGoal) {
       fetchedGoals.push({
         id: i,
         category: goal.activity,
         title: goal.description,
-        currentDeposits: ethers.formatUnits(goal.stake, 'ether'),
+        distance: Number(goal.distance),
+        currentDeposits: ethers.formatUnits(goal.stake, 'ether'), // Format stake to Ether units.
         colour: "bg-orange-700",
         activeButtonColour:"bg-orange-600",
         nonActiveButtonColour:'bg-gray-500',
@@ -119,5 +124,5 @@ export const fetchGoals = async (provider, getExpired) => {
     }
   }
 
-  return fetchedGoals;
+  return fetchedGoals; // Return the list of formatted goals.
 };
