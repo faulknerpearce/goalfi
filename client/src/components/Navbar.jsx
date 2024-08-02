@@ -7,6 +7,7 @@ import { shortenAddress } from "../utils/shortenAddress";
 import logo from "../../images/logo.png";
 import Modal from "./Modal";
 
+//Component for individual navigation items.
 const NavBarItem = ({ title, to, classprops }) => (
   <li className={`mx-4 cursor-pointer ${classprops}`}>
     <Link to={to}>{title}</Link>
@@ -18,6 +19,7 @@ const Navbar = () => {
   const { currentAccount, connectWallet, isUserCreated, createUser } = useContext(TransactionContext);
   const [showModal, setShowModal] = useState(false);
 
+  // Function to handle connecting to Strava for authorization.
   const handleStravaConnect = async () => {
     try {
       const response = await fetch('/api/generate-auth-url');
@@ -32,6 +34,7 @@ const Navbar = () => {
     }
   };
 
+  // Effect hook to handle redirection and token exchange after Strava authorization.
   useEffect(() => {
     const handleRedirect = async () => {
       const url = window.location.href;
@@ -40,7 +43,7 @@ const Navbar = () => {
 
       if (code && currentAccount) {
         try {
-          // Send the authorization code to the backend
+          // Send the authorization code to the backend.
           await fetch('/api/exchange-token', {
             method: 'POST',
             headers: {
@@ -49,7 +52,7 @@ const Navbar = () => {
             body: JSON.stringify({ code, walletAddress: currentAccount }),
           });
 
-          // Clear the code from the URL
+          // Clear the code from the URL.
           urlParams.delete('code');
           window.history.replaceState({}, document.title, window.location.pathname);
         } catch (error) {
@@ -61,14 +64,17 @@ const Navbar = () => {
     handleRedirect();
   }, [currentAccount]);
 
+  // Function to show the modal for account creation.
   const handleCreateAccountClick = () => {
     setShowModal(true);
   };
 
+  // Function to close the modal.
   const handleCloseModal = () => {
     setShowModal(false);
   };
 
+  // Function to confirm account creation and close the modal if successful.
   const handleConfirmModal = async () => {
     const userCreated = await createUser();
     if (userCreated) {
