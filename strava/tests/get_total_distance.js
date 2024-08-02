@@ -1,5 +1,11 @@
 const axios = require('axios');
 const { DateTime } = require('luxon');
+const dotenv = require('dotenv');
+const path = require('path');
+
+// Load environment variables
+dotenv.config({ path: path.resolve(__dirname, '../.env') });
+
 
 // Function to fetch user's activities
 const fetchActivities = async (accessToken) => {
@@ -29,7 +35,7 @@ async function get_total_distance(activity_type, accessToken) {
 
 (async () => {
   try {
-    const accessToken = '7adf52f5b0e933b6e531ae991c34b5a611efaba9'
+    const accessToken = process.env.ACCESS_TOKEN;
     const activity_type = 'Ride';
 
     await get_total_distance(activity_type, accessToken);
