@@ -35,6 +35,7 @@ const Dashboard = () => {
           const userGoal = userGoals.find(userGoal => userGoal.goalId === goal.id);
           return {
             ...goal,
+            userDistance: userGoal ? userGoal.userDistance : 0,
             progress: userGoal ? userGoal.progress : null, 
           };
         }).filter(goal => goal.progress !== null); 
@@ -116,7 +117,7 @@ const Dashboard = () => {
             </div>
             <div className="flex flex-col justify-between w-full md:w-1/2 h-full">
               <div className="white-glassmorphism p-6 rounded-lg border border-gray-700 h-full">
-                <h3 className="text-lg font-semibold text-white mb-4">Progress</h3>
+                <h3 className="text-lg font-semibold text-white mb-4">Activity</h3>
                 <ResponsiveContainer width="100%" height={200}>
                   <AreaChart data={goalHistory}>
                     <defs>
@@ -152,7 +153,7 @@ const Dashboard = () => {
               Past Goals
           </button>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 w-full max-w-7xl mx-auto mt-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 w-full max-w-7xl mx-auto mt-10">
           {loading ? (
               <div className="col-span-1 sm:col-span-2 md:col-span-3 flex justify-center">
                 <Loader />
