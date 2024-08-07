@@ -1,12 +1,12 @@
-import React, { useContext, useEffect, useState } from "react";
-import UserGoalCard from "./UserGoalCard";
-import DashboardCard from "./DashboardCard";
 import { ethers } from "ethers";
 import { TransactionContext } from "../context/TransactionContext";
 import { fetchGoals } from "../utils/fetchGoals";
 import { getGoalsForUser } from "../utils/getGoalsForUser";
-import { AreaChart, Area, Tooltip, ResponsiveContainer, YAxis } from 'recharts';
 import { FaTrophy, FaTimesCircle, FaTasks } from "react-icons/fa";
+import React, { useContext, useEffect, useState } from "react";
+import UserGoalCard from "../components/UserGoalCard";
+import DashboardCard from "../components/DashboardCard";
+import DashboardChart from '../components/DashboardChart'
 import Loader from "../components/Loader";
 
 const Dashboard = () => {
@@ -42,29 +42,32 @@ const Dashboard = () => {
 
         let completedCount = 0;
         let failedCount = 0;
-        let history = [];
-        let progressValue = 0;
-
+        let goalJoinHistory = {};
+      
         userGoalDetails.forEach(goal => {
           if (Number(goal.progress) === 4 || Number(goal.progress) === 3) {
             completedCount++;
-            progressValue++;
           } else if (Number(goal.progress) === 2) {
             failedCount++;
-            progressValue--;
           }
-
-          history.push({
-            date: new Date(goal.expiryTimestamp * 1000).toLocaleDateString(),
-            progress: progressValue
-          });
+          const joinDate = new Date(goal.expiryTimestamp * 1000).toLocaleDateString();
+          if (!goalJoinHistory[joinDate]) {
+            goalJoinHistory[joinDate] = 0;
+          }
+          goalJoinHistory[joinDate]++;
         });
+
+        const goalHistoryArray = Object.keys(goalJoinHistory).map(date => ({
+          date,
+          goalsJoined: goalJoinHistory[date]
+        }));
 
         setCompletedGoals(completedCount);
         setFailedGoals(failedCount);
         setTotalGoalsJoined(userGoalDetails.length);
         setGoals(userGoalDetails);
-        setGoalHistory(history);
+        setGoalHistory(goalHistoryArray);
+
       } catch (error) {
         console.error("Error fetching user goals:", error);
       } finally {
@@ -118,19 +121,7 @@ const Dashboard = () => {
             <div className="flex flex-col justify-between w-full md:w-1/2 h-full">
               <div className="white-glassmorphism p-6 rounded-lg border border-gray-700 h-full">
                 <h3 className="text-lg font-semibold text-white mb-4">Activity</h3>
-                <ResponsiveContainer width="100%" height={200}>
-                  <AreaChart data={goalHistory}>
-                    <defs>
-                      <linearGradient id="colorProgress" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#82ca9d" stopOpacity={0.9}/>
-                        <stop offset="95%" stopColor="#82ca9d" stopOpacity={0}/>
-                      </linearGradient>
-                    </defs>
-                    <YAxis hide={true} domain={['dataMin', 'dataMax']} />
-                    <Tooltip />
-                    <Area type="monotone" dataKey="progress" stroke="#82ca9d" fillOpacity={1} fill="url(#colorProgress)" />
-                  </AreaChart>
-                </ResponsiveContainer>
+                <DashboardChart data={goalHistory} />
               </div>
             </div>
           </div>
