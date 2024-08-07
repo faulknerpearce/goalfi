@@ -10,6 +10,7 @@ export const TransactionsProvider = ({ children }) => {
   const [currentAccount, setCurrentAccount] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [isUserCreated, setIsUserCreated] = useState(false);
+  const [isStravaAuthorized, setIsStravaAuthorized] = useState(false);
   const [loading, setLoading] = useState(false); 
 
   // Checks if a user exists in the smart contract for the given address.
@@ -19,7 +20,6 @@ export const TransactionsProvider = ({ children }) => {
       const contract = new ethers.Contract(contractAddress, contractABI, provider);
       const addressUsed = await contract.userAddressUsed(address);
 
-      console.log(`checkUserExists: checking address: ${address}`);
       console.log(`checkUserExists: address used: ${addressUsed}`);
 
       return addressUsed;
@@ -35,11 +35,14 @@ export const TransactionsProvider = ({ children }) => {
       if (!ethereum) return alert("Please install MetaMask.");
       const accounts = await ethereum.request({ method: "eth_accounts" });
       if (accounts.length) {
+
         setCurrentAccount(accounts[0]);
         const userExists = await checkUserExists(accounts[0]);
-
-        console.log(`checkIfWalletIsConnected: User exists for ${accounts[0]}:`, userExists);
+        const stravaAuthorized = await checkStravaAuthorization(accounts[0]);
+        
         setIsUserCreated(userExists);
+        setIsStravaAuthorized(stravaAuthorized);
+
       } else {
         console.log("checkIfWalletIsConnected: No accounts found");
       }
@@ -56,10 +59,12 @@ export const TransactionsProvider = ({ children }) => {
       const accounts = await ethereum.request({ method: "eth_requestAccounts" });
       setCurrentAccount(accounts[0]);
       const userExists = await checkUserExists(accounts[0]);
+      const stravaAuthorized = await checkStravaAuthorization(accounts[0]);
 
       console.log(`connectWallet: User exists for ${accounts[0]}:`, userExists);
 
       setIsUserCreated(userExists);
+      setIsStravaAuthorized(stravaAuthorized);
     } catch (error) {
       console.log(error);
       throw new Error("connectWallet: No ethereum object");
@@ -118,7 +123,7 @@ export const TransactionsProvider = ({ children }) => {
       alert("Successfully joined the goal!");
     } catch (error) {
       console.error("Failed to join goal:", error);
-      alert("Failed to join the goal. Please try again.");
+      alert(`Failed to join the goal. ${error.reason}.`);
     }
   };
 
@@ -133,7 +138,7 @@ export const TransactionsProvider = ({ children }) => {
       await tx.wait();
       console.log(`Claim rewards tx hash: ${tx.hash}`);
     } catch (error) {
-      console.error("Failed to Claim Rewards:", error);
+      console.error("Failed to Claim Rewards:", error.reason);
     } finally {
       setLoading(false);
     }
@@ -186,6 +191,29 @@ export const TransactionsProvider = ({ children }) => {
     }
   };
 
+  const checkStravaAuthorization = async (walletAddress) => {
+    try {
+      const response = await fetch('/api/get-token', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ walletAddress }),
+      });
+
+      if (response.ok) {
+        console.log('Strava authorization status: True');
+        return true;
+      } else {
+        console.log('Strava authorization status: False');
+        return false;
+      }
+    } catch (error) {
+      console.error("Error checking Strava authorization: ", error);
+      return false;
+    }
+  };
+
   // Effect to check if the wallet is connected and set up event listeners for account changes.
   useEffect(() => {
     checkIfWalletIsConnected();
@@ -195,13 +223,15 @@ export const TransactionsProvider = ({ children }) => {
         if (accounts.length) {
           setCurrentAccount(accounts[0]);
           const userExists = await checkUserExists(accounts[0]);
-
-          console.log(`User exists for ${accounts[0]}:`, userExists);
+          const stravaAuthorized = await checkStravaAuthorization(accounts[0]);
 
           setIsUserCreated(userExists);
+          setIsStravaAuthorized(stravaAuthorized);
+
         } else {
           setCurrentAccount('');
           setIsUserCreated(false);
+          setIsStravaAuthorized(false);
         }
       });
     }
@@ -212,6 +242,7 @@ export const TransactionsProvider = ({ children }) => {
       connectWallet,
       currentAccount,
       isUserCreated,
+      isStravaAuthorized,
       createUser,
       joinGoal,
       claimRewards,
