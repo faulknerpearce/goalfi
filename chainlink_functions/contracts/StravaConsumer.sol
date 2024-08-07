@@ -57,7 +57,7 @@ contract StravaConsumer is Ownable(), FunctionsClient {
         source = _source;
     }
 
-    function getStravaActivity(string memory accessToken, string memory activityType) external returns (bytes32 requestId) {
+    function executeRequest(string memory accessToken, string memory activityType) external returns (bytes32 requestId) {
         string[] memory args = new string[](2);
         args[0] = accessToken;
         args[1] = activityType;
