@@ -117,6 +117,7 @@ export const fetchGoals = async (provider, getExpired) => {
         minutes: remainingTime.minutes,
         RemaingHours: remainingTimeToJoin.RemaingHours,
         RemaingMinutes: remainingTimeToJoin.RemaingMinutes,
+        expiryTimestamp: Number(goal.expiryTimestamp),
         participants: participantAddresses.length,
         participantAddresses,
         stravaAPICall
