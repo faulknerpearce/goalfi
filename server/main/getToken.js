@@ -5,7 +5,6 @@ const axios = require('axios');
 // Function to retrieve or refresh an access token for a given wallet address.
 const getToken = async (walletAddress) => {
   try {
-
     // Define the path to the users data file.
     const usersDir = path.resolve(__dirname, 'users');
     const filePath = path.join(usersDir, 'users.json');
@@ -20,18 +19,18 @@ const getToken = async (walletAddress) => {
     const Address = walletAddress.toLowerCase();
     const userData = data[Address];
 
-     // If user data is not found, throw an error
+    // If user data is not found, throw an error
     if (!userData) {
       console.error(`User not found for wallet address: ${walletAddress}`);
       throw new Error('User not found');
     }
-    console.log(`fetched the users access token for the wallet address: ${Address}`)
+    console.log(`Fetched the user's access token for the wallet address: ${Address}`);
 
-    const { 'Access Token': accessToken, 'Refresh Token': refreshToken, 'Expires At': expiresAt } = userData;
+    const { 'ID': userId, 'Access Token': accessToken, 'Refresh Token': refreshToken, 'Expires At': expiresAt } = userData;
 
     // Check if the access token is still valid
     if (Date.now() < expiresAt) {
-      return accessToken; 
+      return { userId, accessToken };
     }
 
     // If the access token has expired, refresh it.
@@ -49,7 +48,7 @@ const getToken = async (walletAddress) => {
 
       fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
       console.log(`Refreshed tokens for ${walletAddress}`);
-      return response.data.access_token;
+      return { userId, accessToken: response.data.access_token };
     } catch (refreshError) {
       console.error('Error refreshing token:', refreshError.message);
       throw refreshError;
