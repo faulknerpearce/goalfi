@@ -16,7 +16,7 @@ const NavBarItem = ({ title, to, classprops }) => (
 
 const Navbar = () => {
   const [toggleMenu, setToggleMenu] = useState(false);
-  const { currentAccount, connectWallet, isUserCreated, createUser } = useContext(TransactionContext);
+  const { currentAccount, connectWallet, isUserCreated, createUser, isStravaAuthorized, getUserId} = useContext(TransactionContext);
   const [showModal, setShowModal] = useState(false);
 
   // Function to handle connecting to Strava for authorization.
@@ -43,15 +43,16 @@ const Navbar = () => {
 
       if (code && currentAccount) {
         try {
-          // Send the authorization code to the backend.
+          // Get userId from the context.
+          const userId = await getUserId(currentAccount); 
+          // Send the authorization code and userId to the backend.
           await fetch('/api/exchange-token', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ code, walletAddress: currentAccount }),
+            body: JSON.stringify({ code, walletAddress: currentAccount, userId }),
           });
-
           // Clear the code from the URL.
           urlParams.delete('code');
           window.history.replaceState({}, document.title, window.location.pathname);
@@ -62,7 +63,7 @@ const Navbar = () => {
     };
 
     handleRedirect();
-  }, [currentAccount]);
+}, [currentAccount]);
 
   // Function to show the modal for account creation.
   const handleCreateAccountClick = () => {
@@ -107,9 +108,11 @@ const Navbar = () => {
                 Verify Wallet
               </li>
             )}
-            <li className="py-2 px-7 mx-4 rounded-full cursor-pointer bg-orange-600 hover:bg-orange-700" onClick={handleStravaConnect}>
-              Connect to Strava
-            </li>
+            {isUserCreated && !isStravaAuthorized && (
+              <li className="py-2 px-7 mx-4 rounded-full cursor-pointer bg-orange-600 hover:bg-orange-700" onClick={handleStravaConnect}>
+                Connect to Strava
+              </li>
+              )}
           </>
         )}
       </ul>
@@ -143,9 +146,11 @@ const Navbar = () => {
                     Verify Wallet
                   </li>
                 )}
-                <li className="py-2 px-7 mx-4 rounded-full cursor-pointer bg-orange-600 hover:bg-orange-700" onClick={handleStravaConnect}>
-                  Connect to Strava
-                </li>
+                {isUserCreated && !isStravaAuthorized && (
+                  <li className="py-2 px-7 mx-4 rounded-full cursor-pointer bg-orange-600 hover:bg-orange-700" onClick={handleStravaConnect}>
+                    Connect to Strava
+                  </li>
+                )}
               </>
             )}
           </ul>
