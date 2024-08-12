@@ -18,7 +18,7 @@ app.get('/api/generate-auth-url', (req, res) => {
 
 // Endpoint to handle the Strava OAuth token exchange
 app.post('/api/exchange-token', async (req, res) => {
-  const { code, walletAddress } = req.body;
+  const { code, walletAddress, userId } = req.body;  // Include userId in the request body
 
   try {
     // Exchange the authorization code for access and refresh tokens
@@ -29,8 +29,8 @@ app.post('/api/exchange-token', async (req, res) => {
       grant_type: 'authorization_code',
     });
 
-    saveUserData(walletAddress, tokenResponse.data);
-    console.log(`User Tokens Saved.`)
+    saveUserData(walletAddress, userId, tokenResponse.data);  // Pass userId to saveUserData
+    console.log(`User Tokens Saved.`);
 
     res.status(200).send('Token exchange complete');
   } catch (error) {
@@ -44,8 +44,8 @@ app.post('/api/get-token', async (req, res) => {
   const { walletAddress } = req.body;
 
   try {
-    const accessToken = await getToken(walletAddress);
-    res.json({ accessToken });
+    const data = await getToken(walletAddress);
+    res.json({ data });
   } catch (error) {
     console.error('Error getting token:', error.message);
     res.status(500).send('Error getting token');
