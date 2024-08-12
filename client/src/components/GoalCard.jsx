@@ -22,7 +22,7 @@ const GoalCard = ({ goal, showJoinButton, showViewButton, joinGoal }) => {
         await joinGoal(goal.id, amount);
         // Optionally, handle success notification or other actions
       } catch (error) {
-        console.error("Error joining goal:", error);
+        console.error("Error joining goal:", error.reason);
         // Optionally, handle error notification
       } finally {
         setIsLoading(false);
@@ -88,7 +88,8 @@ const GoalCard = ({ goal, showJoinButton, showViewButton, joinGoal }) => {
                 View Goals
               </button>
             )}
-            {showJoinButton && (
+            {/*Need to place account created conditional check before showing the button.*/}
+            {showJoinButton && ( 
               <button
                 onClick={() => setIsFlipped(true)}
                 className={`text-white w-full py-2 rounded-full hover:bg-opacity-80 transition duration-200 mt-auto border border-gray-700 shadow-lg ${goal.activeButtonColour} mt-2`}>
