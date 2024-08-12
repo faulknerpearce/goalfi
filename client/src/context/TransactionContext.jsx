@@ -191,6 +191,40 @@ export const TransactionsProvider = ({ children }) => {
     }
   };
 
+  // Fetches the participant addresses and their respective Strava tokens for a given goal.
+  const fetchAddressesAndTokens = async (goalId) => {
+    try {
+      const provider = new ethers.BrowserProvider(ethereum);
+      const signer = await provider.getSigner();
+      const contract = new ethers.Contract(contractAddress, contractABI, signer);
+  
+      const participants = await contract.getParticipantAddresses(goalId);
+  
+      const participantTokens = await Promise.all(participants.map(async (address) => {
+        const response = await fetch('/api/get-token', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ walletAddress: address }),
+        });
+  
+        if (response.ok) {
+          const fetched = await response.json();
+          return [address, fetched.data.userId, fetched.data.accessToken]; // Return the address, userId, and accessToken as 3 elements
+        } else {
+          console.error(`Error fetching token for address: ${address}`);
+          return [address, null, null]; // Include null for userId and accessToken if error occurs
+        }
+      }));
+  
+      return participantTokens;
+    } catch (error) {
+      console.error("Error fetching participants and tokens:", error);
+    }
+  };
+  
+  // Checks if the user is authorized with Strava.
   const checkStravaAuthorization = async (walletAddress) => {
     try {
       const response = await fetch('/api/get-token', {
@@ -211,6 +245,20 @@ export const TransactionsProvider = ({ children }) => {
     } catch (error) {
       console.error("Error checking Strava authorization: ", error);
       return false;
+    }
+  };
+
+  // Returns the Id that is mapped the the users wallet address.
+  const getUserId = async (walletAddress) => {
+    try {
+      const provider = new ethers.BrowserProvider(ethereum);
+      const signer = await provider.getSigner();
+      const contract = new ethers.Contract(contractAddress, contractABI, signer);
+      const userId = await contract.getUserId(walletAddress);
+      return Number(userId);
+    } catch (error) {
+      console.error("Error fetching user ID:", error);
+      throw error;
     }
   };
 
@@ -247,6 +295,8 @@ export const TransactionsProvider = ({ children }) => {
       joinGoal,
       claimRewards,
       requestData,
+      fetchAddressesAndTokens,
+      getUserId,
       errorMessage,
       setErrorMessage,
       loading
