@@ -1,9 +1,9 @@
-const dataMap = JSON.parse(args[0]); 
+const dataList = JSON.parse(args[0]); 
 const activityType = args[1];
-const results = {};
+const results = [];
 
-for (const ID in dataMap) {
-  const accessToken = dataMap[ID];
+for (const userID in dataList) {
+  const accessToken = dataList[userID];
 
   const apiResponse = await Functions.makeHttpRequest({
     url: 'https://www.strava.com/api/v3/athlete/activities',
@@ -12,23 +12,24 @@ for (const ID in dataMap) {
   });
 
   if (apiResponse.error) {
-    throw Error(`Request failed: ${error}`);
+    throw new Error('Request failed.');
   }
 
   const data = apiResponse.data;
   let totalDistance = 0;
 
-  // Filters activities based on the activity type and ensure they are not manually added.
-  const activities = data.filter(activity => activity.sport_type === activityType );
+  // Filters activities based on the activity type
+  const activities = data.filter(activity => activity.sport_type === activityType && !activity.manual);
 
   if (activities) {
     activities.forEach(activity => {
       totalDistance += Math.round(Number(activity.distance));
     });
-
-    results[ID] = totalDistance;
+    results.push(Number(userID));
+    results.push(totalDistance);
   } else {
-    results[ID] = 0;
+    results.push(Number(userID));
+    results.push(0);
   }
 }
 
