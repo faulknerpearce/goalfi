@@ -4,20 +4,26 @@ const fs = require('fs');
 
 async function main() {
 
-    const source = fs.readFileSync(path.resolve(__dirname, 'source.js'), 'utf8');
+  // Read the JavaScript source code from a file named 'source.js'.
+  const source = fs.readFileSync(path.resolve(__dirname, 'source.js'), 'utf8');
 
-    const subscriptionId = process.env.FUJI_SUBSCRIPTION_ID; // For deploying on the avalanche fuji network.
+  // Get the subscription ID for deploying on the Avalanche Fuji testnet from environment variables.
+  const subscriptionId = process.env.FUJI_SUBSCRIPTION_ID; // For deploying on the avalanche fuji network.
 
-    const StravaConsumerFactory = await ethers.getContractFactory("StravaConsumer");
-    const StravaConsumerContract = await StravaConsumerFactory.deploy(subscriptionId, source);
-    
-    console.log('Deploying Contract.');
+  // Create a contract factory for the "StravaConsumer" contract.
+  const StravaConsumerFactory = await ethers.getContractFactory("StravaConsumer");
   
-    await StravaConsumerContract.waitForDeployment();
+  // Deploy the "StravaConsumer" contract with the subscription ID and source code.
+  const StravaConsumerContract = await StravaConsumerFactory.deploy(subscriptionId, source);
   
-    console.log('Contract deployed successfully.');
-    console.log("Contract address:", await StravaConsumerContract.getAddress());
-  }
+  console.log('Deploying Contract.');
+
+  // Wait for the contract deployment to complete.
+  await StravaConsumerContract.waitForDeployment();
+
+  console.log('Contract deployed successfully.');
+  console.log("Contract address:", await StravaConsumerContract.getAddress());
+}
   
 main()
   .then(() => process.exit(0))
