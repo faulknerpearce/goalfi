@@ -103,14 +103,15 @@ contract StravaConsumer is Ownable(), FunctionsClient {
 
         if (response.length > 0) {
             ActivityStruct storage activity = activities[requestId];
+            
             activity.activityData = string(response);
+            
+            emit Response(requestId, string(response), response, err);
         }
 
         requests[requestId].fulfilled = true;
         requests[requestId].response = response;
         requests[requestId].err = err;
-
-        emit Response(requestId, string(response), response, err);
     }
 
     function getLastActivity() public view returns (ActivityStruct memory) {
