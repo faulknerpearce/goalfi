@@ -176,14 +176,14 @@ export const TransactionsProvider = ({ children }) => {
       const walletAddress = await signer.getAddress();
       const contract = new ethers.Contract(contractAddress, contractABI, signer);
 
-      const data = await fetchToken(walletAddress);
+      const fetched = await fetchToken(walletAddress);
 
-      console.log(`TransactionContext requestData Called for Goal ID: ${goalId}. `);
-      
-      // console.log(`Goal ID: ${goalId}. Activity Type: ${activityType}.`);
-      // console.log(`Access Token: ${data.accessToken}. Wallet Address: ${walletAddress}.`);
+      console.log(`TransactionContext requestData Called.`);
+      console.log(`Access Token: ${fetched.data.accessToken}.`);
+      console.log(`Wallet Address: ${walletAddress}.`)
+      console.log(`Activity Type: ${activityType}. Goal ID: ${goalId}.`)
 
-      const tx = await contract.executeRequest(data.accessToken, activityType, walletAddress, goalId);
+      const tx = await contract.executeRequest(fetched.data.accessToken, activityType, walletAddress, goalId);
       console.log(`TransactionContext requestData Executed. Tx Hash: ${tx.hash}`);
 
     } catch (error){
