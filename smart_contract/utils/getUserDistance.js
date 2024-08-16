@@ -19,10 +19,11 @@ function askQuestion(query) {
 async function getUserDistance(walletAddress, goalId) {
     try {
         const contract = getContractInstance();
-        
+
         console.log(`Getting the total distance for wallet address: ${walletAddress}`)
         
         const distance = await contract.getUserDistance(walletAddress, goalId);
+        
         console.log("User Distance:", distance.toString());
 
     } catch (error) {

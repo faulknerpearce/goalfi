@@ -18,14 +18,19 @@ function askQuestion(query) {
 // Asynchronously retrieves and logs the total rewards for a given wallet address.
 async function getTotalRewards(walletAddress) {
     try {
-
-        console.log(`Getting the Total Rewards for Wallet Address: ${walletAddress}`)
         const contract = getContractInstance();
         
+        console.log(`Getting the Total Rewards for Wallet Address: ${walletAddress}`)
+        
         const total = await contract.getUserTotalRewards(walletAddress);
+        
+        const id = await contract.getUserId(walletAddress);
+        
         const totalParsed = ethers.utils.formatUnits(total, 18);
         
         console.log(`Total Rewards: ${totalParsed} AVAX`); 
+        console.log(`User ID: ${id}`);
+
     } catch (error) {
         console.error(`Error: ${error.message}`);
     }
