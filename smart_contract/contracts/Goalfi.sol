@@ -17,6 +17,7 @@ contract Goalfi is Ownable(msg.sender), FunctionsClient {
     // Struct representing a user in the system.
     struct User {
         address walletAddress;
+        uint id;
         mapping(uint => GoalParticipation) goalParticipations;
         uint totalRewards;
     }
@@ -86,6 +87,7 @@ contract Goalfi is Ownable(msg.sender), FunctionsClient {
     uint public constant FEE_PERCENTAGE = 2;
 
     mapping(address => User) public users;
+    mapping(uint => address) public userIds;
     mapping(uint => Goal) public goals;
     mapping(address => bool) public userAddressUsed;
 
@@ -164,6 +166,8 @@ contract Goalfi is Ownable(msg.sender), FunctionsClient {
         require(msg.sender.balance >= 1000000000000000, "User must have at least 0.001 ETH in their wallet");
 
         users[msg.sender].walletAddress = msg.sender;
+        users[msg.sender].id = userCount;
+        userIds[userCount] = msg.sender;
         userAddressUsed[msg.sender] = true;
         userCount++;
 
@@ -330,6 +334,8 @@ contract Goalfi is Ownable(msg.sender), FunctionsClient {
             address walletAddress = details.walletAddress;
             uint goalId = details.goalId;
 
+            // placce loop or create function to unpack the returned data that will be a 2d list [[addreess, distance], [address, distance]]
+
             goals[goalId].participants[walletAddress].userDistance = distance;
         }
 
@@ -364,5 +370,15 @@ contract Goalfi is Ownable(msg.sender), FunctionsClient {
     // Retrieves the total rewards accumulated by a user.
     function getUserTotalRewards(address walletAddress) public view userExists(walletAddress) returns (uint) {
         return users[walletAddress].totalRewards;
+    }
+
+    // Retrieves the id that is associated with the user address.
+    function getUserId(address walletAddress) public view userExists(walletAddress) returns (uint) {
+        return users[walletAddress].id;
+    }
+
+   // Retrieves the address that is associated with the user ID.
+    function getUserAddress(uint id) public view returns (address) {
+        return userIds[id];
     }
 }
