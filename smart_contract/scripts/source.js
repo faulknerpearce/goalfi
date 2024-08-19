@@ -1,26 +1,35 @@
-const accessToken = args[0];
+const dataList = JSON.parse(args[0]); 
 const activityType = args[1];
-const apiResponse = await Functions.makeHttpRequest({
-  url: 'https://www.strava.com/api/v3/athlete/activities',
-  headers: { Authorization: `Bearer ${accessToken}` },
-  responseType: 'json'
-});
-if (apiResponse.error) {
-  throw Error('Request failed');
-}
-const data = apiResponse.data;
+const results = [];
 
-let totalDistance = 0;
+for (const userID in dataList) {
+  const accessToken = dataList[userID];
 
-// Filters activities based on the activity type and ensure they are not manually added.
-const activities = data.filter(activity => activity.sport_type === activityType && !activity.manual);
+  const apiResponse = await Functions.makeHttpRequest({
+    url: 'https://www.strava.com/api/v3/athlete/activities',
+    headers: { Authorization: `Bearer ${accessToken}` },
+    responseType: 'json'
+  });
 
-if (activities) {
+  if (apiResponse.error) {
+    throw new Error('Request failed.');
+  }
+
+  const data = apiResponse.data;
+  let totalDistance = 0;
+
+  const activities = data.filter(activity => activity.sport_type === activityType && !activity.manual);
+
+  if (activities) {
     activities.forEach(activity => {
-        totalDistance += Math.round(Number(activity.distance));
+      totalDistance += Math.round(Number(activity.distance));
     });
-  
-    return Functions.encodeUint256(totalDistance);
-} else {
-    return Functions.encodeString(`No activities found for type: ${activityType}.`);
+    results.push(Number(userID));
+    results.push(totalDistance);
+  } else {
+    results.push(Number(userID));
+    results.push(0);
+  }
 }
+
+return Functions.encodeString(JSON.stringify(results));
