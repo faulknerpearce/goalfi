@@ -10,6 +10,7 @@ contract Goalfi is Ownable(msg.sender), FunctionsClient {
 
     // Struct representing an activity's type and data.
     struct ActivityStruct {
+        uint goalId;
         string activityType;
         string activityData;
     }
@@ -61,12 +62,6 @@ contract Goalfi is Ownable(msg.sender), FunctionsClient {
         bytes err;
     }
 
-    // Struct representing details of a data request.
-    struct RequestDetails {
-        address walletAddress;
-        uint goalId;
-    }
-
     // Hardcoded for Fuji
     address router = 0xA9d587a00A31A52Ed70D6026794a8FC5E2F5dCb0; // Fuji network 
     bytes32 donID = 0x66756e2d6176616c616e6368652d66756a692d31000000000000000000000000; // Fuji network
@@ -86,19 +81,17 @@ contract Goalfi is Ownable(msg.sender), FunctionsClient {
 
     uint public constant FEE_PERCENTAGE = 2;
 
+    mapping(uint => Goal) public goals;
     mapping(address => User) public users;
     mapping(uint => address) public userIds;
-    mapping(uint => Goal) public goals;
     mapping(address => bool) public userAddressUsed;
+    mapping(uint => bytes32) public goalToRequestId;
 
     mapping(bytes32 => RequestStatus) public requests;
     mapping(bytes32 => ActivityStruct) public activities;
-    mapping(bytes32 => RequestDetails) public requestDetails;
-    
 
     event Response(bytes32 indexed requestId,string activityData,bytes response,bytes err);
     event APIRequestSent(bytes32 indexed requestId,string activityType);
-
     event UserCreated(address indexed walletAddress);
     event GoalCreated(uint indexed goalId, string activity, string description, uint distance, uint startTimestamp, uint expiryTimestamp);
     event UserJoinedGoal(address indexed walletAddress, uint indexed goalId, uint stake);
@@ -108,7 +101,7 @@ contract Goalfi is Ownable(msg.sender), FunctionsClient {
 
     // Modifier to ensure a user has not already been created.
     modifier userNotCreated(address _walletAddress) {
-        require(!userAddressUsed[_walletAddress], "User can only create an account once");
+        require(!userAddressUsed[_walletAddress], "Can only create an account once");
         _;
     }
 
@@ -120,13 +113,13 @@ contract Goalfi is Ownable(msg.sender), FunctionsClient {
 
     // Modifier to ensure a goal exists
     modifier goalExists(uint goalId) {
-        require(goals[goalId].set, "goalExists: invalid goal id, goal does not exist");
+        require(goals[goalId].set, "Invalid goal id, goal does not exist");
         _;
     }
 
     // Modifier to mark a goal as failed if it has expire
     modifier markFailedIfExpired(uint _goalId, address _walletAddress) {
-        require(goals[_goalId].set, "markFailedIfExpired: invalid goal id, goal does not exist");
+        require(goals[_goalId].set, "Invalid goal id, goal does not exist");
         if (goals[_goalId].expiryTimestamp < block.timestamp) {
             closeGoal(_goalId);
         }
@@ -163,7 +156,7 @@ contract Goalfi is Ownable(msg.sender), FunctionsClient {
 
     // Creates a new user account if not already created.
     function createUser() public userNotCreated(msg.sender) {
-        require(msg.sender.balance >= 1000000000000000, "User must have at least 0.001 ETH in their wallet");
+        require(msg.sender.balance >= 1000000000000000, "Must have at least 0.001 Avax");
 
         users[msg.sender].walletAddress = msg.sender;
         users[msg.sender].id = userCount;
@@ -176,10 +169,10 @@ contract Goalfi is Ownable(msg.sender), FunctionsClient {
     
     // Allows a user to join a goal with a specified stake.
     function joinGoal(uint _goalId) public payable userExists(msg.sender) goalExists(_goalId) {
-        require(block.timestamp < goals[_goalId].startTimestamp, "Cannot join a goal that has already started.");
-        require(goals[_goalId].expiryTimestamp > block.timestamp, "Cannot join an expired goal");
-        require(msg.value > 0, "You must stake to join the pool.");
-        require(goals[_goalId].participants[msg.sender].progress == UserProgress.ANY, "User has already participated in the goal");
+        require(block.timestamp < goals[_goalId].startTimestamp, "Goal has started.");
+        require(goals[_goalId].expiryTimestamp > block.timestamp, "Goal has expired.");
+        require(msg.value > 0, "Must stake to join goal.");
+        require(goals[_goalId].participants[msg.sender].progress == UserProgress.ANY, "Already participated in goal.");
 
         goals[_goalId].participants[msg.sender] = GoalParticipation(msg.value, 0, UserProgress.JOINED);
         goals[_goalId].participantAddresses.push(msg.sender);
@@ -207,7 +200,7 @@ contract Goalfi is Ownable(msg.sender), FunctionsClient {
 
     // Evaluates and closes a goal, marking user progress as necessary.
     function closeGoal(uint _goalId) public onlyOwner goalExists(_goalId) {
-        require(block.timestamp >= goals[_goalId].expiryTimestamp, "closeGoal: Goal must be expired");
+        require(block.timestamp >= goals[_goalId].expiryTimestamp, "Goal must be expired");
 
         Goal storage goal = goals[_goalId];
 
@@ -247,19 +240,19 @@ contract Goalfi is Ownable(msg.sender), FunctionsClient {
 
     // Allows a user to claim rewards for completing a goal.
     function claimRewards(uint _goalId) public payable userExists(msg.sender) goalExists(_goalId) {
-        require(block.timestamp >= goals[_goalId].expiryTimestamp, "claimRewards: Goal must be expired");
+        require(block.timestamp >= goals[_goalId].expiryTimestamp, "Goal must be expired");
 
         Goal storage goal = goals[_goalId];
 
-        require(goal.participants[msg.sender].progress != UserProgress.CLAIMED, "User has already claimed rewards");
-        require(goal.participants[msg.sender].progress == UserProgress.COMPLETED, "User must have completed the goal");
+        require(goal.participants[msg.sender].progress != UserProgress.CLAIMED, "Rewards claimed.");
+        require(goal.participants[msg.sender].progress == UserProgress.COMPLETED, "Goal uncomplete");
 
         uint userStakedAmount = goal.participants[msg.sender].stakedAmount;
-        require(userStakedAmount > 0, "User must have staked Ether in the goal");
+        require(userStakedAmount > 0, "Did not stake.");
 
         uint userRewards = calculateUserRewards(msg.sender, _goalId);
 
-        payable(msg.sender).transfer(userRewards);
+        payable(msg.sender).transfer(userRewards); 
 
         goal.stake -= userRewards;
         goal.participants[msg.sender].progress = UserProgress.CLAIMED;
@@ -269,12 +262,11 @@ contract Goalfi is Ownable(msg.sender), FunctionsClient {
     }
 
     // Initiates a Chainlink request to fetch activity data for a specific goal.
-    function executeRequest(string memory accessToken, string memory activityType, address walletAddress, uint goalId) external returns (bytes32 requestId) {
-        require(users[walletAddress].walletAddress != address(0), "getStravaActivity: user must exist");
-        require(goals[goalId].set, "getStravaActivity: goal must exist");
+    function executeRequest(string memory requestData, string memory activityType, uint goalId) external returns (bytes32 requestId) {
+        require(goals[goalId].set, "Goal must exist");
         
         string[] memory args = new string[](2);
-        args[0] = accessToken;
+        args[0] = requestData;
         args[1] = activityType;
 
         FunctionsRequest.Request memory req;
@@ -289,6 +281,7 @@ contract Goalfi is Ownable(msg.sender), FunctionsClient {
         );
 
         activities[lastRequestId] = ActivityStruct({
+            goalId: goalId,
             activityType: activityType,
             activityData: ""
         });
@@ -300,26 +293,17 @@ contract Goalfi is Ownable(msg.sender), FunctionsClient {
             err: ""
         });
 
-        requestDetails[lastRequestId] = RequestDetails({
-            walletAddress: walletAddress,
-            goalId: goalId
-        });
-
-
         requestIds.push(lastRequestId);
+        goalToRequestId[goalId] = lastRequestId;
 
         emit APIRequestSent(lastRequestId, activityType);
 
         return lastRequestId;
     }
 
-    // Handles the fulfillment of a Chainlink request, updating user data accordingly.
-    function fulfillRequest(
-        bytes32 requestId,
-        bytes memory response,
-        bytes memory err
-    ) internal override {
-        require(requests[requestId].exists, "request not found");
+    // Handles the fulfillment of a Chainlink request, saving the response to an activity struct.
+    function fulfillRequest(bytes32 requestId, bytes memory response, bytes memory err) internal override {
+        require(requests[requestId].exists, "Request not found");
 
         lastError = err;
         lastResponse = response;
@@ -327,16 +311,6 @@ contract Goalfi is Ownable(msg.sender), FunctionsClient {
         if (response.length > 0) {
             ActivityStruct storage activity = activities[requestId];
             activity.activityData = string(response);
-
-            uint256 distance = abi.decode(response, (uint256));
-
-            RequestDetails memory details = requestDetails[requestId];
-            address walletAddress = details.walletAddress;
-            uint goalId = details.goalId;
-
-            // placce loop or create function to unpack the returned data that will be a 2d list [[addreess, distance], [address, distance]]
-
-            goals[goalId].participants[walletAddress].userDistance = distance;
         }
 
         requests[requestId].fulfilled = true;
@@ -346,10 +320,11 @@ contract Goalfi is Ownable(msg.sender), FunctionsClient {
         emit Response(requestId, string(response), response, err);
     }
 
-    // Retrieves the most recent activity data.
-    function getLastActivity() public view returns (ActivityStruct memory) {
-        require(requestIds.length > 0, "No activities found");
-        return activities[requestIds[requestIds.length - 1]];
+    // Retrieves the activity associated with a specific goal ID.
+    function getActivityByGoalId(uint goalId) public view returns (ActivityStruct memory) {
+        bytes32 requestId = goalToRequestId[goalId];
+        require(requests[requestId].exists, "No activity found.");
+        return activities[requestId];
     }
 
     // Retrieves the distance recorded for a user in a specific goal.
@@ -378,7 +353,7 @@ contract Goalfi is Ownable(msg.sender), FunctionsClient {
     }
 
    // Retrieves the address that is associated with the user ID.
-    function getUserAddress(uint id) public view returns (address) {
-        return userIds[id];
+    function getUserAddress(uint _id) public view returns (address) {
+        return userIds[_id];
     }
 }
