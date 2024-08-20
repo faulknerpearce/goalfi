@@ -3,7 +3,6 @@ const dotenv = require("dotenv");
 const readline = require("readline");
 dotenv.config();
 
-// Function to prompt the user for input
 function askQuestion(query) {
   const rl = readline.createInterface({
     input: process.stdin,
@@ -16,34 +15,39 @@ function askQuestion(query) {
   }));
 }
 
-// Sends a request to the smart contract to fetch activity data for a given sport type and goal ID
-async function requestActivityData(AccsessToken, activityType, walletAddress, goalId) {
+async function requestActivityData(data, activityType, goalId) {
   
   const contract = getContractInstance();
 
-  console.log(`Requesting activity data for sport type: ${activityType}`);
+  try {
+    console.log(`Requesting activity data for sport type: ${activityType}`);
 
-  const tx = await contract.executeRequest(AccsessToken, activityType, walletAddress, goalId);
+    const tx = await contract.executeRequest(data, activityType, goalId);
+    console.log(`Activity data request sent for ${activityType}, transaction hash: ${tx.hash}`);
 
-  console.log(`Activity data request sent for ${activityType}, transaction hash: ${tx.hash}`);
+  } catch (error) {
+    console.error("Error sending activity data request:", error);
+  }
 }
 
-// Main function to execute the process of requesting activity data
-async function main(){
+async function main() {
 
+  const requestData = [];
+  const UserId = await askQuestion('Enter User ID: ');
+  requestData.push(UserId)
   const accsessToken = await askQuestion('Enter the Access Token: ');
+  requestData.push(accsessToken)
   const activityType = await askQuestion('Enter the Activity Type: ');
-  const walletAddress = await askQuestion('Enter the Wallet Adddress: ');
   const goalId = await askQuestion('Enter the Goal ID: ');
 
-  await requestActivityData(accsessToken, activityType, walletAddress, goalId);
-  
+  await requestActivityData(requestData, activityType, goalId);
+
   console.log("Request Data Executed.");
 }
 
-// Execute the main function and handle the process exit based on success or error
 main()
-.then(() => process.exit(0)).catch((error) => {
-  console.error(error);
-  process.exit(1);
-});
+  .then(() => process.exit(0))
+  .catch((error) => {
+    console.error("Main function error:", error);
+    process.exit(1);
+  });
