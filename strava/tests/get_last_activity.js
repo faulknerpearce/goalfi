@@ -1,7 +1,10 @@
 const axios = require('axios');
 const { DateTime } = require('luxon');
+const dotenv = require('dotenv');
+const path = require('path');
 
-const accessToken = 'e1eebee63c56c54c4f5ee88642bbeb766e853a1a';
+// Load environment variables
+dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
 // Function to fetch user's activities
 const fetchActivities = async (accessToken) => {
@@ -14,6 +17,9 @@ const fetchActivities = async (accessToken) => {
 
 const main = async () => {
   try {
+
+    const accessToken = process.env.ACCESS_TOKEN;
+    
     // Fetch user's activities
     const activities = await fetchActivities(accessToken);
 
