@@ -8,10 +8,10 @@ async function getRequestData() {
 
   console.log("Requesting last activity data.");
 
-  const goalId = 0;
+  const requestId = '0xdb7fb0cca6bcfd5b66701e9010c84d636f3b16bc386ffda3e3a3eb89023e8a98';
 
   // Fetch the last activity data from the contract.
-  const Response = await contract.getActivityByGoalId(goalId);
+  const Response = await contract.getActivityWithRequestId(requestId);
 
   console.log(`Goal Id: ${Response.goalId}`);
   console.log(`Activity Type: ${Response.activityType}`);
