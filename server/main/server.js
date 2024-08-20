@@ -3,6 +3,7 @@ const bodyParser = require('body-parser');
 const axios = require('axios');
 const saveUserData = require('./saveUserData');
 const getToken = require('./getToken');
+const assignDistance = require('./eventListener');
 
 require('dotenv').config();
 
@@ -51,6 +52,9 @@ app.post('/api/get-token', async (req, res) => {
     res.status(500).send('Error getting token');
   }
 });
+
+// Event listener, Once triggered it will assign the distance.
+assignDistance();
 
 // Start the server
 const PORT = process.env.PORT;
