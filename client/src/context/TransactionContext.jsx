@@ -144,86 +144,20 @@ export const TransactionsProvider = ({ children }) => {
     }
   };
 
-  // Fetch token using wallet address from the backend server.
-  const fetchToken = async (walletAddress) => {
-    try {
-      const response = await fetch('/api/get-token', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ walletAddress }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      return data
-
-    } catch (error) {
-      console.error('Error fetching tokens:', error);
-    }
-  };
-
-  // Requests data from the smart contract using chainlink .
-  const requestData = async (activityType, goalId) =>{
-
-    try {
-      const provider = new ethers.BrowserProvider(ethereum);
-      const signer = await provider.getSigner();
-      const walletAddress = await signer.getAddress();
-      const contract = new ethers.Contract(contractAddress, contractABI, signer);
-
-      const fetched = await fetchToken(walletAddress);
-
-      console.log(`TransactionContext requestData Called.`);
-      console.log(`Access Token: ${fetched.data.accessToken}.`);
-      console.log(`Wallet Address: ${walletAddress}.`)
-      console.log(`Activity Type: ${activityType}. Goal ID: ${goalId}.`)
-
-      const tx = await contract.executeRequest(fetched.data.accessToken, activityType, walletAddress, goalId);
-      console.log(`TransactionContext requestData Executed. Tx Hash: ${tx.hash}`);
-
-    } catch (error){
-      console.error('Error requesting Data:', error);
-    }
-  };
-
-  // Fetches the participant addresses and their respective Strava tokens for a given goal.
-  const fetchAddressesAndTokens = async (goalId) => {
+  // Returns the Id that is mapped the the users wallet address.
+  const getUserId = async (walletAddress) => {
     try {
       const provider = new ethers.BrowserProvider(ethereum);
       const signer = await provider.getSigner();
       const contract = new ethers.Contract(contractAddress, contractABI, signer);
-  
-      const participants = await contract.getParticipantAddresses(goalId);
-  
-      const participantTokens = await Promise.all(participants.map(async (address) => {
-        const response = await fetch('/api/get-token', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ walletAddress: address }),
-        });
-  
-        if (response.ok) {
-          const fetched = await response.json();
-          return [address, fetched.data.userId, fetched.data.accessToken]; // Return the address, userId, and accessToken as 3 elements
-        } else {
-          console.error(`Error fetching token for address: ${address}`);
-          return [address, null, null]; // Include null for userId and accessToken if error occurs
-        }
-      }));
-  
-      return participantTokens;
+      const userId = await contract.getUserId(walletAddress);
+      return Number(userId);
     } catch (error) {
-      console.error("Error fetching participants and tokens:", error);
+      console.error("Error fetching user ID:", error);
+      throw error;
     }
   };
-  
+
   // Checks if the user is authorized with Strava.
   const checkStravaAuthorization = async (walletAddress) => {
     try {
@@ -248,19 +182,85 @@ export const TransactionsProvider = ({ children }) => {
     }
   };
 
-  // Returns the Id that is mapped the the users wallet address.
-  const getUserId = async (walletAddress) => {
+  // Fetches the participant addresses and their respective Strava tokens for a given goal.
+  const fetchTokens = async (goalId) => {
     try {
       const provider = new ethers.BrowserProvider(ethereum);
       const signer = await provider.getSigner();
       const contract = new ethers.Contract(contractAddress, contractABI, signer);
-      const userId = await contract.getUserId(walletAddress);
-      return Number(userId);
+  
+      const participants = await contract.getParticipantAddresses(goalId);
+  
+      const participantTokens = {};
+  
+      await Promise.all(participants.map(async (address) => {
+        const response = await fetch('/api/get-token', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ walletAddress: address }),
+        });
+  
+        if (response.ok) {
+          const fetched = await response.json();
+          participantTokens[fetched.data.userId] = fetched.data.accessToken; // Assign userId as key and accessToken as value
+        } else {
+          console.error(`Error fetching token for address: ${address}`);
+          participantTokens[address] = null; // Assign null if there was an error
+        }
+      }));
+  
+      return participantTokens;
     } catch (error) {
-      console.error("Error fetching user ID:", error);
-      throw error;
+      console.error("Error fetching participants and tokens:", error);
     }
   };
+
+  // Requests data from the smart contract using chainlink .
+  const requestData = async (activityType, goalId) =>{
+
+    try {
+      const provider = new ethers.BrowserProvider(ethereum);
+      const signer = await provider.getSigner();
+      const contract = new ethers.Contract(contractAddress, contractABI, signer);
+
+      const fetchedData = await fetchTokens(goalId);
+
+      const parsedData = JSON.stringify(fetchedData)
+
+      console.log(`TransactionContext requestDataTest Called.`);
+      console.log(`Activity Type: ${activityType}. Goal ID: ${goalId}.`)
+      console.log(`Request Data: ${parsedData}`);
+
+      const tx = await contract.executeRequest(parsedData, activityType, goalId);
+      console.log(`TransactionContext requestData Executed. Tx Hash: ${tx.hash}`);
+
+    } catch (error){
+      console.error('Error requesting Data:', error);
+    }
+  };
+  
+  const assignDistance = async (goalId) => {
+    const provider = new ethers.BrowserProvider(ethereum);
+    const signer = await provider.getSigner();
+    const contract = new ethers.Contract(contractAddress, contractABI, signer);
+
+    try {
+      const response = await contract.getActivityWithGoalId(goalId);
+      const parsedResponse = JSON.parse(response.activityData);
+
+      console.log('Assign Data Called.');
+      console.log(`Data in Array: ${parsedResponse}`);
+      
+      await contract.assignDistance(parsedResponse, goalId);
+    }
+
+    catch(error){
+      console.log(error);
+    }
+
+  }
 
   // Effect to check if the wallet is connected and set up event listeners for account changes.
   useEffect(() => {
@@ -287,19 +287,20 @@ export const TransactionsProvider = ({ children }) => {
 
   return (
     <TransactionContext.Provider value={{
-      connectWallet,
       currentAccount,
       isUserCreated,
       isStravaAuthorized,
+      errorMessage,
+      loading,
+      connectWallet,
       createUser,
       joinGoal,
       claimRewards,
+      fetchTokens,
       requestData,
-      fetchAddressesAndTokens,
+      assignDistance,
       getUserId,
-      errorMessage,
       setErrorMessage,
-      loading
     }}>
       {children}
     </TransactionContext.Provider>
