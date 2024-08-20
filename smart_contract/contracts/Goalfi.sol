@@ -147,11 +147,10 @@ contract Goalfi is Ownable(msg.sender), FunctionsClient {
         newGoal.startTimestamp = _startTimestamp;
         newGoal.expiryTimestamp = _expiryTimestamp;
         newGoal.set = true;
-
-        emit GoalCreated(goalCount, _activity, _description, _distance, _startTimestamp, _expiryTimestamp);
-
         activeGoalCount++;
         goalCount++;
+
+        emit GoalCreated(goalCount, _activity, _description, _distance, _startTimestamp, _expiryTimestamp);
     }
 
     // Creates a new user account if not already created.
@@ -194,6 +193,7 @@ contract Goalfi is Ownable(msg.sender), FunctionsClient {
                 goal.failedStake += participation.stakedAmount;
                 participation.stakedAmount = 0;
             }
+            
             emit UserProgressUpdated(walletAddress, goalId, participation.progress);
         }
     }
@@ -320,10 +320,23 @@ contract Goalfi is Ownable(msg.sender), FunctionsClient {
         emit Response(requestId, string(response), response, err);
     }
 
+    // Assigns distances to participants of a specific goal based on provided data.
+    function assignDistance(uint256[] memory _data, uint _goalId) public onlyOwner goalExists(_goalId) {
+        for(uint i = 0; i < _data.length; i += 2) {
+            address walletAddress = getUserAddress(_data[i]);
+            goals[_goalId].participants[walletAddress].userDistance = _data[i + 1];
+        }
+    }
+
     // Retrieves the activity associated with a specific goal ID.
-    function getActivityByGoalId(uint goalId) public view returns (ActivityStruct memory) {
+    function getActivityWithGoalId(uint goalId) public view returns (ActivityStruct memory) {
         bytes32 requestId = goalToRequestId[goalId];
         require(requests[requestId].exists, "No activity found.");
+        return activities[requestId];
+    }
+
+    // Retrieves the activity associated with a specific request Id.
+    function getActivityWithRequestId(bytes32 requestId) public view returns (ActivityStruct memory){
         return activities[requestId];
     }
 
