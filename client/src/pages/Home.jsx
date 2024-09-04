@@ -69,10 +69,10 @@ const Homepage = () => {
     <div className="flex w-full justify-center items-center">
       <div className="flex flex-col items-center justify-between md:p-20 py-12 px-4">
         <h1 className="text-3xl sm:text-5xl text-white py-2 text-gradient">
-          Gamify Your Goals
+          Featured Goals
         </h1>
-        <p className="text-center mt-5 text-white font-light md:w-9/12 w-11/12 text-2xl mb-10">
-          Participate in various community goals and earn rewards for your accomplishments.
+        <p className="hidden md:block text-center mt-5 text-white font-light md:w-9/12 w-11/12 text-2xl mb-10">
+          Participate in community goals and earn rewards for your accomplishments.
         </p>
         <div className="flex justify-center items-center w-full mt-10">
           <button
