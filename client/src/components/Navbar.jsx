@@ -124,37 +124,42 @@ const Navbar = () => {
           <AiOutlineClose fontSize={28} className="text-white md:hidden cursor-pointer" onClick={() => setToggleMenu(false)} />
         )}
         {toggleMenu && (
-          <ul
-            className="z-10 fixed -top-0 -right-2 p-3 w-[70vw] h-screen shadow-2xl md:hidden list-none
-            flex flex-col justify-start items-end rounded-md blue-glassmorphism text-white animate-slide-in"
-          >
-            <li className="text-xl w-full my-2"><AiOutlineClose onClick={() => setToggleMenu(false)} /></li>
-            {["Discover", "Dashboard", "Rewards", "About"].map(
-              (item, index) => <NavBarItem key={item + index} title={item} to={`/${item.toLowerCase()}`} classprops="my-2 text-lg" />,
-            )}
-            {!currentAccount ? (
-              <li className="py-2 px-7 mx-4 rounded-full cursor-pointer bg-orange-600 hover:bg-orange-700" onClick={connectWallet}>
-                Connect Wallet
+        <ul
+          className="z-10 fixed -top-0 -right-2 p-3 w-[70vw] h-screen shadow-2xl md:hidden list-none
+          flex flex-col justify-start items-end rounded-md blue-glassmorphism text-white animate-slide-in"
+        >
+          <li className="text-xl w-full my-2"><AiOutlineClose onClick={() => setToggleMenu(false)} /></li>
+
+          {/* Move Wallet/Account related buttons to the top */}
+          {!currentAccount ? (
+            <li className="py-2 px-7 mx-4 rounded-full cursor-pointer bg-orange-600 hover:bg-orange-700" onClick={connectWallet}>
+              Connect Wallet
+            </li>
+          ) : (
+            <>
+              <li className="py-2 px-7 mx-4 mb-2 rounded-full cursor-pointer bg-gray-500 hover:bg-gray-600">
+                {shortenAddress(currentAccount)}
               </li>
-            ) : (
-              <>
-                <li className="py-2 px-7 mx-4 rounded-full cursor-pointer bg-gray-500 hover:bg-gray-600">
-                  {shortenAddress(currentAccount)}
+              {!isUserCreated && (
+                <li className="py-2 px-7 mx-4 mb-2 rounded-full cursor-pointer bg-orange-600 hover:bg-orange-700" onClick={handleCreateAccountClick}>
+                  Verify Wallet
                 </li>
-                {!isUserCreated && (
-                  <li className="py-2 px-7 mx-4 rounded-full cursor-pointer bg-orange-600 hover:bg-orange-700" onClick={handleCreateAccountClick}>
-                    Verify Wallet
-                  </li>
-                )}
-                {isUserCreated && !isStravaAuthorized && (
-                  <li className="py-2 px-7 mx-4 rounded-full cursor-pointer bg-orange-600 hover:bg-orange-700" onClick={handleStravaConnect}>
-                    Connect to Strava
-                  </li>
-                )}
-              </>
-            )}
-          </ul>
-        )}
+              )}
+              {isUserCreated && !isStravaAuthorized && (
+                <li className="py-2 px-7 mx-4 rounded-full cursor-pointer bg-orange-600 hover:bg-orange-700" onClick={handleStravaConnect}>
+                  Connect to Strava
+                </li>
+              )}
+            </>
+          )}
+
+          {/* Navigation items moved below the wallet/account buttons */}
+          {["Discover", "Dashboard", "Rewards", "About"].map(
+            (item, index) => <NavBarItem key={item + index} title={item} to={`/${item.toLowerCase()}`} classprops="my-2 text-lg" />,
+          )}
+        </ul>
+      )}
+        
       </div>
       <Modal show={showModal} handleClose={handleCloseModal} handleConfirm={handleConfirmModal} />
     </nav>
