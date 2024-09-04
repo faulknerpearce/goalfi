@@ -22,12 +22,12 @@ const GoalCard = ({ goal, showJoinButton, showViewButton, joinGoal }) => {
         await joinGoal(goal.id, amount);
         // Optionally, handle success notification or other actions
       } catch (error) {
+        
         console.error("Error joining goal:", error.reason);
         // Optionally, handle error notification
       } finally {
         setIsLoading(false);
         setIsFlipped(false);
-
       }
     } else {
       alert("Please enter a valid amount to join the goal.");
