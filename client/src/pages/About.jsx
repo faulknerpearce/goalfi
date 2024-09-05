@@ -5,7 +5,7 @@ const About = () => {
   const handleRedirect = async () => {
     try {
       // Call your API endpoint
-      const response = await fetch('https://jb3o4rjrfh.execute-api.us-east-1.amazonaws.com/dev/addresses/success', {
+      const response = await fetch('https://05l1eze4mf.execute-api.us-east-1.amazonaws.com/dev/addresses/success', {
         method: 'GET',
       });
       console.log(response)
