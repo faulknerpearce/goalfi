@@ -1,8 +1,26 @@
+import React from 'react';
+
 const About = () => {
+  // Function to handle button click
+  const handleRedirect = async () => {
+    try {
+      // Call your API endpoint
+      const response = await fetch('https://jb3o4rjrfh.execute-api.us-east-1.amazonaws.com/devaddresses/success', {
+        method: 'GET',
+      });
+      console.log(response)
+
+    } catch (error) {
+      console.error('Error fetching redirect:', error);
+    }
+  };
+
   return (
     <div className="p-4">
+      <button onClick={handleRedirect}>
+        Test Api
+      </button>
     </div>
-    
   );
 };
 
