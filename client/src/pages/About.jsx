@@ -1,7 +1,6 @@
 import React, { useEffect, useContext } from 'react';
 import { TransactionContext } from "../context/TransactionContext";
 
-
 const About = () => {
 
   const { currentAccount, getUserId } = useContext(TransactionContext);
@@ -26,25 +25,45 @@ const About = () => {
   useEffect(() => {
     // Create an async function inside useEffect for async operations
     const fetchData = async () => {
-      // Capture and log the full URL after redirect
-      const currentUrl = window.location.href; // Get the full current URL
-      console.log('Redirected URL:', currentUrl);
 
       // Capture the authorization code from the URL after redirect
       const urlParams = new URLSearchParams(window.location.search);
       const authCode = urlParams.get('code'); // Extract the 'code' from the URL
 
-      if (authCode) {
+      if (authCode && currentAccount) {
         try {
           const userId = await getUserId(currentAccount); // Fetch the user ID
+          
           console.log(`Wallet address: ${currentAccount}`);
           console.log(`User ID: ${userId}`);
           console.log('Authorization Code:', authCode);
+
+          // Call the SaveToken API to exchange the auth code for tokens and save them
+          const saveTokenResponse = await fetch('https://yamhku5op7.execute-api.us-east-1.amazonaws.com/dev/SaveToken', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              walletAddress: currentAccount,
+              ID: userId,  
+              Code: authCode, 
+            }),
+          });
+
+          const saveTokenData = await saveTokenResponse.json();
+
+          if (saveTokenResponse.ok) {
+            console.log('Token saved successfully:', saveTokenData);
+          } else {
+            console.error('Error saving token:', saveTokenData.error);
+          }
+
         } catch (error) {
-          console.error('Error fetching user ID:', error);
+          console.error('Error during token exchange or saving:', error);
         }
       } else {
-        console.log('Authorization code not found.');
+        console.log('Authorization code or wallet address not found.');
       }
     };
 
