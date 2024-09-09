@@ -1,9 +1,7 @@
 import React, { useEffect, useContext } from 'react';
 import { TransactionContext } from "../context/TransactionContext";
 
-
 const About = () => {
-
   const { currentAccount, getUserId } = useContext(TransactionContext);
 
   // Function to fetch the authorization URL from your backend
@@ -34,17 +32,37 @@ const About = () => {
       const urlParams = new URLSearchParams(window.location.search);
       const authCode = urlParams.get('code'); // Extract the 'code' from the URL
 
-      if (authCode && currentAccount ) {
+      if (authCode && currentAccount) {
         try {
-          const userId = await getUserId(currentAccount); // Fetch the user ID
-          console.log(`Wallet address: ${currentAccount}`);
-          console.log(`User ID: ${userId}`);
+          const userId = await getUserId(currentAccount); // Fetch the user ID 
+       
           console.log('Authorization Code:', authCode);
+
+          // POST request to SaveToken API with walletAddress, userId, and authorization code
+          const saveTokenResponse = await fetch('https://yamhku5op7.execute-api.us-east-1.amazonaws.com/dev/SaveToken', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              Code: authCode
+            }),
+          });
+
+          const responseData = await saveTokenResponse.json();
+
+          // Log the response from the backend API
+          if (saveTokenResponse.ok) {
+            console.log('Response from SaveToken API:', responseData);
+          } else {
+            console.error('Error response from SaveToken API:', responseData);
+          }
+
         } catch (error) {
-          console.error('Error fetching user ID:', error);
+          console.error('Error saving token:', error);
         }
       } else {
-        console.log('Authorization code not found.');
+        console.log('Authorization code not found or wallet address missing.');
       }
     };
 
