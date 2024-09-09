@@ -51,9 +51,8 @@ const About = () => {
 
           if (saveTokenResponse.ok) {
             // Log the returned tokens from the API
-            console.log('Access Token:', saveTokenData.access_token);
-            console.log('Refresh Token:', saveTokenData.refresh_token);
-            console.log('Expires At:', saveTokenData.expires_at);
+            console.log(saveTokenResponse);
+
           } else {
             console.error('Error saving token:', saveTokenData.error);
           }
