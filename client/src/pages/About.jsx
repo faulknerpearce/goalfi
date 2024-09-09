@@ -10,8 +10,12 @@ const About = () => {
       });
       
       const responseData = await response.json();
+      
+      // Assuming the API response contains the redirect URL in a field called `authUrl`
+      const redirectUrl = responseData.authUrl;
 
-      console.log(responseData); 
+      // Redirect the browser to the new URL
+      window.location.href = redirectUrl;
 
     } catch (error) {
       console.error('Error fetching redirect:', error);
