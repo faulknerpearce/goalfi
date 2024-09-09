@@ -34,10 +34,6 @@ const About = () => {
         try {
           const userId = await getUserId(currentAccount); // Fetch the user ID
           
-          console.log(`Wallet address: ${currentAccount}`);
-          console.log(`User ID: ${userId}`);
-          console.log('Authorization Code:', authCode);
-
           // Call the SaveToken API to exchange the auth code for tokens and save them
           const saveTokenResponse = await fetch('https://yamhku5op7.execute-api.us-east-1.amazonaws.com/dev/SaveToken', {
             method: 'POST',
@@ -54,7 +50,10 @@ const About = () => {
           const saveTokenData = await saveTokenResponse.json();
 
           if (saveTokenResponse.ok) {
-            console.log('Token saved successfully:', saveTokenData);
+            // Log the returned tokens from the API
+            console.log('Access Token:', saveTokenData.access_token);
+            console.log('Refresh Token:', saveTokenData.refresh_token);
+            console.log('Expires At:', saveTokenData.expires_at);
           } else {
             console.error('Error saving token:', saveTokenData.error);
           }
