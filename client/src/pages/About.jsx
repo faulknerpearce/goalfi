@@ -14,7 +14,7 @@ const About = () => {
   // Function to exchange authorization code for tokens
   const exchangeCodeForTokens = async (code) => {
     try {
-      const response = await fetch('https://your-api-endpoint-to-exchange-token', {
+      const response = await fetch('https://yamhku5op7.execute-api.us-east-1.amazonaws.com/dev/geToken/Request', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
