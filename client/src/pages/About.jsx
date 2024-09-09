@@ -5,10 +5,13 @@ const About = () => {
   const handleRedirect = async () => {
     try {
       // Call your API endpoint
-      const response = await fetch('https://05l1eze4mf.execute-api.us-east-1.amazonaws.com/dev/addresses/success', {
+      const response = await fetch('https://yamhku5op7.execute-api.us-east-1.amazonaws.com/dev/geToken/Request', {
         method: 'GET',
       });
-      console.log(response)
+      
+      const responseData = await response.json();
+
+      console.log(responseData); 
 
     } catch (error) {
       console.error('Error fetching redirect:', error);
@@ -16,7 +19,7 @@ const About = () => {
   };
 
   return (
-    <div className="p-4">
+    <div className="text-white px-10 py-3 rounded-full bg-blue-700">
       <button onClick={handleRedirect}>
         Test Api
       </button>
