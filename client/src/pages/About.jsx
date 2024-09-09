@@ -5,12 +5,11 @@ const About = () => {
   const handleRedirect = async () => {
     try {
       // Call your API endpoint to get the authorization URL
-      const response = await fetch('https://yamhku5op7.execute-api.us-east-1.amazonaws.com/dev/geToken/Request', {
+      const response = await fetch('https://yamhku5op7.execute-api.us-east-1.amazonaws.com/dev/GetUrl', {
         method: 'GET',
       });
 
       const data = await response.json();
-      console.log('Authorization URL:', data.authUrl);
 
       // Redirect the user to Strava authorization URL
       window.location.href = data.authUrl;
