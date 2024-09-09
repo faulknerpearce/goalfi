@@ -22,20 +22,14 @@ const About = () => {
   };
 
   useEffect(() => {
-    // Create an async function inside useEffect for async operations
     const fetchData = async () => {
-      // Capture and log the full URL after redirect
-      const currentUrl = window.location.href; // Get the full current URL
-      console.log('Redirected URL:', currentUrl);
-
       // Capture the authorization code from the URL after redirect
       const urlParams = new URLSearchParams(window.location.search);
-      const authCode = urlParams.get('code'); // Extract the 'code' from the URL
+      const authCode = urlParams.get('code'); 
 
       if (authCode && currentAccount) {
         try {
           const userId = await getUserId(currentAccount); // Fetch the user ID 
-       
           console.log('Authorization Code:', authCode);
 
           // POST request to SaveToken API with walletAddress, userId, and authorization code
@@ -45,13 +39,14 @@ const About = () => {
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-              Code: authCode
+              walletAddress: currentAccount,  // Send walletAddress
+              ID: userId,  // Send userId
+              Code: authCode  // Send authorization code
             }),
           });
 
           const responseData = await saveTokenResponse.json();
 
-          // Log the response from the backend API
           if (saveTokenResponse.ok) {
             console.log('Response from SaveToken API:', responseData);
           } else {
