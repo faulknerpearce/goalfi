@@ -18,11 +18,12 @@ const Navbar = () => {
   const [toggleMenu, setToggleMenu] = useState(false);
   const { currentAccount, connectWallet, isUserCreated, createUser, isStravaAuthorized, getUserId} = useContext(TransactionContext);
   const [showModal, setShowModal] = useState(false);
+  const [isCodeFetched, setIsCodeFetched] = useState(false);
 
   // Function to handle connecting to Strava for authorization.
   const handleStravaConnect = async () => {
     try {
-      const response = await fetch('/api/generate-auth-url');
+      const response = await fetch('https://yamhku5op7.execute-api.us-east-1.amazonaws.com/dev/GetUrl');
       const data = await response.json();
       if (data.authUrl) {
         window.location.href = data.authUrl;
@@ -34,36 +35,75 @@ const Navbar = () => {
     }
   };
 
-  // Effect hook to handle redirection and token exchange after Strava authorization.
-  useEffect(() => {
-    const handleRedirect = async () => {
-      const url = window.location.href;
-      const urlParams = new URLSearchParams(new URL(url).search);
-      const code = urlParams.get('code');
+// Effect hook to handle redirection and token exchange after Strava authorization.
+useEffect(() => {
+  const handleRedirect = async () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const authCode = urlParams.get('code'); 
 
-      if (code && currentAccount) {
-        try {
-          // Get userId from the context.
-          const userId = await getUserId(currentAccount); 
-          // Send the authorization code and userId to the backend.
-          await fetch('/api/exchange-token', {
+    if (authCode && currentAccount && !isCodeFetched) {
+      try {
+        const userId = await getUserId(currentAccount);
+        setIsCodeFetched(true); // Prevent re-fetching the code
+
+        console.log(`Wallet Address: ${currentAccount}`);
+        console.log(`User ID: ${userId}`);
+        console.log('Authorization Code:', authCode);
+
+        // Call RequestToken API
+        const RequestTokenResponse = await fetch('https://yamhku5op7.execute-api.us-east-1.amazonaws.com/dev/RequestToken', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            Code: authCode
+          }),
+        });
+
+        const responseData = await RequestTokenResponse.json();
+        if (RequestTokenResponse.ok) {
+          const { access_token, refresh_token, expires_at } = responseData.data;
+          
+          console.log('Access Token:', access_token);
+          console.log('Refresh Token:', refresh_token);
+          console.log('Expires At:', expires_at);
+
+          // Save the tokens and other details to DynamoDB using the Lambda function
+          const saveTokenResponse = await fetch('https://yamhku5op7.execute-api.us-east-1.amazonaws.com/dev/SaveToken', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ code, walletAddress: currentAccount, userId }),
+            body: JSON.stringify({
+              walletAddress: currentAccount,
+              Id: userId,  
+              stravaAccessToken: access_token,
+              stravaRefreshToken: refresh_token,
+              expiresAt: expires_at,
+            }),
           });
-          // Clear the code from the URL.
-          urlParams.delete('code');
-          window.history.replaceState({}, document.title, window.location.pathname);
-        } catch (error) {
-          console.error('Error handling redirect:', error.message);
-        }
-      }
-    };
 
-    handleRedirect();
-}, [currentAccount]);
+          const saveResponseData = await saveTokenResponse.json();
+          if (saveTokenResponse.ok) {
+            console.log('Successfully saved to DynamoDB:', saveResponseData);
+          } else {
+            console.error('Error saving to DynamoDB:', saveResponseData);
+          }
+          
+        } else {
+          console.error('Error response from RequestToken API:', responseData);
+        }
+      } catch (error) {
+        console.error('Error handling redirect:', error.message);
+      }
+    }
+  };
+
+  if (!isCodeFetched) {
+    handleRedirect(); // Call the async function only if the code hasn't been fetched yet
+  }
+}, [currentAccount, getUserId, isCodeFetched]);
 
   // Function to show the modal for account creation.
   const handleCreateAccountClick = () => {
