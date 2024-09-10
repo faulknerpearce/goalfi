@@ -30,27 +30,29 @@ const About = () => {
       if (authCode && currentAccount) {
         try {
           const userId = await getUserId(currentAccount); // Fetch the user ID 
-          console.log('Authorization Code:', authCode);
 
-          // POST request to SaveToken API with walletAddress, userId, and authorization code
-          const saveTokenResponse = await fetch('https://yamhku5op7.execute-api.us-east-1.amazonaws.com/dev/SaveToken', {
+          console.log(`Wallet Address: ${currentAccount}`)
+          console.log(`User ID: ${userId}`)
+          console.log('Authorization Code:', authCode);
+  
+          // Call RequestToken API
+          const RequestTokenResponse = await fetch('https://yamhku5op7.execute-api.us-east-1.amazonaws.com/dev/RequestToken', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-              walletAddress: currentAccount,  // Send walletAddress
-              ID: userId,  // Send userId
-              Code: authCode  // Send authorization code
+              Code: authCode
             }),
           });
 
-          const responseData = await saveTokenResponse.json();
+          // Parse and log the response
+          const responseData = await RequestTokenResponse.json();
 
-          if (saveTokenResponse.ok) {
-            console.log('Response from SaveToken API:', responseData);
+          if (RequestTokenResponse.ok) {
+            console.log('Response from RequestToken API:', responseData);
           } else {
-            console.error('Error response from SaveToken API:', responseData);
+            console.error('Error response from RequestToken API:', responseData);
           }
 
         } catch (error) {
