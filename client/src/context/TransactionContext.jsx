@@ -161,7 +161,7 @@ export const TransactionsProvider = ({ children }) => {
   // Checks if the user is authorized with Strava.
   const checkStravaAuthorization = async (walletAddress) => {
     try {
-      const response = await fetch('/api/get-token', {
+      const response = await fetch('https://yamhku5op7.execute-api.us-east-1.amazonaws.com/dev/GetToken', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
