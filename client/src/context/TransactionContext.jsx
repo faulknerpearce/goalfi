@@ -198,30 +198,45 @@ export const TransactionsProvider = ({ children }) => {
   
       const participants = await contract.getParticipantAddresses(goalId);
   
+      console.log("Participants:", participants);
+  
       const participantTokens = {};
   
       await Promise.all(participants.map(async (address) => {
-        const response = await fetch(`https://yamhku5op7.execute-api.us-east-1.amazonaws.com/dev/GetToken?walletAddress=${address}`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
+        try {
+          // Fetch the token for each participant
+          const response = await fetch(`https://yamhku5op7.execute-api.us-east-1.amazonaws.com/dev/GetToken?walletAddress=${address}`, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          });
   
-        if (response.ok) {
-          const fetched = await response.json();
-          participantTokens[fetched.userId] = fetched.accessToken; // Assign userId as key and accessToken as value
-        } else {
-          console.error(`Error fetching token for address: ${address}`);
-          participantTokens[address] = null; // Assign null if there was an error
+          if (response.ok) {
+            const fetched = await response.json();
+            console.log(`Fetched data for address ${address}:`, fetched);
+  
+            // Save userId and accessToken
+            participantTokens[fetched.userId] = fetched.accessToken;
+          } else {
+            console.error(`Error fetching token for address: ${address} (response not OK)`);
+            participantTokens[address] = null;
+          }
+        } catch (error) {
+          console.error(`Error fetching token for address: ${address}`, error);
+          participantTokens[address] = null;
         }
       }));
+  
+      console.log("Final participant tokens:", participantTokens);
   
       return participantTokens;
     } catch (error) {
       console.error("Error fetching participants and tokens:", error);
+      return null;
     }
   };
+  
 
   // Requests data from the smart contract using chainlink .
   const requestData = async (activityType, goalId) =>{
