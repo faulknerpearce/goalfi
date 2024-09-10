@@ -161,9 +161,9 @@ export const TransactionsProvider = ({ children }) => {
   // Checks if the user is authorized with Strava.
   const checkStravaAuthorization = async (walletAddress) => {
     try {
-      // Send a GET request with walletAddress as a query parameter
+    
       const response = await fetch(`https://yamhku5op7.execute-api.us-east-1.amazonaws.com/dev/CheckIfVerified?walletAddress=${walletAddress}`, {
-        method: 'GET',  // Change to GET, since your backend is using query parameters
+        method: 'GET',
         headers: {
           'Content-Type': 'application/json',
         }
