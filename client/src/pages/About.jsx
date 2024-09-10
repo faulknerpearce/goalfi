@@ -51,10 +51,32 @@ const About = () => {
           if (RequestTokenResponse.ok) {
             // Access the data correctly
             const { access_token, refresh_token, expires_at } = responseData.data;
-            
+
             console.log('Access Token:', access_token);
             console.log('Refresh Token:', refresh_token);
             console.log('Expires At:', expires_at);
+
+            // Save the tokens and other details to DynamoDB using the Lambda function
+            const saveTokenResponse = await fetch('https://yamhku5op7.execute-api.us-east-1.amazonaws.com/dev/SaveToken', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                walletAddress: currentAccount,
+                Id: userId,  
+                stravaAccessToken: access_token,
+                stravaRefreshToken: refresh_token,
+                expiresAt: expires_at,
+              }),
+            });
+
+            const saveResponseData = await saveTokenResponse.json();
+            if (saveTokenResponse.ok) {
+              console.log('Successfully saved to DynamoDB:', saveResponseData);
+            } else {
+              console.error('Error saving to DynamoDB:', saveResponseData);
+            }
             
           } else {
             console.error('Error response from RequestToken API:', responseData);
