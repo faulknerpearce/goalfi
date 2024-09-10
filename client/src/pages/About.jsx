@@ -1,8 +1,10 @@
-import React, { useEffect, useContext } from 'react';
+import React, { useEffect, useContext, useState } from 'react';
 import { TransactionContext } from "../context/TransactionContext";
 
 const About = () => {
   const { currentAccount, getUserId } = useContext(TransactionContext);
+  const [authCode, setAuthCode] = useState(null); // State to store the authorization code
+  const [isCodeFetched, setIsCodeFetched] = useState(false); // State to track if code has been fetched
 
   const handleRedirect = async () => {
     try {
@@ -20,15 +22,17 @@ const About = () => {
   useEffect(() => {
     const fetchData = async () => {
       const urlParams = new URLSearchParams(window.location.search);
-      const authCode = urlParams.get('code'); 
+      const authCodeFromUrl = urlParams.get('code'); 
 
-      if (authCode && currentAccount) {
+      if (authCodeFromUrl && currentAccount && !isCodeFetched) {
         try {
           const userId = await getUserId(currentAccount);
+          setAuthCode(authCodeFromUrl); // Save the authorization code to state
+          setIsCodeFetched(true); // Mark that code has been fetched to prevent re-fetching
 
           console.log(`Wallet Address: ${currentAccount}`);
           console.log(`User ID: ${userId}`);
-          console.log('Authorization Code:', authCode);
+          console.log('Authorization Code:', authCodeFromUrl);
   
           // Call RequestToken API
           const RequestTokenResponse = await fetch('https://yamhku5op7.execute-api.us-east-1.amazonaws.com/dev/RequestToken', {
@@ -37,7 +41,7 @@ const About = () => {
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-              Code: authCode
+              Code: authCodeFromUrl
             }),
           });
 
@@ -47,8 +51,7 @@ const About = () => {
           if (RequestTokenResponse.ok) {
             // Access the data correctly
             const { access_token, refresh_token, expires_at } = responseData.data;
-
-            console.log('Response from RequestToken API:', responseData);
+            
             console.log('Access Token:', access_token);
             console.log('Refresh Token:', refresh_token);
             console.log('Expires At:', expires_at);
@@ -63,8 +66,10 @@ const About = () => {
       } 
     };
 
-    fetchData(); // Call the async function
-  }, [currentAccount, getUserId]);
+    if (!isCodeFetched) {
+      fetchData(); // Call the async function only if the code hasn't been fetched yet
+    }
+  }, [currentAccount, getUserId, isCodeFetched]);
 
   return (
     <div className="text-white px-10 py-3 rounded-full bg-blue-700">
