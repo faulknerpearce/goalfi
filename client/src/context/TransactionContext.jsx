@@ -183,7 +183,12 @@ export const TransactionsProvider = ({ children }) => {
       return false;
     }
   };
-  
+
+  // Move the functionality from the navbar for token handling here.
+  const RequestAndSaveTokens = async (walletAddress) => {
+
+  }
+
   // Fetches the participant addresses and their respective Strava tokens for a given goal.
   const fetchTokens = async (goalId) => {
     try {
@@ -196,17 +201,16 @@ export const TransactionsProvider = ({ children }) => {
       const participantTokens = {};
   
       await Promise.all(participants.map(async (address) => {
-        const response = await fetch('/api/get-token', {
-          method: 'POST',
+        const response = await fetch(`https://yamhku5op7.execute-api.us-east-1.amazonaws.com/dev/GetToken?walletAddress=${address}`, {
+          method: 'GET',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ walletAddress: address }),
         });
   
         if (response.ok) {
           const fetched = await response.json();
-          participantTokens[fetched.data.userId] = fetched.data.accessToken; // Assign userId as key and accessToken as value
+          participantTokens[fetched.userId] = fetched.accessToken; // Assign userId as key and accessToken as value
         } else {
           console.error(`Error fetching token for address: ${address}`);
           participantTokens[address] = null; // Assign null if there was an error
@@ -242,27 +246,6 @@ export const TransactionsProvider = ({ children }) => {
       console.error('Error requesting Data:', error);
     }
   };
-  
-  const assignDistance = async (goalId) => {
-    const provider = new ethers.BrowserProvider(ethereum);
-    const signer = await provider.getSigner();
-    const contract = new ethers.Contract(contractAddress, contractABI, signer);
-
-    try {
-      const response = await contract.getActivityWithGoalId(goalId);
-      const parsedResponse = JSON.parse(response.activityData);
-
-      console.log('Assign Data Called.');
-      console.log(`Data in Array: ${parsedResponse}`);
-      
-      await contract.assignDistance(parsedResponse, goalId);
-    }
-
-    catch(error){
-      console.log(error);
-    }
-
-  }
 
   // Effect to check if the wallet is connected and set up event listeners for account changes.
   useEffect(() => {
@@ -300,7 +283,6 @@ export const TransactionsProvider = ({ children }) => {
       claimRewards,
       fetchTokens,
       requestData,
-      assignDistance,
       getUserId,
       setErrorMessage,
     }}>
