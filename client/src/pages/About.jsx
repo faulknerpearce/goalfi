@@ -1,8 +1,9 @@
-import React, { useEffect, useContext } from 'react';
+import React, { useEffect, useContext, useState } from 'react';
 import { TransactionContext } from "../context/TransactionContext";
 
 const About = () => {
   const { currentAccount, getUserId } = useContext(TransactionContext);
+  const [authCode, setAuthCode] = useState(null);
 
   // Function to fetch the authorization URL from your backend
   const handleRedirect = async () => {
@@ -23,14 +24,20 @@ const About = () => {
 
   useEffect(() => {
     const fetchData = async () => {
+      // Capture the full URL to check if the code is present
+      const currentUrl = window.location.href;
+      console.log('Redirected URL:', currentUrl);
+
       // Capture the authorization code from the URL after redirect
       const urlParams = new URLSearchParams(window.location.search);
-      const authCode = urlParams.get('code'); 
+      const code = urlParams.get('code'); // Extract the 'code' from the URL
 
-      if (authCode && currentAccount) {
+      if (code && currentAccount) {
+        setAuthCode(code);  // Set authCode state to trigger token exchange
+
         try {
           const userId = await getUserId(currentAccount); // Fetch the user ID 
-          console.log('Authorization Code:', authCode);
+          console.log('Authorization Code:', code);
 
           // POST request to SaveToken API with walletAddress, userId, and authorization code
           const saveTokenResponse = await fetch('https://yamhku5op7.execute-api.us-east-1.amazonaws.com/dev/SaveToken', {
@@ -41,12 +48,13 @@ const About = () => {
             body: JSON.stringify({
               walletAddress: currentAccount,  // Send walletAddress
               ID: userId,  // Send userId
-              Code: authCode  // Send authorization code
+              Code: code  // Send authorization code
             }),
           });
 
           const responseData = await saveTokenResponse.json();
 
+          // Log the response from the backend API
           if (saveTokenResponse.ok) {
             console.log('Response from SaveToken API:', responseData);
           } else {
@@ -56,13 +64,13 @@ const About = () => {
         } catch (error) {
           console.error('Error saving token:', error);
         }
-      } else {
-        console.log('Authorization code not found or wallet address missing.');
+      } else if (!code) {
+        console.log('Authorization code not found in URL.');
       }
     };
 
     fetchData(); // Call the async function
-  }, [currentAccount, getUserId]);
+  }, [currentAccount, getUserId, authCode]);
 
   return (
     <div className="text-white px-10 py-3 rounded-full bg-blue-700">
