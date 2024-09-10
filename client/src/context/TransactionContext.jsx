@@ -183,8 +183,7 @@ export const TransactionsProvider = ({ children }) => {
       return false;
     }
   };
-
-
+  
   // Fetches the participant addresses and their respective Strava tokens for a given goal.
   const fetchTokens = async (goalId) => {
     try {
