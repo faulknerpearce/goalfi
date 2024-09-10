@@ -161,15 +161,17 @@ export const TransactionsProvider = ({ children }) => {
   // Checks if the user is authorized with Strava.
   const checkStravaAuthorization = async (walletAddress) => {
     try {
-      const response = await fetch('https://yamhku5op7.execute-api.us-east-1.amazonaws.com/dev/GetToken', {
-        method: 'POST',
+      // Send a GET request with walletAddress as a query parameter
+      const response = await fetch(`https://yamhku5op7.execute-api.us-east-1.amazonaws.com/dev/CheckIfVerified?walletAddress=${walletAddress}`, {
+        method: 'GET',  // Change to GET, since your backend is using query parameters
         headers: {
           'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ walletAddress }),
+        }
       });
 
-      if (response.ok) {
+      const responseData = await response.json(); 
+
+      if (response.ok && responseData.found) {
         console.log('Strava authorization status: True');
         return true;
       } else {
@@ -181,6 +183,7 @@ export const TransactionsProvider = ({ children }) => {
       return false;
     }
   };
+
 
   // Fetches the participant addresses and their respective Strava tokens for a given goal.
   const fetchTokens = async (goalId) => {
