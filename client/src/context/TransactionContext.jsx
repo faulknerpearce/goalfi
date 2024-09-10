@@ -196,8 +196,11 @@ export const TransactionsProvider = ({ children }) => {
       const signer = await provider.getSigner();
       const contract = new ethers.Contract(contractAddress, contractABI, signer);
   
-      const participants = await contract.getParticipantAddresses(goalId);
-  
+      const participantsProxy = await contract.getParticipantAddresses(goalId);
+
+      // Convert the proxy object to a normal array
+      const participants = Array.from(participantsProxy);
+
       console.log("Participants:", participants);
   
       const participantTokens = {};
@@ -235,8 +238,7 @@ export const TransactionsProvider = ({ children }) => {
       console.error("Error fetching participants and tokens:", error);
       return null;
     }
-  };
-  
+  }
 
   // Requests data from the smart contract using chainlink .
   const requestData = async (activityType, goalId) =>{
