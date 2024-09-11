@@ -187,94 +187,59 @@ export const TransactionsProvider = ({ children }) => {
 
   }
 
-  // Fetches the participant addresses and their respective Strava tokens for a given goal.
-  const fetchTokens = async (goalId) => {
-    const participantTokens = {};
+  const fetchToken = async (walletAddress) => {
+    const lowerCaseAddress = walletAddress.toLowerCase();
     
     try {
-      const provider = new ethers.BrowserProvider(ethereum);
-      const signer = await provider.getSigner();
-      const contract = new ethers.Contract(contractAddress, contractABI, signer);
-  
-      const participants = await contract.getParticipantAddresses(goalId);
-
-      console.log("Participants:", participants);
-
-      await Promise.all(participants.map(async (address) => {
-        try {
-      
-          const response = await fetch(`https://yamhku5op7.execute-api.us-east-1.amazonaws.com/dev/GetToken?walletAddress=${address}`, {
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          });
-  
-          if (response.ok) {
-            const fetched = await response.json();
-            console.log(`Fetched data for address ${address}:`, fetched);
-  
-            // Save userId and accessToken
-            participantTokens[fetched.userId] = fetched.accessToken;
-          } else {
-            console.error(`Error fetching token for address: ${address}`);
-          }
-        } catch (error) {
-          console.error(`Error fetching token for address: ${address}`, error);
-        }
-      }));
-  
-      console.log("Final participant tokens:", participantTokens);
-  
-      return participantTokens;
-    } catch (error) {
-      console.error("Error fetching participants and tokens:", error);
-      return participantTokens;
-    }
-  };
-
-  // Fetches the participant addresses and their respective Strava tokens for a given goal.
-  const fetchTokenTest = async (walletAddress, goalId) => {
-
-    const participantTokens = {};
-
-    const provider = new ethers.BrowserProvider(ethereum);
-    const signer = await provider.getSigner();
-    const contract = new ethers.Contract(contractAddress, contractABI, signer);
-  
-    const participants = await contract.getParticipantAddresses(goalId);
-
-    console.log(participants);
-    console.log(typeof(participants));
-  
-    try {
-      const response = await fetch(`https://yamhku5op7.execute-api.us-east-1.amazonaws.com/dev/GetToken?walletAddress=${walletAddress}`, {
+      const response = await fetch(`https://yamhku5op7.execute-api.us-east-1.amazonaws.com/dev/GetToken?walletAddress=${lowerCaseAddress}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
         },
       });
-
+  
       if (response.ok) {
-        
         const fetched = await response.json();
-    
-        participantTokens[fetched.userId] = fetched.accessToken;
-        
-
+        return { [fetched.userId]: fetched.accessToken };
       } else {
-        console.error(`Error fetching token for address: ${walletAddress}`);
+        console.error(`Error fetching token for address: ${lowerCaseAddress}`);
+        const errorData = await response.json();
+        console.error('Response details:', errorData);
       }
-
-      return participantTokens;
-
     } catch (error) {
       console.error(`Error fetching token:`, error);
-      return participantTokens;
     }
   
+    return {};
   };
-
+  
+  const fetchParticipantsTokens = async (goalId) => {
+    try {
+      const provider = new ethers.BrowserProvider(ethereum);
+      const signer = await provider.getSigner();
+      const contract = new ethers.Contract(contractAddress, contractABI, signer);
+      const participants = await contract.getParticipantAddresses(goalId);
+  
+      const participantTokens = {};
+  
+      // Fetch tokens for all participants
+      await Promise.all(participants.map(async (address) => {
+        try {
+          const tokens = await fetchToken(address); // tokens should be {userId: accessToken}
+          const userId = Object.keys(tokens)[0];
+          const accessToken = tokens[userId];
+  
+          participantTokens[userId] = accessToken;
+        } catch (error) {
+          console.error(`Error fetching token for address: ${address}`, error);
+        }
+      }));
+      return participantTokens;
+    } catch (error) {
+      console.error("Error fetching all tokens:", error);
+    }
+  };
+  
   // Requests data from the smart contract using chainlink .
   const requestData = async (activityType, goalId) =>{
 
@@ -283,7 +248,7 @@ export const TransactionsProvider = ({ children }) => {
       const signer = await provider.getSigner();
       const contract = new ethers.Contract(contractAddress, contractABI, signer);
 
-      const fetchedData = await fetchTokens(goalId);
+      const fetchedData = await fetchParticipantsTokens(goalId);
 
       const parsedData = JSON.stringify(fetchedData)
 
@@ -333,8 +298,8 @@ export const TransactionsProvider = ({ children }) => {
       createUser,
       joinGoal,
       claimRewards,
-      fetchTokens,
-      fetchTokenTest, 
+      fetchToken,
+      fetchParticipantsTokens, 
       requestData,
       getUserId,
       setErrorMessage,
