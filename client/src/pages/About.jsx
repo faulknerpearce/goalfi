@@ -12,7 +12,7 @@ const About = () => {
 
     try {
       console.log(currentAccount);
-      const tokens = await fetchTokenTest(currentAccount); 
+      const tokens = await fetchTokenTest(currentAccount, 11); 
       console.log('Fetched tokens:', tokens);
     } catch (error) {
       console.error('Error fetching tokens:', error);
