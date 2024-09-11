@@ -172,10 +172,8 @@ export const TransactionsProvider = ({ children }) => {
       const responseData = await response.json(); 
 
       if (response.ok && responseData.found) {
-        console.log('Strava authorization status: True');
         return true;
       } else {
-        console.log('Strava authorization status: False');
         return false;
       }
     } catch (error) {
@@ -192,21 +190,19 @@ export const TransactionsProvider = ({ children }) => {
   // Fetches the participant addresses and their respective Strava tokens for a given goal.
   const fetchTokens = async (goalId) => {
     const participantTokens = {};
+    
     try {
       const provider = new ethers.BrowserProvider(ethereum);
       const signer = await provider.getSigner();
       const contract = new ethers.Contract(contractAddress, contractABI, signer);
   
-      const participantsProxy = await contract.getParticipantAddresses(goalId);
-
-      // Convert the proxy object to a normal array
-      const participants = Array.from(participantsProxy);
+      const participants = await contract.getParticipantAddresses(goalId);
 
       console.log("Participants:", participants);
 
       await Promise.all(participants.map(async (address) => {
         try {
-          // Fetch the token for each participant
+      
           const response = await fetch(`https://yamhku5op7.execute-api.us-east-1.amazonaws.com/dev/GetToken?walletAddress=${address}`, {
             method: 'GET',
             headers: {
@@ -221,7 +217,7 @@ export const TransactionsProvider = ({ children }) => {
             // Save userId and accessToken
             participantTokens[fetched.userId] = fetched.accessToken;
           } else {
-            console.error(`Error fetching token for address: ${address} (response not OK)`);
+            console.error(`Error fetching token for address: ${address}`);
           }
         } catch (error) {
           console.error(`Error fetching token for address: ${address}`, error);
@@ -235,6 +231,38 @@ export const TransactionsProvider = ({ children }) => {
       console.error("Error fetching participants and tokens:", error);
       return participantTokens;
     }
+  };
+
+  // Fetches the participant addresses and their respective Strava tokens for a given goal.
+  const fetchTokenTest = async (walletAddress) => {
+    const participantTokens = {};
+    
+      try {
+        const response = await fetch(`https://yamhku5op7.execute-api.us-east-1.amazonaws.com/dev/GetToken?walletAddress=${walletAddress}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (response.ok) {
+          
+          const fetched = await response.json();
+      
+          participantTokens[fetched.userId] = fetched.accessToken;
+          
+
+        } else {
+          console.error(`Error fetching token for address: ${walletAddress}`);
+        }
+
+        return participantTokens;
+
+      } catch (error) {
+        console.error(`Error fetching token:`, error);
+        return participantTokens;
+      }
+  
   };
 
   // Requests data from the smart contract using chainlink .
@@ -296,6 +324,7 @@ export const TransactionsProvider = ({ children }) => {
       joinGoal,
       claimRewards,
       fetchTokens,
+      fetchTokenTest, 
       requestData,
       getUserId,
       setErrorMessage,
