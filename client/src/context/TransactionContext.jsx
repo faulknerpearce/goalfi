@@ -207,8 +207,11 @@ export const TransactionsProvider = ({ children }) => {
   
       await Promise.all(participants.map(async (address) => {
         try {
+          // Remove any single quotes from the address
+          const sanitizedAddress = address.replace(/'/g, '');
+          
           // Fetch the token for each participant
-          const response = await fetch(`https://yamhku5op7.execute-api.us-east-1.amazonaws.com/dev/GetToken?walletAddress=${address}`, {
+          const response = await fetch(`https://yamhku5op7.execute-api.us-east-1.amazonaws.com/dev/GetToken?walletAddress=${sanitizedAddress}`, {
             method: 'GET',
             headers: {
               'Content-Type': 'application/json',
@@ -217,17 +220,17 @@ export const TransactionsProvider = ({ children }) => {
   
           if (response.ok) {
             const fetched = await response.json();
-            console.log(`Fetched data for address ${address}:`, fetched);
+            console.log(`Fetched data for address ${sanitizedAddress}:`, fetched);
   
             // Save userId and accessToken
             participantTokens[fetched.userId] = fetched.accessToken;
           } else {
-            console.error(`Error fetching token for address: ${address} (response not OK)`);
-            participantTokens[address] = null;
+            console.error(`Error fetching token for address: ${sanitizedAddress} (response not OK)`);
+            participantTokens[sanitizedAddress] = null;
           }
         } catch (error) {
           console.error(`Error fetching token for address: ${address}`, error);
-          participantTokens[address] = null;
+          participantTokens[sanitizedAddress] = null;
         }
       }));
   
@@ -238,7 +241,7 @@ export const TransactionsProvider = ({ children }) => {
       console.error("Error fetching participants and tokens:", error);
       return null;
     }
-  }
+  };
 
   // Requests data from the smart contract using chainlink .
   const requestData = async (activityType, goalId) =>{
