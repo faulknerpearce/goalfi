@@ -191,6 +191,7 @@ export const TransactionsProvider = ({ children }) => {
 
   // Fetches the participant addresses and their respective Strava tokens for a given goal.
   const fetchTokens = async (goalId) => {
+    const participantTokens = {};
     try {
       const provider = new ethers.BrowserProvider(ethereum);
       const signer = await provider.getSigner();
@@ -202,17 +203,11 @@ export const TransactionsProvider = ({ children }) => {
       const participants = Array.from(participantsProxy);
 
       console.log("Participants:", participants);
-  
-      const participantTokens = {};
-  
+
       await Promise.all(participants.map(async (address) => {
         try {
-          // Remove any single quotes from the address
-          const sanitizedAddress = address.replace(/'/g, '');
-          console.log(sanitizedAddress)
-          
           // Fetch the token for each participant
-          const response = await fetch(`https://yamhku5op7.execute-api.us-east-1.amazonaws.com/dev/GetToken?walletAddress=${sanitizedAddress}`, {
+          const response = await fetch(`https://yamhku5op7.execute-api.us-east-1.amazonaws.com/dev/GetToken?walletAddress=${address}`, {
             method: 'GET',
             headers: {
               'Content-Type': 'application/json',
@@ -221,17 +216,15 @@ export const TransactionsProvider = ({ children }) => {
   
           if (response.ok) {
             const fetched = await response.json();
-            console.log(`Fetched data for address ${sanitizedAddress}:`, fetched);
+            console.log(`Fetched data for address ${address}:`, fetched);
   
             // Save userId and accessToken
             participantTokens[fetched.userId] = fetched.accessToken;
           } else {
-            console.error(`Error fetching token for address: ${sanitizedAddress} (response not OK)`);
-            participantTokens[sanitizedAddress] = null;
+            console.error(`Error fetching token for address: ${address} (response not OK)`);
           }
         } catch (error) {
           console.error(`Error fetching token for address: ${address}`, error);
-          participantTokens[sanitizedAddress] = null;
         }
       }));
   
@@ -240,7 +233,7 @@ export const TransactionsProvider = ({ children }) => {
       return participantTokens;
     } catch (error) {
       console.error("Error fetching participants and tokens:", error);
-      return null;
+      return participantTokens;
     }
   };
 
