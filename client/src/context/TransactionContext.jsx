@@ -20,8 +20,6 @@ export const TransactionsProvider = ({ children }) => {
       const contract = new ethers.Contract(contractAddress, contractABI, provider);
       const addressUsed = await contract.userAddressUsed(address);
 
-      console.log(`checkUserExists: address used: ${addressUsed}`);
-
       return addressUsed;
     } catch (error) {
       console.error("checkUserExists: Error checking user existence: ", error);
@@ -60,8 +58,6 @@ export const TransactionsProvider = ({ children }) => {
       setCurrentAccount(accounts[0]);
       const userExists = await checkUserExists(accounts[0]);
       const stravaAuthorized = await checkStravaAuthorization(accounts[0]);
-
-      console.log(`connectWallet: User exists for ${accounts[0]}:`, userExists);
 
       setIsUserCreated(userExists);
       setIsStravaAuthorized(stravaAuthorized);
@@ -161,7 +157,6 @@ export const TransactionsProvider = ({ children }) => {
   // Checks if the user is authorized with Strava.
   const checkStravaAuthorization = async (walletAddress) => {
     try {
-    
       const response = await fetch(`https://yamhku5op7.execute-api.us-east-1.amazonaws.com/dev/CheckIfVerified?walletAddress=${walletAddress}`, {
         method: 'GET',
         headers: {
@@ -251,10 +246,6 @@ export const TransactionsProvider = ({ children }) => {
       const fetchedData = await fetchParticipantsTokens(goalId);
 
       const parsedData = JSON.stringify(fetchedData)
-
-      console.log(`TransactionContext requestDataTest Called.`);
-      console.log(`Activity Type: ${activityType}. Goal ID: ${goalId}.`)
-      console.log(`Request Data: ${parsedData}`);
 
       const tx = await contract.executeRequest(parsedData, activityType, goalId);
       console.log(`TransactionContext requestData Executed. Tx Hash: ${tx.hash}`);

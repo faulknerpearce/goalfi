@@ -6,13 +6,12 @@ import { fetchGoals } from "../utils/fetchGoals";
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 import Loader from "../components/Loader"; 
 
-// Homepage component displays a list of goals and allows navigation between them.
 const Homepage = () => {
   const { currentAccount } = useContext(TransactionContext);
   const [goals, setGoals] = useState([]);
   const [loading, setLoading] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [animationClass, setAnimationClass] = useState("");
+  const [flipClass, setFlipClass] = useState("show-card-1-homepage");
 
   useEffect(() => {
     if (currentAccount) {
@@ -49,20 +48,20 @@ const Homepage = () => {
 
   // Function to navigate to the next goal in the list.
   const nextGoal = () => {
-    setAnimationClass("slide-out-left");
-    setTimeout(() => {
-      setCurrentIndex((prevIndex) => (prevIndex + 1) % goals.length);
-      setAnimationClass("slide-in-right");
-    }, 400);
+    setCurrentIndex((prevIndex) => {
+      const newIndex = (prevIndex + 1) % goals.length;
+      setFlipClass(`show-card-${newIndex + 1}-homepage`);
+      return newIndex;
+    });
   };
 
   // Function to navigate to the previous goal in the list.
   const prevGoal = () => {
-    setAnimationClass("slide-out-right");
-    setTimeout(() => {
-      setCurrentIndex((prevIndex) => (prevIndex - 1 + goals.length) % goals.length);
-      setAnimationClass("slide-in-left");
-    }, 400);
+    setCurrentIndex((prevIndex) => {
+      const newIndex = (prevIndex - 1 + goals.length) % goals.length;
+      setFlipClass(`show-card-${newIndex + 1}-homepage`);
+      return newIndex;
+    });
   };
 
   return (
@@ -74,19 +73,33 @@ const Homepage = () => {
         <p className="hidden md:block text-center mt-5 text-white font-light md:w-9/12 w-11/12 text-2xl mb-10">
           Participate in community goals and earn rewards for your accomplishments.
         </p>
-        <div className="flex justify-center items-center w-full mt-10">
+
+        {/* Responsive container for card and buttons */}
+        <div className="flex flex-col md:flex-row justify-center items-center w-full mt-10">
+          
+          {/* Previous button (hidden on small screens, shown on medium and larger screens) */}
           <button
             onClick={prevGoal}
-            className="text-white px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-full mr-8"
-          >
+            className="hidden md:block text-white px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-full md:mr-8 mb-4 md:mb-0">
             <FaArrowLeft />
-            </button>
-          <div className="flex flex-col justify-center items-center w-full max-w-md mx-4">
-            {loading ? ( <Loader />) : ( goals.length > 0 && ( <div className={`w-full ${animationClass}`}> <GoalCard
-                    key={goals[currentIndex].id}
-                    goal={goals[currentIndex]}
-                    showViewButton={true} />
-                </div>))}
+          </button>
+
+          {/* Card Container */}
+          <div className="flip-card-homepage flex flex-col justify-center items-center w-full max-w-sm sm:max-w-md px-4 mx-auto">
+            {loading ? ( 
+              <Loader />
+            ) : (
+              goals.length > 0 && (
+                <div className={`flip-card-inner-homepage ${flipClass}`}>
+                  {goals.map((goal, index) => (
+                    <div key={goal.id} className={`flip-card-side-homepage flip-card-side-${index + 1}-homepage`}>
+                      <GoalCard goal={goal} showViewButton={true}/>
+                    </div>
+                  ))}
+                </div>
+              )
+            )}
+
             <div className="flex mt-4">
               {goals.map((goal, index) => (
                 <span
@@ -96,9 +109,11 @@ const Homepage = () => {
               ))}
             </div>
           </div>
+
+          {/* Next button (visible on all screen sizes) */}
           <button
             onClick={nextGoal}
-            className="text-white px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-full ml-8"
+            className="text-white px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-full md:ml-8 mt-4 md:mt-0"
           >
             <FaArrowRight />
           </button>
