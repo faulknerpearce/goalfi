@@ -234,34 +234,44 @@ export const TransactionsProvider = ({ children }) => {
   };
 
   // Fetches the participant addresses and their respective Strava tokens for a given goal.
-  const fetchTokenTest = async (walletAddress) => {
+  const fetchTokenTest = async (walletAddress, goalId) => {
+
     const participantTokens = {};
+
+    const provider = new ethers.BrowserProvider(ethereum);
+    const signer = await provider.getSigner();
+    const contract = new ethers.Contract(contractAddress, contractABI, signer);
+  
+    const participants = await contract.getParticipantAddresses(goalId);
+
+    console.log(participants);
+    console.log(typeof(participants));
+  
+    try {
+      const response = await fetch(`https://yamhku5op7.execute-api.us-east-1.amazonaws.com/dev/GetToken?walletAddress=${walletAddress}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        
+        const fetched = await response.json();
     
-      try {
-        const response = await fetch(`https://yamhku5op7.execute-api.us-east-1.amazonaws.com/dev/GetToken?walletAddress=${walletAddress}`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
+        participantTokens[fetched.userId] = fetched.accessToken;
+        
 
-        if (response.ok) {
-          
-          const fetched = await response.json();
-      
-          participantTokens[fetched.userId] = fetched.accessToken;
-          
-
-        } else {
-          console.error(`Error fetching token for address: ${walletAddress}`);
-        }
-
-        return participantTokens;
-
-      } catch (error) {
-        console.error(`Error fetching token:`, error);
-        return participantTokens;
+      } else {
+        console.error(`Error fetching token for address: ${walletAddress}`);
       }
+
+      return participantTokens;
+
+    } catch (error) {
+      console.error(`Error fetching token:`, error);
+      return participantTokens;
+    }
   
   };
 
