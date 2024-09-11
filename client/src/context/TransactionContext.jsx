@@ -209,6 +209,7 @@ export const TransactionsProvider = ({ children }) => {
         try {
           // Remove any single quotes from the address
           const sanitizedAddress = address.replace(/'/g, '');
+          console.log(sanitizedAddress)
           
           // Fetch the token for each participant
           const response = await fetch(`https://yamhku5op7.execute-api.us-east-1.amazonaws.com/dev/GetToken?walletAddress=${sanitizedAddress}`, {
