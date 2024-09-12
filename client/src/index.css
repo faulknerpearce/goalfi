@@ -8,6 +8,7 @@
   padding: 0;
   margin: 0;
   box-sizing: border-box;
+  overflow-x: hidden;
 }
 
 body {
@@ -166,52 +167,88 @@ body {
   z-index: 1;
 }
 
-.flip-card-homepage {
+/* Rename for the homepage flip card */
+.homepage-flip-card-container {
   perspective: 1000px;
-  width: 100%;
-  max-width: 300px; /* Ensuring the card has a consistent width */
-  margin: 0 auto; /* Center the card container horizontally */
-}
-
-.flip-card-inner-homepage {
-  position: relative; /* Ensures child elements with position: absolute are positioned relative to this container */
-  width: 100%;
-  height: 400px; /* Set a consistent height for the card container */
-  transition: transform 0.8s;
-  transform-style: preserve-3d; /* Enable 3D space */
-}
-
-.flip-card-inner-homepage.show-card-1-homepage {
-  transform: rotateY(0deg);
-}
-
-.flip-card-inner-homepage.show-card-2-homepage {
-  transform: rotateY(180deg);
-}
-
-.flip-card-inner-homepage.show-card-3-homepage {
-  transform: rotateY(360deg); /* Adjust the degree if there are more than 2 cards */
-}
-
-.flip-card-side-homepage {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  backface-visibility: hidden; /* Ensure only the front side is visible */
   display: flex;
   justify-content: center;
   align-items: center;
+  width: 100%;
+  max-width: 100%; /* Ensure full width on smaller screens */
+  height: auto; /* Adjust height to be flexible */
 }
 
-.flip-card-side-1-homepage {
-  transform: rotateY(0deg);
+.homepage-flip-card {
+  position: relative;
+  width: 100%; /* Make the flip card responsive */
+  max-width: 400px; /* Set a reasonable max width */
+  height: auto; /* Allow height to be flexible */
+  transform-style: preserve-3d;
+  transition: transform 0.4s;
+  transform-origin: center;
+  margin: 0;
 }
 
-.flip-card-side-2-homepage {
+.homepage-flip-card.flipped {
   transform: rotateY(180deg);
 }
 
-.flip-card-side-3-homepage {
-  transform: rotateY(360deg);
+/* Rename animations to avoid conflict */
+@keyframes homepageFlipOutLeft {
+  0% {
+    transform: rotateY(0);
+  }
+  100% {
+    transform: rotateY(-90deg);
+  }
+}
+
+@keyframes homepageFlipInRight {
+  0% {
+    transform: rotateY(90deg);
+  }
+  100% {
+    transform: rotateY(0);
+  }
+}
+
+/* Reverse animations for the homepage flip card */
+@keyframes homepageFlipOutRight {
+  0% {
+    transform: rotateY(0);
+  }
+  100% {
+    transform: rotateY(90deg);
+  }
+}
+
+@keyframes homepageFlipInLeft {
+  0% {
+    transform: rotateY(-90deg);
+  }
+  100% {
+    transform: rotateY(0);
+  }
+}
+
+/* Apply the renamed animations */
+.homepage-flip-out-left {
+  animation: homepageFlipOutLeft 0.4s forwards;
+  backface-visibility: hidden;
+}
+
+.homepage-flip-in-right {
+  animation: homepageFlipInRight 0.4s forwards;
+  backface-visibility: hidden;
+}
+
+.homepage-flip-out-right {
+  animation: homepageFlipOutRight 0.4s forwards;
+  backface-visibility: hidden;
+}
+
+.homepage-flip-in-left {
+  animation: homepageFlipInLeft 0.4s forwards;
+  backface-visibility: hidden;
 }
 
