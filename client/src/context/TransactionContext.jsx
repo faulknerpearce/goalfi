@@ -74,10 +74,10 @@ export const TransactionsProvider = ({ children }) => {
       const signer = await provider.getSigner();
       const address = await signer.getAddress();
       const balance = await provider.getBalance(address);
-      const requiredGewi = 10000000000000000;
+      const requiredWei = 10000000000000000;
 
-      if (balance < requiredGewi) {
-        setErrorMessage("Your wallet balance is below the minimum required balance of 0.01 ETH.");
+      if (balance < requiredWei) {
+        setErrorMessage("Your wallet balance is below the minimum required balance of 0.01 AVAX.");
         return false; 
       }
 
@@ -186,7 +186,7 @@ export const TransactionsProvider = ({ children }) => {
     const lowerCaseAddress = walletAddress.toLowerCase();
     
     try {
-      const response = await fetch(`https://yamhku5op7.execute-api.us-east-1.amazonaws.com/dev/GetToken?walletAddress=${lowerCaseAddress}`, {
+      const response = await fetch(`https://yamhku5op7.execute-api.us-east-1.amazonaws.com/dev/RefreshToken?walletAddress=${lowerCaseAddress}`, { // testing new endpoint.
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -237,6 +237,7 @@ export const TransactionsProvider = ({ children }) => {
   
   // Requests data from the smart contract using chainlink .
   const requestData = async (activityType, goalId) =>{
+    console.log(`Requesting data for goal: ${goalId}`);
 
     try {
       const provider = new ethers.BrowserProvider(ethereum);

@@ -19,7 +19,6 @@ const Navbar = () => {
   const { currentAccount, connectWallet, isUserCreated, createUser, isStravaAuthorized, getUserId} = useContext(TransactionContext);
   const [showModal, setShowModal] = useState(false);
   const [isCodeFetched, setIsCodeFetched] = useState(false);
-  const [isStravaConnected, setIsStravaConnected] = useState(false);
 
   // Function to handle connecting to Strava for authorization.
   const handleStravaConnect = async () => {
@@ -82,7 +81,6 @@ useEffect(() => {
           
           if (saveTokenResponse.ok) {
             console.log('Successfully saved to DataBase.');
-            setIsStravaConnected(true);
           } else {
             console.error('Error saving to DynamoDB:', saveResponseData);
           }
@@ -99,7 +97,7 @@ useEffect(() => {
   if (!isCodeFetched) {
     handleRedirect(); // Call the async function only if the code hasn't been fetched yet
   }
-}, [currentAccount, getUserId, isCodeFetched ]);
+}, [ currentAccount, getUserId, isCodeFetched ]);
 
   // Function to show the modal for account creation.
   const handleCreateAccountClick = () => {
@@ -181,7 +179,7 @@ useEffect(() => {
                   Verify Wallet
                 </li>
               )}
-              {isUserCreated && (!isStravaAuthorized && !isStravaConnected) &&(
+              {isUserCreated && !isStravaAuthorized &&(
                 <li className="py-2 px-7 mx-4 rounded-full cursor-pointer bg-orange-600 hover:bg-orange-700" onClick={handleStravaConnect}>
                   Connect to Strava
                 </li>
