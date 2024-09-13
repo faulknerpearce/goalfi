@@ -6,7 +6,7 @@ import { FaTrophy, FaTimesCircle, FaTasks } from "react-icons/fa";
 import React, { useContext, useEffect, useState } from "react";
 import UserGoalCard from "../components/UserGoalCard";
 import DashboardCard from "../components/DashboardCard";
-import DashboardChart from '../components/DashboardChart'
+import DashboardChart from '../components/DashboardChart';
 import Loader from "../components/Loader";
 
 const Dashboard = () => {
@@ -27,24 +27,29 @@ const Dashboard = () => {
         const provider = new ethers.BrowserProvider(window.ethereum);
         const userGoals = await getGoalsForUser(currentAccount);
 
-        const [activeGoals, expiredGoals] = await Promise.all([fetchGoals(provider, false), fetchGoals(provider, true)]);
+        const [activeGoals, expiredGoals] = await Promise.all([
+          fetchGoals(provider, false),
+          fetchGoals(provider, true),
+        ]);
 
         const allGoals = [...activeGoals, ...expiredGoals];
-        
-        const userGoalDetails = allGoals.map(goal => {
-          const userGoal = userGoals.find(userGoal => userGoal.goalId === goal.id);
-          return {
-            ...goal,
-            userDistance: userGoal ? userGoal.userDistance : 0,
-            progress: userGoal ? userGoal.progress : null, 
-          };
-        }).filter(goal => goal.progress !== null); 
+
+        const userGoalDetails = allGoals
+          .map((goal) => {
+            const userGoal = userGoals.find((userGoal) => userGoal.goalId === goal.id);
+            return {
+              ...goal,
+              userDistance: userGoal ? userGoal.userDistance : 0,
+              progress: userGoal ? userGoal.progress : null,
+            };
+          })
+          .filter((goal) => goal.progress !== null);
 
         let completedCount = 0;
         let failedCount = 0;
         let goalJoinHistory = {};
-      
-        userGoalDetails.forEach(goal => {
+
+        userGoalDetails.forEach((goal) => {
           if (Number(goal.progress) === 4 || Number(goal.progress) === 3) {
             completedCount++;
           } else if (Number(goal.progress) === 2) {
@@ -57,9 +62,9 @@ const Dashboard = () => {
           goalJoinHistory[joinDate]++;
         });
 
-        const goalHistoryArray = Object.keys(goalJoinHistory).map(date => ({
+        const goalHistoryArray = Object.keys(goalJoinHistory).map((date) => ({
           date,
-          goalsJoined: goalJoinHistory[date]
+          goalsJoined: goalJoinHistory[date],
         }));
 
         setCompletedGoals(completedCount);
@@ -67,7 +72,6 @@ const Dashboard = () => {
         setTotalGoalsJoined(userGoalDetails.length);
         setGoals(userGoalDetails);
         setGoalHistory(goalHistoryArray);
-
       } catch (error) {
         console.error("Error fetching user goals:", error);
       } finally {
@@ -82,8 +86,8 @@ const Dashboard = () => {
   }, [currentAccount]);
 
   const displayedGoals = showActiveGoals
-    ? goals.filter(goal => goal.hours > 0 || goal.minutes > 0)
-    : goals.filter(goal => goal.hours <= 0 && goal.minutes <= 0);
+    ? goals.filter((goal) => goal.hours > 0 || goal.minutes > 0)
+    : goals.filter((goal) => goal.hours <= 0 && goal.minutes <= 0);
 
   return (
     <div className="flex flex-col w-full justify-center items-center">
@@ -114,7 +118,7 @@ const Dashboard = () => {
               <div className="white-glassmorphism p-6 rounded-lg border border-gray-700 h-full flex justify-center items-center">
                 <div className="text-center">
                   <h3 className="text-lg font-semibold text-white mb-5">Total Amount Won</h3>
-                  <p className="text-white text-xl">{`${12.34} AVAX`}</p> 
+                  <p className="text-white text-xl">{`${12.34} AVAX`}</p>
                 </div>
               </div>
             </div>
@@ -134,26 +138,45 @@ const Dashboard = () => {
         </p>
         <div className="flex justify-center space-x-4 mb-10">
           <button
-            className={`text-white px-10 py-2 rounded-full ${showActiveGoals ? "bg-orange-700" : "bg-gray-500 hover:bg-gray-600" }`}
-            onClick={() => setShowActiveGoals(true)}>
-              Active Goals
+            className={`text-white px-10 py-2 rounded-full ${
+              showActiveGoals ? "bg-orange-700" : "bg-gray-500 hover:bg-gray-600"
+            }`}
+            onClick={() => setShowActiveGoals(true)}
+          >
+            Active Goals
           </button>
           <button
-            className={`text-white px-10 py-3 rounded-full ${!showActiveGoals ? "bg-orange-700" : "bg-gray-500 hover:bg-gray-600" }`}
-            onClick={() => setShowActiveGoals(false)}>
-              Past Goals
+            className={`text-white px-10 py-3 rounded-full ${
+              !showActiveGoals ? "bg-orange-700" : "bg-gray-500 hover:bg-gray-600"
+            }`}
+            onClick={() => setShowActiveGoals(false)}
+          >
+            Past Goals
           </button>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 w-full max-w-7xl mx-auto mt-10">
+        {/* Grid layout for displaying goals */}
+        <div
+          className={`grid w-full justify-items-center mt-10 ${
+            loading
+              ? "flex justify-center items-center"
+              : "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10"
+          }`}
+        >
           {loading ? (
-              <div className="col-span-1 sm:col-span-2 md:col-span-3 flex justify-center">
-                <Loader />
-              </div>
-            ) : (
-              displayedGoals.map((goal) => (
-                <UserGoalCard key={goal.id} goal={goal} progress={goal.progress} claimRewards={claimRewards} requestData={requestData}/> 
-              ))
-            )}
+            <div className="col-span-1 sm:col-span-2 md:col-span-3 flex justify-center">
+              <Loader />
+            </div>
+          ) : (
+            displayedGoals.map((goal) => (
+              <UserGoalCard
+                key={goal.id}
+                goal={goal}
+                progress={goal.progress}
+                claimRewards={claimRewards}
+                requestData={requestData}
+              />
+            ))
+          )}
         </div>
       </div>
     </div>
