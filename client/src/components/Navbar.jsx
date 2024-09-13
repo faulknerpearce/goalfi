@@ -142,7 +142,7 @@ useEffect(() => {
                 Verify Wallet
               </li>
             )}
-            {isUserCreated && (!isStravaAuthorized && !isStravaConnected) && (
+            {isUserCreated && !isStravaAuthorized && (
               <li className="py-2 px-7 mx-4 rounded-full cursor-pointer bg-orange-600 hover:bg-orange-700" onClick={handleStravaConnect}>
                 Connect to Strava
               </li>
