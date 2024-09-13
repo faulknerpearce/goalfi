@@ -51,21 +51,70 @@ export const TransactionsProvider = ({ children }) => {
   };
 
   // Connects the user's wallet using MetaMask and updates the state.
-  const connectWallet = async () => {
-    try {
-      if (!ethereum) return alert("connectWallet: Please install MetaMask.");
-      const accounts = await ethereum.request({ method: "eth_requestAccounts" });
-      setCurrentAccount(accounts[0]);
-      const userExists = await checkUserExists(accounts[0]);
-      const stravaAuthorized = await checkStravaAuthorization(accounts[0]);
+const connectWallet = async () => {
+  const desiredNetworkId = '0xa869'; // Avalanche Fuji Testnet Chain ID (43113) in hexadecimal
 
-      setIsUserCreated(userExists);
-      setIsStravaAuthorized(stravaAuthorized);
-    } catch (error) {
-      console.log(error);
-      throw new Error("connectWallet: No ethereum object");
+  try {
+    if (!ethereum) return alert("connectWallet: Please install MetaMask.");
+
+    // Request account access
+    const accounts = await ethereum.request({ method: "eth_requestAccounts" });
+    setCurrentAccount(accounts[0]);
+
+    // Check the current network
+    const currentChainId = await ethereum.request({ method: "eth_chainId" });
+
+    // If the network is not the desired network, request to switch
+    if (currentChainId !== desiredNetworkId) {
+      try {
+        await ethereum.request({
+          method: 'wallet_switchEthereumChain',
+          params: [{ chainId: desiredNetworkId }],
+        });
+        console.log(`Switched to network with Chain ID: ${desiredNetworkId}`);
+      } catch (switchError) {
+        // If the desired network is not added to MetaMask, add it
+        if (switchError.code === 4902) {
+          try {
+            await ethereum.request({
+              method: 'wallet_addEthereumChain',
+              params: [
+                {
+                  chainId: desiredNetworkId,
+                  chainName: 'Avalanche Fuji C-Chain', // Network name for Fuji testnet
+                  nativeCurrency: {
+                    name: 'AVAX',
+                    symbol: 'AVAX', // Currency symbol
+                    decimals: 18,
+                  },
+                  rpcUrls: ['https://api.avax-test.network/ext/bc/C/rpc'], // RPC URL for the desired network
+                  blockExplorerUrls: ['https://testnet.snowtrace.io/'], // Block explorer URL for the network
+                },
+              ],
+            });
+          } catch (addError) {
+            console.error("Failed to add network:", addError);
+            return;
+          }
+        } else {
+          console.error("Failed to switch network:", switchError);
+          return;
+        }
+      }
     }
-  };
+
+    // Optional: Add your logic here for further actions after switching to the desired network
+    const userExists = await checkUserExists(accounts[0]);
+    const stravaAuthorized = await checkStravaAuthorization(accounts[0]);
+
+    setIsUserCreated(userExists);
+    setIsStravaAuthorized(stravaAuthorized);
+  } catch (error) {
+    console.log(error);
+    throw new Error("connectWallet: No ethereum object");
+  }
+};
+  
 
   // Creates a new user in the smart contract.
   const createUser = async () => {
