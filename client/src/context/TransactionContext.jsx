@@ -115,7 +115,6 @@ export const TransactionsProvider = ({ children }) => {
   
       const tx = await contract.joinGoal(goalId, { value: parsedAmount});
       await tx.wait();
-  
       alert("Successfully joined the goal!");
     } catch (error) {
       console.error("Failed to join goal:", error);
@@ -132,6 +131,7 @@ export const TransactionsProvider = ({ children }) => {
       const tx = await contract.claimRewards(goalId);
       setLoading(true);
       await tx.wait();
+      alert("Successfully claimed rewards!");
       console.log(`Claim rewards tx hash: ${tx.hash}`);
     } catch (error) {
       console.error("Failed to Claim Rewards:", error.reason);
@@ -154,8 +154,20 @@ export const TransactionsProvider = ({ children }) => {
     }
   };
 
+
   // Checks if the user is authorized with Strava.
   const checkStravaAuthorization = async (walletAddress) => {
+    const cookieName = `stravaAuthorized_${walletAddress}`;
+    const cookieValue = document.cookie.split('; ').find(row => row.startsWith(`${cookieName}=`));
+  
+    // If the cookie exists, use it
+    if (cookieValue) {
+      const stravaAuthorized = cookieValue.split('=')[1] === 'true';
+      console.log(`Strava authorization status (from cookie): ${stravaAuthorized}`);
+      return stravaAuthorized;
+    }
+  
+    // If no cookie, proceed to check the API
     try {
       const response = await fetch(`https://yamhku5op7.execute-api.us-east-1.amazonaws.com/dev/CheckIfVerified?walletAddress=${walletAddress}`, {
         method: 'GET',
@@ -163,12 +175,18 @@ export const TransactionsProvider = ({ children }) => {
           'Content-Type': 'application/json',
         }
       });
-
+  
       const responseData = await response.json(); 
-
+  
       if (response.ok && responseData.found) {
+        // If authorization found, set the cookie to true with 6-hour expiration.
+        console.log('Strava authorization status: True');
+        document.cookie = `${cookieName}=true; path=/; max-age=${60 * 60 * 6}`;  // 6 hours expiration.
         return true;
       } else {
+        // If not authorized, set the cookie to false with 6-hour expiration
+        console.log('Strava authorization status: False');
+        document.cookie = `${cookieName}=false; path=/; max-age=${60 * 60 * 6}`; // 6 hours expiration.
         return false;
       }
     } catch (error) {
@@ -176,6 +194,7 @@ export const TransactionsProvider = ({ children }) => {
       return false;
     }
   };
+  
 
   // Move the functionality from the navbar for token handling here.
   const RequestAndSaveTokens = async (walletAddress) => {
@@ -249,6 +268,7 @@ export const TransactionsProvider = ({ children }) => {
       const parsedData = JSON.stringify(fetchedData)
 
       const tx = await contract.executeRequest(parsedData, activityType, goalId);
+      alert("Successfully Requested Progress.");
       console.log(`TransactionContext requestData Executed. Tx Hash: ${tx.hash}`);
 
     } catch (error){
