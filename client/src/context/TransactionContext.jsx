@@ -127,6 +127,7 @@ const connectWallet = async () => {
 
       if (balance < requiredWei) {
         setErrorMessage("Your wallet balance is below the minimum required balance of 0.01 AVAX.");
+        console.log("Error message set:", errorMessage);
         return false; 
       }
 
@@ -153,21 +154,27 @@ const connectWallet = async () => {
     try {
       if (!currentAccount) throw new Error("Wallet is not connected");
   
+      // Check if the user has verified their wallet
+      if (!isUserCreated) {
+        throw new Error("Please verify your wallet before joining a goal.");
+      }
+  
       const provider = new ethers.BrowserProvider(ethereum);
       const signer = await provider.getSigner();
       const contract = new ethers.Contract(contractAddress, contractABI, signer);
   
+      // Ensure amount is a string for the parseEther function
       if (typeof amount !== 'string') {
         amount = amount.toString();
       }
       const parsedAmount = ethers.parseEther(amount); 
   
-      const tx = await contract.joinGoal(goalId, { value: parsedAmount});
+      // Send transaction to join goal
+      const tx = await contract.joinGoal(goalId, { value: parsedAmount });
       await tx.wait();
       alert("Successfully joined the goal!");
     } catch (error) {
-      console.error("Failed to join goal:", error);
-      alert(`Failed to join the goal. ${error.reason}.`);
+      alert(`${error.message}`);
     }
   };
 

@@ -19,6 +19,7 @@ const Navbar = () => {
   const { currentAccount, connectWallet, isUserCreated, createUser, isStravaAuthorized, getUserId} = useContext(TransactionContext);
   const [showModal, setShowModal] = useState(false);
   const [isCodeFetched, setIsCodeFetched] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   // Function to handle connecting to Strava for authorization.
   const handleStravaConnect = async () => {
@@ -112,10 +113,14 @@ useEffect(() => {
   // Function to confirm account creation and close the modal if successful.
   const handleConfirmModal = async () => {
     const userCreated = await createUser();
-    if (userCreated) {
-      setShowModal(false);
+
+    if (!userCreated) {
+      setErrorMessage('Your wallet balance is below the minimum required balance of 0.01 AVAX.');
+    } else {
+      setShowModal(false); 
+      setErrorMessage('');
     }
-  };
+  };;
 
   return (
     <nav className="w-full flex md:justify-center justify-between items-center p-4">
@@ -195,7 +200,7 @@ useEffect(() => {
       )}
         
       </div>
-      <Modal show={showModal} handleClose={handleCloseModal} handleConfirm={handleConfirmModal} />
+      <Modal show={showModal} handleClose={handleCloseModal} handleConfirm={handleConfirmModal} errorMessage={errorMessage} setErrorMessage={setErrorMessage} />
     </nav>
   );
 };
