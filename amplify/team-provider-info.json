@@ -1,0 +1,55 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-goalfi-dev-b1354-authRole",
+      "UnauthRoleArn": "arn:aws:iam::337909746428:role/amplify-goalfi-dev-b1354-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::337909746428:role/amplify-goalfi-dev-b1354-authRole",
+      "Region": "us-east-1",
+      "DeploymentBucketName": "amplify-goalfi-dev-b1354-deployment",
+      "UnauthRoleName": "amplify-goalfi-dev-b1354-unauthRole",
+      "StackName": "amplify-goalfi-dev-b1354",
+      "StackId": "arn:aws:cloudformation:us-east-1:337909746428:stack/amplify-goalfi-dev-b1354/f2ef0050-6bca-11ef-b1c8-0affc335abeb",
+      "AmplifyAppId": "d1cptuxq4eyvc4"
+    },
+    "categories": {
+      "hosting": {
+        "amplifyhosting": {
+          "appId": "d1cptuxq4eyvc4",
+          "type": "cicd"
+        }
+      },
+      "function": {
+        "UrlHandler": {
+          "deploymentBucketName": "amplify-goalfi-dev-b1354-deployment",
+          "s3Key": "amplify-builds/UrlHandler-44313863444338624358-build.zip"
+        },
+        "RequestToken": {
+          "deploymentBucketName": "amplify-goalfi-dev-b1354-deployment",
+          "s3Key": "amplify-builds/RequestToken-576932346a6544475343-build.zip"
+        },
+        "SaveToken": {
+          "deploymentBucketName": "amplify-goalfi-dev-b1354-deployment",
+          "s3Key": "amplify-builds/SaveToken-536858512b6d43476a65-build.zip"
+        },
+        "GetToken": {
+          "deploymentBucketName": "amplify-goalfi-dev-b1354-deployment",
+          "s3Key": "amplify-builds/GetToken-5251474a54356c774569-build.zip"
+        },
+        "CheckIfVerified": {
+          "deploymentBucketName": "amplify-goalfi-dev-b1354-deployment",
+          "s3Key": "amplify-builds/CheckIfVerified-486562394c6c4267474f-build.zip"
+        },
+        "RefreshToken": {
+          "deploymentBucketName": "amplify-goalfi-dev-b1354-deployment",
+          "s3Key": "amplify-builds/RefreshToken-464b53794e4573343951-build.zip"
+        }
+      },
+      "api": {
+        "TokenManager": {}
+      },
+      "storage": {
+        "UserTokens": {}
+      }
+    }
+  }
+}

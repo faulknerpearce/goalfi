@@ -1,0 +1,217 @@
+{
+  "api": {
+    "TokenManager": {
+      "dependsOn": [
+        {
+          "attributes": [
+            "Name",
+            "Arn"
+          ],
+          "category": "function",
+          "resourceName": "UrlHandler"
+        },
+        {
+          "attributes": [
+            "Name",
+            "Arn"
+          ],
+          "category": "function",
+          "resourceName": "RequestToken"
+        },
+        {
+          "attributes": [
+            "Name",
+            "Arn"
+          ],
+          "category": "function",
+          "resourceName": "SaveToken"
+        },
+        {
+          "attributes": [
+            "Name",
+            "Arn"
+          ],
+          "category": "function",
+          "resourceName": "GetToken"
+        },
+        {
+          "attributes": [
+            "Name",
+            "Arn"
+          ],
+          "category": "function",
+          "resourceName": "CheckIfVerified"
+        },
+        {
+          "attributes": [
+            "Name",
+            "Arn"
+          ],
+          "category": "function",
+          "resourceName": "RefreshToken"
+        }
+      ],
+      "providerPlugin": "awscloudformation",
+      "service": "API Gateway"
+    }
+  },
+  "function": {
+    "CheckIfVerified": {
+      "build": true,
+      "providerPlugin": "awscloudformation",
+      "service": "Lambda"
+    },
+    "GetToken": {
+      "build": true,
+      "providerPlugin": "awscloudformation",
+      "service": "Lambda"
+    },
+    "RefreshToken": {
+      "build": true,
+      "providerPlugin": "awscloudformation",
+      "service": "Lambda"
+    },
+    "RequestToken": {
+      "build": true,
+      "providerPlugin": "awscloudformation",
+      "service": "Lambda"
+    },
+    "SaveToken": {
+      "build": true,
+      "providerPlugin": "awscloudformation",
+      "service": "Lambda"
+    },
+    "UrlHandler": {
+      "build": true,
+      "providerPlugin": "awscloudformation",
+      "service": "Lambda"
+    }
+  },
+  "hosting": {
+    "amplifyhosting": {
+      "lastPushTimeStamp": "2024-09-05T21:15:37.063Z",
+      "service": "amplifyhosting",
+      "type": "cicd"
+    }
+  },
+  "parameters": {
+    "AMPLIFY_function_CheckIfVerified_deploymentBucketName": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "CheckIfVerified"
+        }
+      ]
+    },
+    "AMPLIFY_function_CheckIfVerified_s3Key": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "CheckIfVerified"
+        }
+      ]
+    },
+    "AMPLIFY_function_GetToken_deploymentBucketName": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "GetToken"
+        }
+      ]
+    },
+    "AMPLIFY_function_GetToken_s3Key": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "GetToken"
+        }
+      ]
+    },
+    "AMPLIFY_function_RefreshToken_deploymentBucketName": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "RefreshToken"
+        }
+      ]
+    },
+    "AMPLIFY_function_RefreshToken_s3Key": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "RefreshToken"
+        }
+      ]
+    },
+    "AMPLIFY_function_RequestToken_deploymentBucketName": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "RequestToken"
+        }
+      ]
+    },
+    "AMPLIFY_function_RequestToken_s3Key": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "RequestToken"
+        }
+      ]
+    },
+    "AMPLIFY_function_SaveToken_deploymentBucketName": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "SaveToken"
+        }
+      ]
+    },
+    "AMPLIFY_function_SaveToken_s3Key": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "SaveToken"
+        }
+      ]
+    },
+    "AMPLIFY_function_UrlHandler_deploymentBucketName": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "UrlHandler"
+        }
+      ]
+    },
+    "AMPLIFY_function_UrlHandler_s3Key": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "UrlHandler"
+        }
+      ]
+    },
+    "AMPLIFY_hosting_amplifyhosting_appId": {
+      "usedBy": [
+        {
+          "category": "hosting",
+          "resourceName": "amplifyhosting"
+        }
+      ]
+    },
+    "AMPLIFY_hosting_amplifyhosting_type": {
+      "usedBy": [
+        {
+          "category": "hosting",
+          "resourceName": "amplifyhosting"
+        }
+      ]
+    }
+  },
+  "storage": {
+    "UserTokens": {
+      "providerPlugin": "awscloudformation",
+      "service": "DynamoDB"
+    }
+  }
+}
