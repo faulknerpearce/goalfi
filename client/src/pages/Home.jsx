@@ -77,9 +77,8 @@ const Homepage = () => {
         {!currentAccount ? (
           <button
             onClick={connectWallet} // Call connectWallet function when clicked
-            className="text-white px-6 py-3 bg-orange-600 hover:bg-orange-700 rounded-full text-lg block md:hidden"
-          >
-            Connect Wallet to View Goals
+            className="mt-10 text-white px-6 py-3 bg-orange-600 hover:bg-orange-700 rounded-full text-lg block md:hidden">
+              Connect Wallet to View Goals
           </button>
         ) : (
           <>
