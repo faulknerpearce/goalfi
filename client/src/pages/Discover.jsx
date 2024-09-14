@@ -6,7 +6,7 @@ import { fetchGoals } from "../utils/fetchGoals";
 import Loader from "../components/Loader";
 
 const Discover = () => {
-  const { currentAccount, joinGoal } = useContext(TransactionContext);
+  const { currentAccount, joinGoal, connectWallet } = useContext(TransactionContext);
   const [goals, setGoals] = useState([]);
   const [goalsFetched, setGoalsFetched] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -40,15 +40,24 @@ const Discover = () => {
         <p className="text-center mt-5 text-white font-light md:w-9/12 w-11/12 text-xl mb-10">
           Browse our available goals and join the one that aligns with you.
         </p>
-        <div className={`grid w-full mt-10 ${loading ? "flex justify-center items-center" : "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10"}`}>
-          {loading ? (
-            <Loader /> 
-          ) : (
-            goals.map((goal) => (
-              <GoalCard key={goal.id} goal={goal} showJoinButton={true} joinGoal={joinGoal} />
-            ))
-          )}
-        </div>
+
+        {!currentAccount ? (
+          <button
+            onClick={connectWallet} // Call connectWallet function when clicked
+            className="mt-10 text-white px-6 py-3 bg-orange-600 hover:bg-orange-700 rounded-full text-lg">
+              Connect Wallet to View Goals
+          </button>
+        ) : (
+          <div className={`grid w-full mt-10 ${loading ? "flex justify-center items-center" : "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10"}`}>
+            {loading ? (
+              <Loader /> 
+            ) : (
+              goals.map((goal) => (
+                <GoalCard key={goal.id} goal={goal} showJoinButton={true} joinGoal={joinGoal} />
+              ))
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
