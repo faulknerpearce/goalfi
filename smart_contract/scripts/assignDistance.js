@@ -4,7 +4,7 @@ async function assignDistance(id) {
 
     const contract = getContractInstance();
 
-    const Response = await contract.getActivityByGoalId(id);
+    const Response = await contract.getActivityWithGoalId(id);
     
     const dataArray = JSON.parse(Response.activityData);
     const goalId = Response.goalId;
@@ -20,7 +20,7 @@ async function assignDistance(id) {
 
 async function main(){
 
-    const id = 2;
+    const id = 11;
 
     await assignDistance(id);
 
