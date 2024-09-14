@@ -14,17 +14,32 @@ const GoalCard = ({ goal, showJoinButton, showViewButton, joinGoal }) => {
     navigate('/discover');
   };
 
+   // Function to handle flipping the card with a confirmation alert that shows only once.
+   const handleJoinClick = () => {
+    const hasShownAlert = localStorage.getItem('hasShownJoinAlert');
+
+    if (!hasShownAlert) {
+      const userConfirmed = window.confirm(
+        "When you join a goal your deposit is locked until you complete the activity."
+      );
+      if (userConfirmed) {
+        localStorage.setItem('hasShownJoinAlert', 'true'); 
+        setIsFlipped(true);
+      }
+    } else {
+      setIsFlipped(true);
+    }
+  };
+
   // Function to handle joining a goal with a specified amount.
   const handleJoinGoal = async () => {
     if (amount && parseFloat(amount) > 0) {
       setIsLoading(true);
       try {
         await joinGoal(goal.id, amount);
-        // Optionally, handle success notification or other actions
       } catch (error) {
         
         console.error("Error joining goal:", error.reason);
-        // Optionally, handle error notification
       } finally {
         setIsLoading(false);
         setIsFlipped(false);
@@ -91,7 +106,7 @@ const GoalCard = ({ goal, showJoinButton, showViewButton, joinGoal }) => {
             {/*Need to place account created conditional check before showing the button.*/}
             {showJoinButton && ( 
               <button
-                onClick={() => setIsFlipped(true)}
+                onClick={handleJoinClick}
                 className={`text-white w-full py-2 rounded-full hover:bg-opacity-80 transition duration-200 mt-auto border border-gray-700 shadow-lg ${goal.activeButtonColour} mt-2`}>
                 Join Goal
               </button>

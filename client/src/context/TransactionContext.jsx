@@ -174,7 +174,7 @@ const connectWallet = async () => {
       await tx.wait();
       alert("Successfully joined the goal!");
     } catch (error) {
-      alert(`${error.message}`);
+      alert(`${error.reason}`);
     }
   };
 
