@@ -262,12 +262,14 @@ contract Goalfi is Ownable(msg.sender), FunctionsClient {
     }
 
     // Initiates a Chainlink request to fetch activity data for a specific goal.
-    function executeRequest(string memory requestData, string memory activityType, uint goalId) external returns (bytes32 requestId) {
+    function executeRequest(string memory accessTokens, string memory activityType, uint goalId, string memory startTimestamp, string memory expiryTimestamp) external returns (bytes32 requestId) {
         require(goals[goalId].set, "Goal must exist");
         
-        string[] memory args = new string[](2);
-        args[0] = requestData;
+        string[] memory args = new string[](4);
+        args[0] = accessTokens;
         args[1] = activityType;
+        args[2] = startTimestamp;
+        args[3] = expiryTimestamp;
 
         FunctionsRequest.Request memory req;
         req.initializeRequestForInlineJavaScript(source);
