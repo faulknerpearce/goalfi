@@ -209,7 +209,6 @@ export const TransactionsProvider = ({ children }) => {
     }
   };
 
-
   // Checks if the user is authorized with Strava.
   const checkStravaAuthorization = async (walletAddress) => {
     const cookieName = `stravaAuthorized_${walletAddress}`;
@@ -241,7 +240,7 @@ export const TransactionsProvider = ({ children }) => {
       } else {
         // If not authorized, set the cookie to false with 6-hour expiration
         console.log('Strava authorization status: False');
-        document.cookie = `${cookieName}=false; path=/; max-age=${60 * 60 * 6}`; // 6 hours expiration.
+        // document.cookie = `${cookieName}=false; path=/; max-age=${60 * 60 * 6}`; // 6 hours expiration.  // removed saving the cookie if no access toekn is found.
         return false;
       }
     } catch (error) {
@@ -311,7 +310,7 @@ export const TransactionsProvider = ({ children }) => {
   
   // Requests data from the smart contract using chainlink .
   const requestData = async (activityType, goalId, startTimestamp, expiryTimestamp) =>{
-    console.log(`Requesting data for goal: ${goalId}`);
+    console.log(`Requesting data for Goal ID: ${goal.id}. Start: ${startTimestamp}. Expires: ${goal.expiryTimestamp}`)
 
     try {
       const provider = new ethers.BrowserProvider(ethereum);
