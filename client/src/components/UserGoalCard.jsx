@@ -7,7 +7,7 @@ const UserGoalCard = ({ goal, progress, claimRewards, requestData}) => {
   };
 
   const handleFetchData = () => {
-    requestData(goal.stravaAPICall, goal.id);
+    requestData(goal.stravaAPICall, goal.id, goal.startTimestamp, goal.expiryTimestamp); // input the start timestamp and expiry timestamp here.
   };
 
   const getProgressPercent = () => {
