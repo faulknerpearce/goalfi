@@ -51,71 +51,70 @@ export const TransactionsProvider = ({ children }) => {
   };
 
   // Connects the user's wallet using MetaMask and updates the state.
-const connectWallet = async () => {
-  const desiredNetworkId = '0xa869'; // Avalanche Fuji Testnet Chain ID (43113) in hexadecimal
+  const connectWallet = async () => {
+    const desiredNetworkId = '0xa869'; // Avalanche Fuji Testnet Chain ID (43113) in hexadecimal
 
-  try {
-    if (!ethereum) return alert("connectWallet: Please install MetaMask.");
+    try {
+      if (!ethereum) return alert("connectWallet: Please install MetaMask.");
 
-    // Request account access
-    const accounts = await ethereum.request({ method: "eth_requestAccounts" });
-    setCurrentAccount(accounts[0]);
+      // Request account access
+      const accounts = await ethereum.request({ method: "eth_requestAccounts" });
+      setCurrentAccount(accounts[0]);
 
-    // Check the current network
-    const currentChainId = await ethereum.request({ method: "eth_chainId" });
+      // Check the current network
+      const currentChainId = await ethereum.request({ method: "eth_chainId" });
 
-    // If the network is not the desired network, request to switch
-    if (currentChainId !== desiredNetworkId) {
-      try {
-        await ethereum.request({
-          method: 'wallet_switchEthereumChain',
-          params: [{ chainId: desiredNetworkId }],
-        });
-        console.log(`Switched to network with Chain ID: ${desiredNetworkId}`);
-      } catch (switchError) {
-        // If the desired network is not added to MetaMask, add it
-        if (switchError.code === 4902) {
-          try {
-            await ethereum.request({
-              method: 'wallet_addEthereumChain',
-              params: [
-                {
-                  chainId: desiredNetworkId,
-                  chainName: 'Avalanche Fuji C-Chain', // Network name for Fuji testnet
-                  nativeCurrency: {
-                    name: 'AVAX',
-                    symbol: 'AVAX', // Currency symbol
-                    decimals: 18,
+      // If the network is not the desired network, request to switch
+      if (currentChainId !== desiredNetworkId) {
+        try {
+          await ethereum.request({
+            method: 'wallet_switchEthereumChain',
+            params: [{ chainId: desiredNetworkId }],
+          });
+          console.log(`Switched to network with Chain ID: ${desiredNetworkId}`);
+        } catch (switchError) {
+          // If the desired network is not added to MetaMask, add it
+          if (switchError.code === 4902) {
+            try {
+              await ethereum.request({
+                method: 'wallet_addEthereumChain',
+                params: [
+                  {
+                    chainId: desiredNetworkId,
+                    chainName: 'Avalanche Fuji C-Chain', // Network name for Fuji testnet
+                    nativeCurrency: {
+                      name: 'AVAX',
+                      symbol: 'AVAX', // Currency symbol
+                      decimals: 18,
+                    },
+                    rpcUrls: ['https://api.avax-test.network/ext/bc/C/rpc'], // RPC URL for the desired network
+                    blockExplorerUrls: ['https://testnet.snowtrace.io/'], // Block explorer URL for the network
                   },
-                  rpcUrls: ['https://api.avax-test.network/ext/bc/C/rpc'], // RPC URL for the desired network
-                  blockExplorerUrls: ['https://testnet.snowtrace.io/'], // Block explorer URL for the network
-                },
-              ],
-            });
-          } catch (addError) {
-            console.error("Failed to add network:", addError);
+                ],
+              });
+            } catch (addError) {
+              console.error("Failed to add network:", addError);
+              return;
+            }
+          } else {
+            console.error("Failed to switch network:", switchError);
             return;
           }
-        } else {
-          console.error("Failed to switch network:", switchError);
-          return;
         }
       }
+
+      // Optional: Add your logic here for further actions after switching to the desired network
+      const userExists = await checkUserExists(accounts[0]);
+      const stravaAuthorized = await checkStravaAuthorization(accounts[0]);
+
+      setIsUserCreated(userExists);
+      setIsStravaAuthorized(stravaAuthorized);
+    } catch (error) {
+      console.log(error);
+      throw new Error("connectWallet: No ethereum object");
     }
-
-    // Optional: Add your logic here for further actions after switching to the desired network
-    const userExists = await checkUserExists(accounts[0]);
-    const stravaAuthorized = await checkStravaAuthorization(accounts[0]);
-
-    setIsUserCreated(userExists);
-    setIsStravaAuthorized(stravaAuthorized);
-  } catch (error) {
-    console.log(error);
-    throw new Error("connectWallet: No ethereum object");
-  }
-};
+  };
   
-
   // Creates a new user in the smart contract.
   const createUser = async () => {
     try {
@@ -254,14 +253,14 @@ const connectWallet = async () => {
 
   // Move the functionality from the navbar for token handling here.
   const RequestAndSaveTokens = async (walletAddress) => {
-
   }
 
+  // Fetches the participants access token with the users wallet address.
   const fetchToken = async (walletAddress) => {
     const lowerCaseAddress = walletAddress.toLowerCase();
     
     try {
-      const response = await fetch(`https://yamhku5op7.execute-api.us-east-1.amazonaws.com/dev/RefreshToken?walletAddress=${lowerCaseAddress}`, { // testing new endpoint.
+      const response = await fetch(`https://yamhku5op7.execute-api.us-east-1.amazonaws.com/dev/RefreshToken?walletAddress=${lowerCaseAddress}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -311,7 +310,7 @@ const connectWallet = async () => {
   };
   
   // Requests data from the smart contract using chainlink .
-  const requestData = async (activityType, goalId) =>{
+  const requestData = async (activityType, goalId, startTimestamp, expiryTimestamp) =>{
     console.log(`Requesting data for goal: ${goalId}`);
 
     try {
@@ -320,10 +319,11 @@ const connectWallet = async () => {
       const contract = new ethers.Contract(contractAddress, contractABI, signer);
 
       const fetchedData = await fetchParticipantsTokens(goalId);
+      console.log(fetchedData)
 
-      const parsedData = JSON.stringify(fetchedData)
+      const accessTokens = JSON.stringify(fetchedData)
 
-      const tx = await contract.executeRequest(parsedData, activityType, goalId);
+      const tx = await contract.executeRequest(accessTokens, activityType, goalId, startTimestamp, expiryTimestamp); // pass start timestamp and expiry timestamp here.
       alert("Successfully Requested Progress.");
       console.log(`TransactionContext requestData Executed. Tx Hash: ${tx.hash}`);
 
