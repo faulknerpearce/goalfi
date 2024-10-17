@@ -21,7 +21,7 @@ for (const userID in accessTokens) {
   const data = apiResponse.data;
   let totalDistance = 0;
 
-  const activities = data.filter(activity => activity.sport_type === activityType); // After the testing: add  ( && !activity.manual )
+  const activities = data.filter(activity => activity.sport_type === activityType && !activity.manual);
 
   if (activities) {
     activities.forEach(activity => {
