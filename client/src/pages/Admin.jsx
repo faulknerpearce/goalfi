@@ -28,13 +28,13 @@ const Admin = () => {
         className="text-white bg-blue-700 rounded-full px-4 py-2" 
         onClick={handleGetToken}
       >
-        Fetch Token (Don't Fucking Press it)
+        Fetch Token
       </button>
       <button 
         className="text-white bg-blue-700 rounded-full px-4 py-2" 
         onClick={handlefetchAllTokens}
       >
-        Fetch Participants Tokens (Don't Fucking Press this one either)
+        Fetch Participants Tokens
       </button>
     </div>
   );
