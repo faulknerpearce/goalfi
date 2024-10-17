@@ -1,9 +1,12 @@
-const dataList = JSON.parse(args[0]); 
+const accessTokens = JSON.parse(args[0]); 
 const activityType = args[1];
+const startTimestamp = Number(args[2]); 
+const expiryTimestamp = Number(args[3]);
+
 const results = [];
 
-for (const userID in dataList) {
-  const accessToken = dataList[userID];
+for (const userID in accessTokens) {
+  const accessToken = accessTokens[userID];
 
   const apiResponse = await Functions.makeHttpRequest({
     url: 'https://www.strava.com/api/v3/athlete/activities',
@@ -18,11 +21,16 @@ for (const userID in dataList) {
   const data = apiResponse.data;
   let totalDistance = 0;
 
-  const activities = data.filter(activity => activity.sport_type === activityType && !activity.manual);
+  const activities = data.filter(activity => activity.sport_type === activityType); // After the testing: add  ( && !activity.manual )
 
   if (activities) {
     activities.forEach(activity => {
-      totalDistance += Math.round(Number(activity.distance));
+
+      const startDate = new Date(activity.start_date).getTime() / 1000;
+
+      if (startDate >= startTimestamp && startDate <= expiryTimestamp) {
+        totalDistance += Math.round(Number(activity.distance)); 
+      }
     });
     results.push(Number(userID));
     results.push(totalDistance);
