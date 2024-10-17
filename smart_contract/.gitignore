@@ -4,4 +4,4 @@ node_modules
 .env
 cache
 artifacts
-time.py
+time.js
