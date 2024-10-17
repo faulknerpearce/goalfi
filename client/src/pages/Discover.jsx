@@ -38,12 +38,12 @@ const Discover = () => {
           Explore Goals.
         </h1>
         <p className="text-center mt-5 text-white font-light md:w-9/12 w-11/12 text-xl mb-10">
-          Browse our available goals and join the one that aligns with you.
+          Browse our available activities and join the goal that aligns with you.
         </p>
 
         {!currentAccount ? (
           <button
-            onClick={connectWallet} // Call connectWallet function when clicked
+            onClick={connectWallet}
             className="mt-10 text-white px-6 py-3 bg-orange-600 hover:bg-orange-700 rounded-full text-lg">
               Connect Wallet to View Goals
           </button>
