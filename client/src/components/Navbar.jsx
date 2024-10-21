@@ -59,7 +59,7 @@ useEffect(() => {
         });
 
         const responseData = await RequestTokenResponse.json();
-        
+
         if (RequestTokenResponse.ok) {
           const { access_token, refresh_token, expires_at } = responseData.data;
 
@@ -82,8 +82,11 @@ useEffect(() => {
           
           if (saveTokenResponse.ok) {
             console.log('Successfully saved to DataBase.');
-            document.cookie = `${cookieName}=true; path=/; max-age=${60 * 60 * 1}`;  // 1 hours expiration.
-    
+
+            const cookieName = `stravaAuthorized_${currentAccount}`;
+            document.cookie = `${cookieName}=true; path=/; max-age=${60 * 60}`; // 1 hour expiration
+            console.log(`Cookie saved: Value = true`);
+            
           } else {
             console.error('Error saving to DynamoDB:', saveResponseData);
           }
