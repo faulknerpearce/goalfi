@@ -236,13 +236,11 @@ export const TransactionsProvider = ({ children }) => {
         console.log('Strava authorization status from database: True');
         
         document.cookie = `${cookieName}=true; path=/; max-age=${60 * 60}`; // 1 hour expiration.
-        console.log(`cookie saved: Value = true`)
         return true;
       } else {
         console.log('Strava authorization status from database: False');
         
         document.cookie = `${cookieName}=false; path=/; max-age=${60 * 60}`; // 1 hour expiration
-        console.log(`Cookie saved: Value = false`);
         return false;
       }
     } catch (error) {
