@@ -44,7 +44,6 @@ useEffect(() => {
 
     if (authCode && currentAccount && !isCodeFetched) {
       try {
-        localStorage.setItem('isStravaAuthorized', 'true'); // test
         
         const userId = await getUserId(currentAccount);
         setIsCodeFetched(true);
@@ -84,7 +83,6 @@ useEffect(() => {
           
           if (saveTokenResponse.ok) {
             console.log('Successfully saved to DataBase.');
-            localStorage.removeItem('isStravaAuthorized');
           } else {
             console.error('Error saving to DynamoDB:', saveResponseData);
           }
@@ -149,7 +147,7 @@ useEffect(() => {
                 Verify Wallet
               </li>
             )}
-            {isUserCreated && !isStravaAuthorized && !localStorage.getItem('isStravaAuthorized') && (
+            {isUserCreated && !isStravaAuthorized && (
               <li className="py-2 px-7 mx-4 rounded-full cursor-pointer bg-orange-600 hover:bg-orange-700" onClick={handleStravaConnect}>
                 Connect to Strava
               </li>
@@ -186,7 +184,7 @@ useEffect(() => {
                   Verify Wallet
                 </li>
               )}
-              {isUserCreated && !isStravaAuthorized && !localStorage.getItem('isStravaAuthorized') && (
+              {isUserCreated && !isStravaAuthorized && (
                 <li className="py-2 px-7 mx-4 rounded-full cursor-pointer bg-orange-600 hover:bg-orange-700" onClick={handleStravaConnect}>
                   Connect to Strava
                 </li>
