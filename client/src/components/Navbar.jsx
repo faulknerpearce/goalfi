@@ -84,6 +84,7 @@ useEffect(() => {
           
           if (saveTokenResponse.ok) {
             console.log('Successfully saved to DataBase.');
+            localStorage.removeItem('isStravaAuthorized');
           } else {
             console.error('Error saving to DynamoDB:', saveResponseData);
           }
