@@ -217,7 +217,7 @@ export const TransactionsProvider = ({ children }) => {
     // If the cookie exists, use it
     if (cookieValue) {
       const stravaAuthorized = cookieValue.split('=')[1] === 'true';
-      console.log(`Strava authorization status from cookie: True`);
+      console.log(`Strava authorization status from cookie: ${stravaAuthorized}`);
       return stravaAuthorized;
     }
   
@@ -233,13 +233,16 @@ export const TransactionsProvider = ({ children }) => {
       const responseData = await response.json(); 
   
       if (response.ok && responseData.found) {
-        // If authorization found, set the cookie to true with 6-hour expiration.
         console.log('Strava authorization status from database: True');
-        document.cookie = `${cookieName}=true; path=/; max-age=${60 * 60 * 1}`; // 1 hours expiration.
-        console.log(`cookie saved.`)
+        
+        document.cookie = `${cookieName}=true; path=/; max-age=${60 * 60}`; // 1 hour expiration.
+        console.log(`cookie saved: Value = true`)
         return true;
       } else {
-        console.log('Strava authorization status: False');
+        console.log('Strava authorization status from database: False');
+        
+        document.cookie = `${cookieName}=false; path=/; max-age=${60 * 60}`; // 1 hour expiration
+        console.log(`Cookie saved: Value = false`);
         return false;
       }
     } catch (error) {
