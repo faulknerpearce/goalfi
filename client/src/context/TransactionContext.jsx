@@ -308,7 +308,7 @@ export const TransactionsProvider = ({ children }) => {
   
   // Requests data from the smart contract using chainlink .
   const requestData = async (activityType, goalId, startTimestamp, expiryTimestamp) =>{
-    console.log(`Requesting data for Goal ID: ${goal.id}. Start: ${startTimestamp}. Expires: ${goal.expiryTimestamp}`)
+    console.log(`Requesting data for Goal ID: ${goalId}. Start: ${startTimestamp}. Expires: ${expiryTimestamp}`)
 
     try {
       const provider = new ethers.BrowserProvider(ethereum);
