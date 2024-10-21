@@ -82,6 +82,8 @@ useEffect(() => {
           
           if (saveTokenResponse.ok) {
             console.log('Successfully saved to DataBase.');
+            document.cookie = `${cookieName}=true; path=/; max-age=${60 * 60 * 1}`;  // 1 hours expiration.
+    
           } else {
             console.error('Error saving to DynamoDB:', saveResponseData);
           }
