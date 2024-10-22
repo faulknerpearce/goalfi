@@ -140,25 +140,25 @@ const Dashboard = () => {
           </p>
     
           <div className="flex justify-center space-x-4 mb-10">
-            <button
-              className={`text-white px-10 py-2 rounded-full ${
-                showActiveGoals ? "bg-orange-700" : "bg-gray-500 hover:bg-gray-600"
-              }`}
-              onClick={() => setShowActiveGoals(true)}
-            >
-              Active Goals
-            </button>
-            <button
-              className={`text-white px-10 py-3 rounded-full ${
-                !showActiveGoals ? "bg-orange-700" : "bg-gray-500 hover:bg-gray-600"
-              }`}
-              onClick={() => setShowActiveGoals(false)}
-            >
-              Past Goals
-            </button>
-          </div>
+          <button
+            className={`text-white px-10 py-3 rounded-full ${
+              showActiveGoals ? "bg-orange-700" : "bg-gray-500 hover:bg-gray-600"
+            }`}
+            onClick={() => setShowActiveGoals(true)}
+          >
+            Active Goals
+          </button>
+          <button
+            className={`text-white px-10 py-3 rounded-full ${
+              !showActiveGoals ? "bg-orange-700" : "bg-gray-500 hover:bg-gray-600"
+            }`}
+            onClick={() => setShowActiveGoals(false)}
+          >
+            Past Goals
+          </button>
+        </div>
     
-          <div className={`grid w-md justify-items-center mt-10 ${loading ? "flex justify-center items-center" : "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10"}`}>
+          <div className={`grid w-full max-w-7xl justify-items-center mt-10 ${loading ? "flex justify-center items-center" : "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10"}`}>
             {loading ? (
               <div className="col-span-1 sm:col-span-2 md:col-span-3 flex justify-center ">
                 <Loader />
