@@ -40,7 +40,10 @@ async function main() {
   const activityType = await askQuestion('Enter the Activity Type: ');
   const goalId = await askQuestion('Enter the Goal ID: ');
 
-  await requestActivityData(requestData, activityType, goalId);
+  const startTimestamp = 0; // need to input value for testing.
+  const expiryTimestamp = 0; // need to input value for testing.
+
+  await requestActivityData(requestData, activityType, goalId, startTimestamp, expiryTimestamp);
 
   console.log("Request Data Executed.");
 }
