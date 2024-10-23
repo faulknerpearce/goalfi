@@ -80,43 +80,41 @@ const Homepage = () => {
             className="mt-10 text-white px-6 py-3 bg-orange-600 hover:bg-orange-700 rounded-full text-lg">
               Connect Wallet to View Goals
           </button>
-        ) : (
-          <>
-            {/* Container for buttons and card */}
-            <div className="flex flex-col md:flex-row justify-center items-center w-full mt-10 space-y-4 md:space-y-0 md:space-x-8 lg:space-x-6 md:max-w-xl lg:max-w-lg">
-              {/* Previous button */}
-              <button
-                onClick={prevGoal}
-                className="hidden md:block prev-button text-white px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-full w-md"
-              >
-                <FaArrowLeft />
-              </button>
+          ) : (
+            <>
+              {loading ? (
+                <Loader />
+              ) : goals.length === 0 ? (
+                <div className="text-white px-6 py-3 bg-orange-700 rounded-full text-lg">
+                  No Active Goals. Please check again later.
+                </div>
+              ) : (
+                <div className="flex flex-col md:flex-row justify-center items-center w-full mt-10 space-y-4 md:space-y-0 md:space-x-8 lg:space-x-6 md:max-w-xl lg:max-w-lg">
+                  <button
+                    onClick={prevGoal}
+                    className="hidden md:block prev-button text-white px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-full w-md"
+                  >
+                    <FaArrowLeft />
+                  </button>
 
-              {/* Card container */}
-              <div className="homepage-flip-card-container w-full max-w-md md:w-auto">
-                <div className={`homepage-flip-card ${animationClass}`}>
-                  {loading ? (
-                    <Loader />
-                  ) : (
-                    goals.length > 0 && (
+                  <div className="homepage-flip-card-container w-full max-w-md md:w-auto">
+                    <div className={`homepage-flip-card ${animationClass}`}>
                       <GoalCard
                         key={goals[currentIndex].id}
                         goal={goals[currentIndex]}
                         showViewButton={true}
                       />
-                    )
-                  )}
-                </div>
-              </div>
+                    </div>
+                  </div>
 
-              {/* Next button */}
-              <button
-                onClick={nextGoal}
-                className="next-button text-white px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-full w-md"
-              >
-                <FaArrowRight />
-              </button>
-            </div>
+                  <button
+                    onClick={nextGoal}
+                    className="next-button text-white px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-full w-md"
+                  >
+                    <FaArrowRight />
+                  </button>
+                </div>
+              )}
 
             {/* Dots below the card */}
             <div className="flex mt-4 space-x-2">
