@@ -34,3 +34,6 @@ Upgoaled is built in solidity and uses Chainlink Functions for secure and reliab
 #### Front End and User Interface:
 - The platform provides an intuitive interface for browsing goals, tracking progress, and claiming rewards.
 - The responsive design ensures compatibility across various screen sizes and devices.
+
+faucet coupon code: 
+devrel-avax-0112
