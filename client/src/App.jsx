@@ -9,7 +9,7 @@ import Testing from './pages/Admin';
 
 const App = () => (
   <Router>
-    <div className="min-h-screen gradient-bg-welcome"> 
+    <div className="min-h-screen gradient-bg-background"> 
       <Navbar />
       <Routes>
         <Route path="/" element={<div><Home /><Services /></div>} />
