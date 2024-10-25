@@ -34,19 +34,19 @@ const Services = () => (
           color="bg-[#2952E3]"
           title="Exercise"
           icon={<FaPersonRunning fontSize={21} className="text-white" />}
-          subtitle="Join activities in the exercise pools including: running, walking, and cycling and earn when you burn!"
+          subtitle="Join exercise-based activities including running, walking, and cycling and earn while you burn!"
         />
         <ServiceCard
           color="bg-[#8945F8]"
           title="Learning"
           icon={<FaBook fontSize={21} className="text-white" />}
-          subtitle="Explore activities in the learning pools for various educational activities."
+          subtitle="Explore educational activities on the following platforms: Coursera, Duolingo, and Codecademy."
         />
         <ServiceCard
           color="bg-[#F84550]"
           title="Productivity"
           icon={<FaChartBar fontSize={21} className="text-white" />}
-          subtitle="Explore activities in the productivity pools for various productivity tasks."
+          subtitle="Boost your efficiency. Complete productive tasks including: Focus sessions, Screen time reduction and Project management."
         />
       </div>
     </div>
