@@ -55,7 +55,7 @@ const Dashboard = () => {
           } else if (Number(goal.progress) === 2) {
             failedCount++;
           }
-          const joinDate = new Date(goal.expiryTimestamp * 1000).toLocaleDateString();
+          const joinDate = new Date(goal.startTimestamp * 1000).toLocaleDateString();
           if (!goalJoinHistory[joinDate]) {
             goalJoinHistory[joinDate] = 0;
           }
