@@ -4,6 +4,8 @@ import { TransactionContext } from "../context/TransactionContext";
 import { GoalCard } from "../components";
 import { fetchGoals } from "../utils/fetchGoals";
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
+import { DiAptana } from "react-icons/di";
+import MessageCard from "../components/MessageCard";
 import Loader from "../components/Loader"; 
 
 // Homepage component displays a list of goals and allows navigation between them.
@@ -85,9 +87,11 @@ const Homepage = () => {
               {loading ? (
                 <Loader />
               ) : goals.length === 0 ? (
-                <div className="text-white px-6 py-3 bg-orange-700 rounded-full text-lg">
-                  No Active Goals. Please check again later.
-                </div>
+                <MessageCard 
+                color="bg-orange-700" 
+                icon={<DiAptana fontSize={24} className="text-white" />} 
+                message="No Active Goals. Please check again later."
+              />
               ) : (
                 <div className="flex flex-col md:flex-row justify-center items-center w-full mt-10 space-y-4 md:space-y-0 md:space-x-8 lg:space-x-6 md:max-w-xl lg:max-w-lg">
                   <button
