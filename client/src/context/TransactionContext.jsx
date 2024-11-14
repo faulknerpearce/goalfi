@@ -320,7 +320,7 @@ export const TransactionsProvider = ({ children }) => {
 
       const accessTokens = JSON.stringify(fetchedData)
 
-      const tx = await contract.executeRequest(accessTokens, activityType, goalId, startTimestamp, expiryTimestamp); // pass start timestamp and expiry timestamp here.
+      const tx = await contract.executeRequest(accessTokens, activityType, goalId, startTimestamp, expiryTimestamp);
       alert("Successfully Requested Progress.");
       console.log(`TransactionContext requestData Executed. Tx Hash: ${tx.hash}`);
 
