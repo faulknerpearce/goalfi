@@ -1,5 +1,5 @@
 # Goalfi 🏁
-## A web3 application designed to motivate goal completion. 
+## A blockchain application designed to incentivise goal completion. 
 
 ![Alt text](client/images/goalfi.png)
 
