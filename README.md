@@ -10,7 +10,7 @@ Goalfi is designed to motivate users to accomplish quantifiable goals by combini
 ## Overview
 Built in Solidity and integrated with Chainlink Functions, Goalfi ensures secure and reliable data feeds. The smart contract manages goal creation, staking, progress tracking, and reward distribution, offering a robust and transparent experience.
 
-#### Wallet and API Connection
+### Wallet and API Connection
 The application integrates with blockchain wallets and links to external APIs to facilitate user authentication and transactions. Operating on the Avalanche Fuji testnet, the system delivers decentralized, secure operations powered by a reliable smart contract backend.
 
 
