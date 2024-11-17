@@ -4,36 +4,29 @@
 ![Alt text](client/images/goalfi.png)
 
 ## Introduction
-Goalfi is an application that leverages blockchain technology to streamline the way individuals track and accomplish their goals. 
-By staking tokens as a commitment to their goals, users are held accountable for their progress. If a goal is not met, the tokens are forfeited and redistributed among users who have successfully accomplished their goals. 
-This unique approach adds a competitive edge and fosters collective responsibility and gamifies the process of personal achievements.
+Goalfi is designed to motivate users to accomplish quantifiable goals by combining financial commitment with personal accountability. Users are held accountable for their progress by pledging funds to join predefined goals. Upon goal completion within the stipulated timeframe, users may claim rewards and their initial pledge. If they fail, the pledge is forfeited and redistributed to users who completed the goal. This approach adds a competitive edge, fosters collective responsibility, and gamifies the process of personal achievements.
+
 
 ## Overview
-Goalfi is designed to motivate and reward users for accomplishing quantifiable goals. Users can join predefined goals, stake a certain amount of cryptocurrency, and claim rewards upon goal completion within the stipulated timeframe.
-Upgoaled is built in solidity and uses Chainlink Functions for secure and reliable data feeds. The smart contract handles the staking, tracking, and reward distribution, ensuring a robust and transparent application.
+Built in Solidity and integrated with Chainlink Functions, Goalfi ensures secure and reliable data feeds. The smart contract manages goal creation, staking, progress tracking, and reward distribution, offering a robust and transparent experience.
+
+#### Wallet and API Connection
+The application integrates with blockchain wallets and links to external APIs to facilitate user authentication and transactions. Operating on the Avalanche Fuji testnet, the system delivers decentralized, secure operations powered by a reliable smart contract backend.
+
 
 ## Features
-#### User Onboarding:
-- Seamless wallet connection: Users can connect their wallets like MetaMask to the platform with ease.
-- Goal browsing: A variety of goals are available to be selected by the users.
+### Goal Selection and Staking
+- Users participate in predefined goals that specify activity type, distance, and duration. 
+- Before the goal's start date, users join by staking their desired amount of cryptocurrency. 
+- Once staked, the funds are locked until the goal expires. 
 
-#### Goal Selection and Staking:
-- Users can join a goal by pledging an amount of Cryptocurrency to a goal pool within the smart contract.
-- The staked amount is securely locked in the smart contract until the goal's expiration date.
+### Tracking and Goal Verification 
+- The application fetches user progress from an external API and passes the data to the smart contract using Chainlink Functions for secure verification. 
+- The smart contract evaluates progress against the goal criteria, marking failures for unmet goal requirements. 
+- The smart contract records critical data such as activity, distance covered, and when the activity was recorded. 
 
-#### Tracking and Goal Verification:
-- Activity Tracking: Progress of a users activities from an API is passed to in the smart contract using chainlink functions for secure data verification.
-- Progress Visualization: Users can visualize their progress towards the goal in ther Dashboard.
+### Goal Completion and Reward Distribution
+- After the goal expires, the smart contract evaluates user progress based on recorded data. 
+- Users who meet the goal criteria claim their pledge along with a share of forefeited pledges, minus platform fees. 
+- The rewards are distributed directly to users' wallets.
 
-#### Goal Completion and Reward Distribution:
-- Upon successful completion of the goal within the specified timeframe, users can claim their rewards.
-- Rewards are automatically distributed to eligible users upon successful claim.
-- Unclaimed rewards are redistributed among users who completed the goal.
-- Users forfeit their staked amount if the goal is not completed within the timeframe.
-
-#### Front End and User Interface:
-- The platform provides an intuitive interface for browsing goals, tracking progress, and claiming rewards.
-- The responsive design ensures compatibility across various screen sizes and devices.
-
-faucet coupon code: 
-devrel-avax-0112
