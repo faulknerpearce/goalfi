@@ -1,10 +1,11 @@
 const { getContractInstance } = require("../utils/getContractInstance");
 
-async function assignDistance(id) {
+// Fetches the requested data with the request id and manually assigns it to all the users in the target goal.
+async function assignDistance(request_id) {
 
     const contract = getContractInstance();
 
-    const Response = await contract.getActivityWithGoalId(id);
+    const Response = await contract.getActivityWithRequestId(request_id);
     
     const dataArray = JSON.parse(Response.activityData);
     const goalId = Response.goalId;
@@ -13,6 +14,9 @@ async function assignDistance(id) {
     console.log(`Response Data: ${dataArray}`);
     console.log(`Assign Distance Called.`);
 
+    // const dataArray = [0,0]
+    // const goalId = 1
+
     const tx = await contract.assignDistance(dataArray, goalId);
     
     console.log(`Assign Distance Executed. Transaction Hash: ${tx.hash}`);
@@ -20,10 +24,9 @@ async function assignDistance(id) {
 
 async function main(){
 
-    const id = 11;
+    const request_id = '';
 
-    await assignDistance(id);
-
+    await assignDistance(request_id);
 }
 
 main()
