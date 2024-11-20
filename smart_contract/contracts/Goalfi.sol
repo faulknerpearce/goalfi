@@ -2,10 +2,11 @@
 pragma solidity 0.8.20;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import {FunctionsClient} from "@chainlink/contracts/src/v0.8/functions/v1_0_0/FunctionsClient.sol";
 import {FunctionsRequest} from "@chainlink/contracts/src/v0.8/functions/v1_0_0/libraries/FunctionsRequest.sol";
 
-contract Goalfi is Ownable(msg.sender), FunctionsClient {
+contract Goalfi is Ownable(msg.sender), ReentrancyGuard, FunctionsClient {
     using FunctionsRequest for FunctionsRequest.Request;
 
     // Struct representing an activity's type and data.
@@ -239,26 +240,29 @@ contract Goalfi is Ownable(msg.sender), FunctionsClient {
     }
 
     // Allows a user to claim rewards for completing a goal.
-    function claimRewards(uint _goalId) public payable userExists(msg.sender) goalExists(_goalId) {
+    function claimRewards(uint _goalId) public userExists(msg.sender) goalExists(_goalId) {
         require(block.timestamp >= goals[_goalId].expiryTimestamp, "Goal must be expired");
 
         Goal storage goal = goals[_goalId];
 
-        require(goal.participants[msg.sender].progress != UserProgress.CLAIMED, "Rewards claimed.");
-        require(goal.participants[msg.sender].progress == UserProgress.COMPLETED, "Goal uncomplete");
+        require(goal.participants[msg.sender].progress != UserProgress.CLAIMED, "Rewards already claimed.");
+        require(goal.participants[msg.sender].progress == UserProgress.COMPLETED, "Goal incomplete.");
 
         uint userStakedAmount = goal.participants[msg.sender].stakedAmount;
         require(userStakedAmount > 0, "Did not stake.");
 
         uint userRewards = calculateUserRewards(msg.sender, _goalId);
-
-        payable(msg.sender).transfer(userRewards); 
+        require(userRewards > 0, "No rewards to claim.");
+        require(userRewards <= address(this).balance, "Insufficient contract balance.");
 
         goal.stake -= userRewards;
         goal.participants[msg.sender].progress = UserProgress.CLAIMED;
         users[msg.sender].totalRewards += userRewards;
 
         emit RewardsClaimed(msg.sender, _goalId);
+
+        (bool success, ) = payable(msg.sender).call{value: userRewards}("");
+        require(success, "Transfer failed.");
     }
 
     // Initiates a Chainlink request to fetch activity data for a specific goal.
@@ -328,13 +332,6 @@ contract Goalfi is Ownable(msg.sender), FunctionsClient {
             address walletAddress = getUserAddress(_data[i]);
             goals[_goalId].participants[walletAddress].userDistance = _data[i + 1];
         }
-    }
-
-    // Retrieves the activity associated with a specific goal ID.
-    function getActivityWithGoalId(uint goalId) public view returns (ActivityStruct memory) {
-        bytes32 requestId = goalToRequestId[goalId];
-        require(requests[requestId].exists, "No activity found.");
-        return activities[requestId];
     }
 
     // Retrieves the activity associated with a specific request Id.
