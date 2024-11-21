@@ -31,10 +31,6 @@
           "deploymentBucketName": "amplify-goalfi-dev-b1354-deployment",
           "s3Key": "amplify-builds/SaveToken-536858512b6d43476a65-build.zip"
         },
-        "GetToken": {
-          "deploymentBucketName": "amplify-goalfi-dev-b1354-deployment",
-          "s3Key": "amplify-builds/GetToken-5251474a54356c774569-build.zip"
-        },
         "CheckIfVerified": {
           "deploymentBucketName": "amplify-goalfi-dev-b1354-deployment",
           "s3Key": "amplify-builds/CheckIfVerified-486562394c6c4267474f-build.zip"
@@ -42,6 +38,10 @@
         "RefreshToken": {
           "deploymentBucketName": "amplify-goalfi-dev-b1354-deployment",
           "s3Key": "amplify-builds/RefreshToken-464b53794e4573343951-build.zip"
+        },
+        "AssignDistance": {
+          "deploymentBucketName": "amplify-goalfi-dev-b1354-deployment",
+          "s3Key": "amplify-builds/AssignDistance-48334a50792b536f3966-build.zip"
         }
       },
       "api": {

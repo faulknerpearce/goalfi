@@ -32,14 +32,6 @@
             "Arn"
           ],
           "category": "function",
-          "resourceName": "GetToken"
-        },
-        {
-          "attributes": [
-            "Name",
-            "Arn"
-          ],
-          "category": "function",
           "resourceName": "CheckIfVerified"
         },
         {
@@ -49,6 +41,14 @@
           ],
           "category": "function",
           "resourceName": "RefreshToken"
+        },
+        {
+          "attributes": [
+            "Name",
+            "Arn"
+          ],
+          "category": "function",
+          "resourceName": "AssignDistance"
         }
       ],
       "providerPlugin": "awscloudformation",
@@ -56,12 +56,12 @@
     }
   },
   "function": {
-    "CheckIfVerified": {
+    "AssignDistance": {
       "build": true,
       "providerPlugin": "awscloudformation",
       "service": "Lambda"
     },
-    "GetToken": {
+    "CheckIfVerified": {
       "build": true,
       "providerPlugin": "awscloudformation",
       "service": "Lambda"
@@ -95,6 +95,22 @@
     }
   },
   "parameters": {
+    "AMPLIFY_function_AssignDistance_deploymentBucketName": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "AssignDistance"
+        }
+      ]
+    },
+    "AMPLIFY_function_AssignDistance_s3Key": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "AssignDistance"
+        }
+      ]
+    },
     "AMPLIFY_function_CheckIfVerified_deploymentBucketName": {
       "usedBy": [
         {
@@ -108,22 +124,6 @@
         {
           "category": "function",
           "resourceName": "CheckIfVerified"
-        }
-      ]
-    },
-    "AMPLIFY_function_GetToken_deploymentBucketName": {
-      "usedBy": [
-        {
-          "category": "function",
-          "resourceName": "GetToken"
-        }
-      ]
-    },
-    "AMPLIFY_function_GetToken_s3Key": {
-      "usedBy": [
-        {
-          "category": "function",
-          "resourceName": "GetToken"
         }
       ]
     },

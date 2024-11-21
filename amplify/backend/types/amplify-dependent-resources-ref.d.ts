@@ -7,14 +7,14 @@ export type AmplifyDependentResourcesAttributes = {
     }
   },
   "function": {
-    "CheckIfVerified": {
+    "AssignDistance": {
       "Arn": "string",
       "LambdaExecutionRole": "string",
       "LambdaExecutionRoleArn": "string",
       "Name": "string",
       "Region": "string"
     },
-    "GetToken": {
+    "CheckIfVerified": {
       "Arn": "string",
       "LambdaExecutionRole": "string",
       "LambdaExecutionRoleArn": "string",

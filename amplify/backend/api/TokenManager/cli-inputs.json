@@ -22,13 +22,6 @@
         "setting": "open"
       }
     },
-    "/GetToken": {
-      "name": "/GetToken",
-      "lambdaFunction": "GetToken",
-      "permissions": {
-        "setting": "open"
-      }
-    },
     "/CheckIfVerified": {
       "name": "/CheckIfVerified",
       "lambdaFunction": "CheckIfVerified",
@@ -39,6 +32,13 @@
     "/RefreshToken": {
       "name": "/RefreshToken",
       "lambdaFunction": "RefreshToken",
+      "permissions": {
+        "setting": "open"
+      }
+    },
+    "/AssignDistance": {
+      "name": "/AssignDistance",
+      "lambdaFunction": "AssignDistance",
       "permissions": {
         "setting": "open"
       }
