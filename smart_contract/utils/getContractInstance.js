@@ -7,13 +7,13 @@ dotenv.config();
 
 function getContractInstance() {
     // Connect to the Sepolia network
-    const provider = new ethers.providers.JsonRpcProvider(process.env.FUJI_URL);
+    const provider = new ethers.providers.JsonRpcProvider(process.env.FUJI_RPC);
 
     // Create a wallet instance
     const wallet = new ethers.Wallet(process.env.PRIVATE_KEY, provider);
 
     // Address of the deployed contract
-    const contractAddress = process.env.FIJI_GOALFI_CONTRACT_ADDRESS;
+    const contractAddress = process.env.FIJI_CONTRACT_ADDRESS;
 
     // ABI of the deployed contract
     const contractABI = abi.abi;
