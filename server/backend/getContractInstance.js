@@ -6,7 +6,7 @@ const abi = require("../contract_abi/Goalfi.json");
 dotenv.config();
 
 function getContractInstance() {
-    // Connect to the network.
+    // Connect to the network using a web socket.
     const provider = new ethers.WebSocketProvider(process.env.FUJI_WS);
     
     // Create a wallet instance.
