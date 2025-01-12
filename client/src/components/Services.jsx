@@ -1,7 +1,5 @@
 import React from "react";
-import { FaPersonRunning } from "react-icons/fa6";
-import { FaChartBar } from "react-icons/fa6";
-import { FaBook } from "react-icons/fa6";
+import { FaRunning, FaBiking, FaWalking } from "react-icons/fa";
 
 const ServiceCard = ({ color, title, icon, subtitle }) => (
   <div
@@ -31,22 +29,22 @@ const Services = () => (
 
       <div className="flex justify-center items-center flex-wrap gap-6">
         <ServiceCard
-          color="bg-[#2952E3]"
-          title="Exercise"
-          icon={<FaPersonRunning fontSize={21} className="text-white" />}
-          subtitle="Join exercise-based activities including running, walking, and cycling and earn while you burn!"
-        />
-        <ServiceCard
-          color="bg-[#8945F8]"
-          title="Learning"
-          icon={<FaBook fontSize={21} className="text-white" />}
-          subtitle="Explore educational activities on the following platforms: Coursera, Duolingo, and Codecademy."
-        />
-        <ServiceCard
           color="bg-[#F84550]"
-          title="Productivity"
-          icon={<FaChartBar fontSize={21} className="text-white" />}
-          subtitle="Boost your efficiency. Complete productive tasks including: Focus sessions, Screen time reduction and Project management."
+          title="Walking"
+          icon={<FaWalking fontSize={21} className="text-white" />}
+          subtitle="Stay active with walking goals. Track your steps and earn rewards for staying consistent."
+        />
+        <ServiceCard
+          color="bg-[#2952E3]"
+          title="Running"
+          icon={<FaRunning fontSize={21} className="text-white" />}
+          subtitle="Take on running challenges. Push your limits and get rewarded for every kilometer."
+        />
+        <ServiceCard
+          color="bg-[#298150]"
+          title="Cycling"
+          icon={<FaBiking fontSize={21} className="text-white" />}
+          subtitle="Join cycling goals to boost fitness. Track your rides and achieve more."
         />
       </div>
     </div>
