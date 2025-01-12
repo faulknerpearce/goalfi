@@ -1,18 +1,16 @@
-# Goalfi 🏁
+# Goalfi
 ## A blockchain application designed to incentivise goal completion. 
 
 ![Alt text](client/images/goalfi.png)
 
 ## Introduction
-Goalfi is designed to motivate users to accomplish quantifiable goals by combining financial commitment with personal accountability. Users are held accountable for their progress by pledging funds to join predefined goals. Upon goal completion within the stipulated timeframe, users may claim rewards and their initial pledge. If they fail, the pledge is forfeited and redistributed to users who completed the goal. This approach adds a competitive edge, fosters collective responsibility, and gamifies the process of personal achievements.
-
+Goalfi is designed to motivate users to accomplish quantifiable goals by combining financial commitment with personal accountability. Users are held accountable for their progress by pledging funds to join predefined goals. Upon goal completion within the stipulated time frame, users may claim rewards and their initial pledge. If they fail, the pledge is forfeited and redistributed to users who completed the goal. This approach adds a competitive edge, fosters collective responsibility, and gamifies the process of personal achievements.
 
 ## Overview
 Built in Solidity and integrated with Chainlink Functions, Goalfi ensures secure and reliable data feeds. The smart contract manages goal creation, staking, progress tracking, and reward distribution, offering a robust and transparent experience.
 
 ### Wallet and API Connection
 The application integrates with blockchain wallets and links to external APIs to facilitate user authentication and transactions. Operating on the Avalanche Fuji testnet, the system delivers decentralized, secure operations powered by a reliable smart contract backend.
-
 
 ## Features
 ### Goal Selection and Staking
@@ -27,6 +25,5 @@ The application integrates with blockchain wallets and links to external APIs to
 
 ### Goal Completion and Reward Distribution
 - After the goal expires, the smart contract evaluates user progress based on recorded data. 
-- Users who meet the goal criteria claim their pledge along with a share of forefeited pledges, minus platform fees. 
+- Users who meet the goal criteria claim their pledge along with a share of forfeited pledges, minus platform fees. 
 - The rewards are distributed directly to users' wallets.
-
