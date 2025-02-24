@@ -13,21 +13,21 @@ function askQuestion(query) {
       resolve(ans);
     }));
   }
-  
+
+// Function to get the participants addresses
 async function getParticipantAddresses(goalId) {
 
     const contract = getContractInstance();
-
     const addresses = await contract.getParticipantAddresses(goalId);
 
     console.log(`Addresses: ${addresses}`);
 
 }
 
+// Main function.
 async function main(){
     
     const goalId = askQuestion('Enter the Goal ID: ');
-
     await getParticipantAddresses(goalId);
 
 }
