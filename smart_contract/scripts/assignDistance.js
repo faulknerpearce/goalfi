@@ -14,9 +14,6 @@ async function assignDistance(request_id) {
     console.log(`Response Data: ${dataArray}`);
     console.log(`Assign Distance Called.`);
 
-    // const dataArray = [0,0]
-    // const goalId = 1
-
     const tx = await contract.assignDistance(dataArray, goalId);
     
     console.log(`Assign Distance Executed. Transaction Hash: ${tx.hash}`);
