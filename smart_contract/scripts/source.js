@@ -5,6 +5,7 @@ const expiryTimestamp = Number(args[3]);
 
 const results = [];
 
+// Fetches the activities of the users and calculates the total distance covered by the users in the target goal.
 for (const userID in accessTokens) {
   const accessToken = accessTokens[userID];
 
@@ -18,6 +19,7 @@ for (const userID in accessTokens) {
     throw new Error('Request failed.');
   }
 
+  // Filter the activities based on the activity type and the start and expiry timestamps.
   const data = apiResponse.data;
   let totalDistance = 0;
 
@@ -28,10 +30,13 @@ for (const userID in accessTokens) {
 
       const startDate = new Date(activity.start_date).getTime() / 1000;
 
+      // Calculate the total distance covered by the user in the target goal.
       if (startDate >= startTimestamp && startDate <= expiryTimestamp) {
         totalDistance += Math.round(Number(activity.distance)); 
       }
     });
+    
+    // Push the user ID and the total distance covered by the user in the target goal to the results array.
     results.push(Number(userID));
     results.push(totalDistance);
   } else {
