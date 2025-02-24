@@ -3,6 +3,7 @@ const dotenv = require("dotenv");
 const readline = require("readline");
 dotenv.config();
 
+// Prompts the user for input.
 function askQuestion(query) {
   const rl = readline.createInterface({
     input: process.stdin,
@@ -15,6 +16,7 @@ function askQuestion(query) {
   }));
 }
 
+// Sends a request to the smart contract to fetch the activity data for the given activity type.
 async function requestActivityData(data, activityType, goalId) {
   
   const contract = getContractInstance();
@@ -30,6 +32,7 @@ async function requestActivityData(data, activityType, goalId) {
   }
 }
 
+// Main function to execute the request data script.
 async function main() {
 
   const requestData = [];
