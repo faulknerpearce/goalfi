@@ -20,6 +20,9 @@ const Navbar = () => {
   const [showModal, setShowModal] = useState(false);
   const [isCodeFetched, setIsCodeFetched] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [isTokenSaved, setIsTokenSaved] = useState(() => {
+    return localStorage.getItem('stravaTokenSaved') === 'true';
+  });
 
   // Function to handle connecting to Strava for authorization.
   const handleStravaConnect = async () => {
@@ -36,69 +39,70 @@ const Navbar = () => {
     }
   };
 
-// Effect hook to handle redirection and token exchange after Strava authorization.
-useEffect(() => {
-  const handleRedirect = async () => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const authCode = urlParams.get('code'); 
+  // Effect hook to handle redirection and token exchange after Strava authorization.
+  useEffect(() => {
+    const handleRedirect = async () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const authCode = urlParams.get('code'); 
 
-    if (authCode && currentAccount && !isCodeFetched) {
-      try {
-        
-        const userId = await getUserId(currentAccount);
-        setIsCodeFetched(true);
+      if (authCode && currentAccount && !isCodeFetched) {
+        try {
+          const userId = await getUserId(currentAccount);
+          setIsCodeFetched(true);
 
-        // Call RequestToken API
-        const RequestTokenResponse = await fetch('https://yamhku5op7.execute-api.us-east-1.amazonaws.com/dev/RequestToken', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            Code: authCode
-          }),
-        });
-
-        const responseData = await RequestTokenResponse.json();
-
-        if (RequestTokenResponse.ok) {
-          const { access_token, refresh_token, expires_at } = responseData.data;
-
-          // Save the tokens and other details to DynamoDB using the Lambda function
-          const saveTokenResponse = await fetch('https://yamhku5op7.execute-api.us-east-1.amazonaws.com/dev/SaveToken', {
+          // Call RequestToken API
+          const RequestTokenResponse = await fetch('https://yamhku5op7.execute-api.us-east-1.amazonaws.com/dev/RequestToken', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-              walletAddress: currentAccount,
-              Id: userId,  
-              stravaAccessToken: access_token,
-              stravaRefreshToken: refresh_token,
-              expiresAt: expires_at,
+              Code: authCode
             }),
           });
 
-          const saveResponseData = await saveTokenResponse.json();
-          
-          if (saveTokenResponse.ok) {
-            console.log('Successfully saved to DataBase.');
-          } else {
-            console.error('Error saving to DynamoDB:', saveResponseData);
-          }
-        } else {
-          console.error('Error response from RequestToken API:', responseData);
-        }
-      } catch (error) {
-        console.error('Error handling redirect:', error.message);
-      }
-    }
-  };
+          const responseData = await RequestTokenResponse.json();
 
-  if (!isCodeFetched) {
-    handleRedirect(); // Call the async function only if the code hasn't been fetched yet
-  }
-}, [ currentAccount, getUserId, isCodeFetched ]);
+          if (RequestTokenResponse.ok) {
+            const { access_token, refresh_token, expires_at } = responseData.data;
+
+            // Save the tokens and other details to DynamoDB using the Lambda function
+            const saveTokenResponse = await fetch('https://yamhku5op7.execute-api.us-east-1.amazonaws.com/dev/SaveToken', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                walletAddress: currentAccount,
+                Id: userId,  
+                stravaAccessToken: access_token,
+                stravaRefreshToken: refresh_token,
+                expiresAt: expires_at,
+              }),
+            });
+
+            const saveResponseData = await saveTokenResponse.json();
+            
+            if (saveTokenResponse.ok) {
+              console.log('Successfully saved to DataBase.');
+              setIsTokenSaved(true);
+              localStorage.setItem('stravaTokenSaved', 'true');
+            } else {
+              console.error('Error saving to DynamoDB:', saveResponseData);
+            }
+          } else {
+            console.error('Error response from RequestToken API:', responseData);
+          }
+        } catch (error) {
+          console.error('Error handling redirect:', error.message);
+        }
+      }
+    };
+
+    if (!isCodeFetched) {
+      handleRedirect();
+    }
+  }, [currentAccount, getUserId, isCodeFetched]);
 
   // Function to show the modal for account creation.
   const handleCreateAccountClick = () => {
@@ -120,7 +124,7 @@ useEffect(() => {
       setShowModal(false); 
       setErrorMessage('');
     }
-  };;
+  };
 
   return (
     <nav className="w-full flex md:justify-center justify-between items-center p-4">
@@ -147,11 +151,11 @@ useEffect(() => {
                 Verify Wallet
               </li>
             )}
-            {isUserCreated && !isStravaAuthorized && (
+            {isUserCreated && !isStravaAuthorized && !isTokenSaved && (
               <li className="py-2 px-7 mx-4 rounded-full cursor-pointer bg-orange-600 hover:bg-orange-700" onClick={handleStravaConnect}>
                 Connect to Strava
               </li>
-              )}
+            )}
           </>
         )}
       </ul>
@@ -184,7 +188,7 @@ useEffect(() => {
                   Verify Wallet
                 </li>
               )}
-              {isUserCreated && !isStravaAuthorized && (
+              {isUserCreated && !isStravaAuthorized && !isTokenSaved && (
                 <li className="py-2 px-7 mx-4 rounded-full cursor-pointer bg-orange-600 hover:bg-orange-700" onClick={handleStravaConnect}>
                   Connect to Strava
                 </li>
@@ -198,7 +202,6 @@ useEffect(() => {
           )}
         </ul>
       )}
-        
       </div>
       <Modal show={showModal} handleClose={handleCloseModal} handleConfirm={handleConfirmModal} errorMessage={errorMessage} setErrorMessage={setErrorMessage} />
     </nav>
