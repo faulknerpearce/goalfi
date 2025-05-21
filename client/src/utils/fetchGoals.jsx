@@ -96,9 +96,8 @@ export const fetchGoals = async (provider, getExpired) => {
     const remainingTime = calculateRemainingTime(goal.expiryTimestamp);
     const remainingTimeToJoin = calculateRemainingTimeToJoin(goal.startTimestamp)
 
-    const isActive = goal.startTimestamp > currentTimestamp; // Determine if the goal is active.
-    const includeGoal = getExpired ? !isActive : isActive; // Include the goal based on its status and the filter.
-
+    const isActive = goal.startTimestamp > currentTimestamp; 
+    const includeGoal = getExpired ? !isActive : isActive;
     if (includeGoal) {
       fetchedGoals.push({
         id: i,
