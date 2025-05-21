@@ -9,6 +9,7 @@ import DashboardCard from "../components/DashboardCard";
 import DashboardChart from '../components/DashboardChart';
 import Loader from "../components/Loader";
 
+// Dashboard component that displays user's goal statistics and participation history
 const Dashboard = () => {
   const { currentAccount, claimRewards, requestData } = useContext(TransactionContext);
   const [goals, setGoals] = useState([]);
@@ -21,6 +22,7 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    // Fetch and process user's goal data including progress and statistics
     const fetchUserGoals = async () => {
       setLoading(true);
       try {
@@ -34,6 +36,7 @@ const Dashboard = () => {
 
         const allGoals = [...activeGoals, ...expiredGoals];
 
+        // Map user goals with their details and filter out non-participated goals
         const userGoalDetails = allGoals
           .map((goal) => {
             const userGoal = userGoals.find((userGoal) => userGoal.goalId === goal.id);
@@ -49,6 +52,7 @@ const Dashboard = () => {
         let failedCount = 0;
         let goalJoinHistory = {};
 
+        // Calculate goal statistics and create historical data for charting
         userGoalDetails.forEach((goal) => {
           if (Number(goal.progress) === 4 || Number(goal.progress) === 3) {
             completedCount++;
@@ -62,6 +66,7 @@ const Dashboard = () => {
           goalJoinHistory[joinDate]++;
         });
 
+        // Transform historical data into array format for chart component
         const goalHistoryArray = Object.keys(goalJoinHistory).map((date) => ({
           date,
           goalsJoined: goalJoinHistory[date],
@@ -85,6 +90,7 @@ const Dashboard = () => {
     }
   }, [currentAccount]);
 
+  // Filter goals based on active/past status for display
   const displayedGoals = showActiveGoals
     ? goals.filter((goal) => goal.hours > 0 || goal.minutes > 0)
     : goals.filter((goal) => goal.hours <= 0 && goal.minutes <= 0);
