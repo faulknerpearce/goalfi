@@ -11,10 +11,6 @@ module.exports = {
     ],
   },
   networks: {
-    sepolia: {
-      url: process.env.SEPOLIA_RPC,
-      accounts: [process.env.PRIVATE_KEY],
-    },
     fuji: {
       url: process.env.FUJI_RPC,
       accounts: [process.env.PRIVATE_KEY],

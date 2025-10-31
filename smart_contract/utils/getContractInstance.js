@@ -1,6 +1,6 @@
 const { ethers } = require("ethers");
 const dotenv = require("dotenv");
-const abi = require("../contract_abi/Goalfi.json");
+const abi = require("../artifacts/contracts/Goalfi.sol/Goalfi.json");
 
 // Load environment variables from .env file
 dotenv.config();
@@ -13,7 +13,7 @@ function getContractInstance() {
     const wallet = new ethers.Wallet(process.env.PRIVATE_KEY, provider);
 
     // Address of the deployed contract
-    const contractAddress = process.env.FIJI_CONTRACT_ADDRESS;
+    const contractAddress = process.env.FUJI_CONTRACT_ADDRESS;
 
     // ABI of the deployed contract
     const contractABI = abi.abi;
