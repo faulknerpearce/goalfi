@@ -1,11 +1,12 @@
-import React, { useContext, useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { HiMenuAlt4 } from "react-icons/hi";
 import { AiOutlineClose } from "react-icons/ai";
 import { Link } from 'react-router-dom';
-import { TransactionContext } from "../context/TransactionContext";
-import { shortenAddress } from "../utils/shortenAddress";
+import { useGoalfi } from "../context/web3/goalfiContext.jsx";
+import { useWallet } from "../context/web3/walletContext.jsx";
+import { useUser } from "../context/database/userContext.jsx";
 import logo from "../../images/logo.png";
-import Modal from "./Modal";
+import Modal from "./Modal.jsx";
 
 //Component for individual navigation items.
 const NavBarItem = ({ title, to, classprops }) => (
@@ -16,7 +17,9 @@ const NavBarItem = ({ title, to, classprops }) => (
 
 const Navbar = () => {
   const [toggleMenu, setToggleMenu] = useState(false);
-  const { currentAccount, connectWallet, isUserCreated, createUser, isStravaAuthorized, getUserId} = useContext(TransactionContext);
+  const { createUser, checkUserExists } = useGoalfi();
+  const { currentAccount, connectWallet, isUserCreated, shortenAddress } = useWallet();
+  const { isStravaAuthorized, setIsStravaAuthorized, getStravaAuthUrl, requestStravaToken, saveStravaToken, checkStravaAuthorization } = useUser();
   const [showModal, setShowModal] = useState(false);
   const [isCodeFetched, setIsCodeFetched] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
@@ -27,10 +30,9 @@ const Navbar = () => {
   // Function to handle connecting to Strava for authorization.
   const handleStravaConnect = async () => {
     try {
-      const response = await fetch('https://yamhku5op7.execute-api.us-east-1.amazonaws.com/dev/GetUrl');
-      const data = await response.json();
-      if (data.authUrl) {
-        window.location.href = data.authUrl;
+      const authUrl = await getStravaAuthUrl();
+      if (authUrl) {
+        globalThis.location.href = authUrl;
       } else {
         console.error('Failed to generate authorization URL');
       }
@@ -42,56 +44,32 @@ const Navbar = () => {
   // Effect hook to handle redirection and token exchange after Strava authorization.
   useEffect(() => {
     const handleRedirect = async () => {
-      const urlParams = new URLSearchParams(window.location.search);
+      const urlParams = new URLSearchParams(globalThis.location.search);
       const authCode = urlParams.get('code'); 
 
       if (authCode && currentAccount && !isCodeFetched) {
         try {
-          const userId = await getUserId(currentAccount);
           setIsCodeFetched(true);
 
-          // Call RequestToken API
-          const RequestTokenResponse = await fetch('https://yamhku5op7.execute-api.us-east-1.amazonaws.com/dev/RequestToken', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              Code: authCode
-            }),
-          });
+          // Request token from Strava
+          const tokenData = await requestStravaToken(authCode);
+          console.log('Received token data from Strava:', tokenData);
 
-          const responseData = await RequestTokenResponse.json();
+          if (tokenData) {
+          
+            // Save the tokens to database
+            const saved = await saveStravaToken(
+              currentAccount,
+              tokenData.accessToken,
+              tokenData.refreshToken,
+              tokenData.expiresAt
+            );
 
-          if (RequestTokenResponse.ok) {
-            const { access_token, refresh_token, expires_at } = responseData.data;
-
-            // Save the tokens and other details to DynamoDB using the Lambda function
-            const saveTokenResponse = await fetch('https://yamhku5op7.execute-api.us-east-1.amazonaws.com/dev/SaveToken', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                walletAddress: currentAccount,
-                Id: userId,  
-                stravaAccessToken: access_token,
-                stravaRefreshToken: refresh_token,
-                expiresAt: expires_at,
-              }),
-            });
-
-            const saveResponseData = await saveTokenResponse.json();
-            
-            if (saveTokenResponse.ok) {
+            if (saved) {
               console.log('Successfully saved to DataBase.');
               setIsTokenSaved(true);
               localStorage.setItem('stravaTokenSaved', 'true');
-            } else {
-              console.error('Error saving to DynamoDB:', saveResponseData);
             }
-          } else {
-            console.error('Error response from RequestToken API:', responseData);
           }
         } catch (error) {
           console.error('Error handling redirect:', error.message);
@@ -102,7 +80,19 @@ const Navbar = () => {
     if (!isCodeFetched) {
       handleRedirect();
     }
-  }, [currentAccount, getUserId, isCodeFetched]);
+  }, [currentAccount, isCodeFetched]);
+
+  // Effect hook to check Strava authorization status
+  useEffect(() => {
+    const checkAuth = async () => {
+      if (currentAccount) {
+        const authorized = await checkStravaAuthorization(currentAccount);
+        setIsStravaAuthorized(authorized);
+        setIsTokenSaved(authorized); // Sync isTokenSaved with authorization status
+      }
+    };
+    checkAuth();
+  }, [currentAccount, checkStravaAuthorization]);
 
   // Function to show the modal for account creation.
   const handleCreateAccountClick = () => {
@@ -116,14 +106,33 @@ const Navbar = () => {
 
   // Function to confirm account creation and close the modal if successful.
   const handleConfirmModal = async () => {
-    const userCreated = await createUser();
+    try {
+      // First check if user already exists on the smart contract
+      const userExists = await checkUserExists(currentAccount);
+      
+      if (userExists) {
+        // User already exists on-chain
+        setErrorMessage('Your wallet is already verified on the smart contract.');
+        return;
+      }
 
-    if (!userCreated) {
-      setErrorMessage('Your wallet balance is below the minimum required balance of 0.01 AVAX.');
-    } else {
-      setShowModal(false); 
-      setErrorMessage('');
+      // User doesn't exist, so create them
+      const userCreated = await createUser();
+
+      if (!userCreated) {
+        setErrorMessage('Your wallet balance is below the minimum required balance of 0.01 AVAX.');
+      } else {
+        setShowModal(false); 
+        setErrorMessage('');
+      }
+    } catch (error) {
+      console.error('Error verifying/creating user:', error);
+      setErrorMessage('Failed to verify wallet. Please try again.');
     }
+  };
+
+  const handleConnectWallet = () => {
+    connectWallet();
   };
 
   return (
@@ -138,7 +147,7 @@ const Navbar = () => {
           <NavBarItem key={item + index} title={item} to={`/${item.toLowerCase()}`} />
         ))}
         {!currentAccount ? (
-          <li className="py-2 px-7 mx-4 rounded-full cursor-pointer bg-orange-600 hover:bg-orange-700" onClick={connectWallet}>
+          <li className="py-2 px-7 mx-4 rounded-full cursor-pointer bg-orange-600 hover:bg-orange-700" onClick={handleConnectWallet}>
             Connect Wallet
           </li>
         ) : (

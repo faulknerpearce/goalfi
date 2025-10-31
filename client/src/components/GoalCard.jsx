@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Loader from './Loader'
+import Loader from './Loader.jsx'
 
 // The GoalCard component displays goal details and allows users to join or view goals.
 const GoalCard = ({ goal, showJoinButton, showViewButton, joinGoal }) => {
