@@ -1,16 +1,17 @@
-import React, { useContext, useEffect, useState } from "react";
-import { ethers } from "ethers";
-import { TransactionContext } from "../context/TransactionContext";
-import { GoalCard } from "../components";
-import { fetchGoals } from "../utils/fetchGoals";
+import { useEffect, useState } from "react";
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 import { DiAptana } from "react-icons/di";
-import MessageCard from "../components/MessageCard";
-import Loader from "../components/Loader"; 
+import { ethers } from "ethers";
+import { useGoalfi } from "../context/web3/goalfiContext.jsx";
+import { useWallet } from "../context/web3/walletContext.jsx";
+import GoalCard from "../components/GoalCard.jsx";
+import MessageCard from "../components/MessageCard.jsx";
+import Loader from "../components/Loader.jsx";
 
 // Homepage component displays a list of goals and allows navigation between them.
 const Homepage = () => {
-  const { currentAccount, connectWallet} = useContext(TransactionContext);
+  const { fetchGoals } = useGoalfi();
+  const { currentAccount, connectWallet } = useWallet();
   const [goals, setGoals] = useState([]);
   const [loading, setLoading] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -18,7 +19,7 @@ const Homepage = () => {
 
   useEffect(() => {
     if (currentAccount) {
-      const provider = new ethers.BrowserProvider(window.ethereum);
+      const provider = new ethers.BrowserProvider(globalThis.ethereum);
       provider.send("eth_requestAccounts", []).then(() => {
         setLoading(true);
         fetchGoals(provider, false)
@@ -47,7 +48,7 @@ const Homepage = () => {
           });
       });
     }
-  }, [currentAccount]);
+  }, [currentAccount, fetchGoals]);
 
  // Function to navigate to the next goal in the list.
   const nextGoal = () => {
@@ -67,6 +68,10 @@ const Homepage = () => {
     }, 400);
   };
 
+  const handleConnectWallet = () => {
+    connectWallet();
+  };
+
   return (
     <div className="flex w-full justify-center items-center">
       <div className="flex flex-col items-center justify-between md:p-20 py-12 px-4 w-full">
@@ -78,7 +83,7 @@ const Homepage = () => {
         {/* Display "Connect Wallet" button if the wallet is not connected */}
         {!currentAccount ? (
           <button
-            onClick={connectWallet} // Call connectWallet function when clicked
+            onClick={handleConnectWallet} // Call connectWallet function when clicked
             className="mt-10 text-white px-6 py-3 bg-orange-600 hover:bg-orange-700 rounded-full text-lg">
               Connect Wallet to View Goals
           </button>

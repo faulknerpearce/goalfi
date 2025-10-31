@@ -1,17 +1,20 @@
+import { useEffect, useState } from "react";
 import { ethers } from "ethers";
-import { TransactionContext } from "../context/TransactionContext";
-import { fetchGoals } from "../utils/fetchGoals";
-import { getGoalsForUser } from "../utils/getGoalsForUser";
+import { useGoalfi } from "../context/web3/goalfiContext.jsx";
+import { useWallet } from "../context/web3/walletContext.jsx";
+import { useUser, fetchStravaToken } from "../context/database/userContext.jsx";
 import { FaTrophy, FaTimesCircle, FaTasks } from "react-icons/fa";
-import React, { useContext, useEffect, useState } from "react";
-import UserGoalCard from "../components/UserGoalCard";
-import DashboardCard from "../components/DashboardCard";
-import DashboardChart from '../components/DashboardChart';
-import Loader from "../components/Loader";
+
+import UserGoalCard from "../components/UserGoalCard.jsx";
+import DashboardCard from "../components/DashboardCard.jsx";
+import DashboardChart from '../components/DashboardChart.jsx';
+import Loader from "../components/Loader.jsx";
 
 // Dashboard component that displays user's goal statistics and participation history
 const Dashboard = () => {
-  const { currentAccount, claimRewards, requestData } = useContext(TransactionContext);
+  const { claimRewards, requestData, fetchGoals, getGoalsForUser, getParticipantAddresses } = useGoalfi();
+  const { currentAccount } = useWallet();
+  const { fetchParticipantsTokens } = useUser();
   const [goals, setGoals] = useState([]);
   const [completedGoals, setCompletedGoals] = useState(0);
   const [failedGoals, setFailedGoals] = useState(0);
@@ -21,13 +24,38 @@ const Dashboard = () => {
   const [goalHistory, setGoalHistory] = useState([]);
   const [loading, setLoading] = useState(false);
 
+  // Wrapper function to handle requesting data with participant tokens
+  const handleRequestData = async (activityType, goalId, startTimestamp, expiryTimestamp) => {
+    try {
+      // First get participant addresses from smart contract
+      const participantAddressesResult = await getParticipantAddresses(goalId);
+      
+      // Convert Proxy/Result to plain array
+      const participantAddresses = Array.from(participantAddressesResult);
+      
+      // Then fetch tokens from database for those participants
+      const participantTokens = await fetchParticipantsTokens(participantAddresses);
+
+      console.log('Participant Tokens:', participantTokens);
+      // Finally call requestData with the tokens
+      await requestData(activityType, goalId, startTimestamp, expiryTimestamp, participantTokens);
+    } catch (error) {
+      console.error('Error in handleRequestData:', error);
+    }
+  };
+
   useEffect(() => {
     // Fetch and process user's goal data including progress and statistics
     const fetchUserGoals = async () => {
       setLoading(true);
       try {
-        const provider = new ethers.BrowserProvider(window.ethereum);
+        const provider = new ethers.BrowserProvider(globalThis.ethereum);
         const userGoals = await getGoalsForUser(currentAccount);
+
+        console.log(currentAccount)
+
+        const token = await fetchStravaToken(currentAccount);
+        console.log('Fetched token for current account:', token);
 
         const [activeGoals, expiredGoals] = await Promise.all([
           fetchGoals(provider, false),
@@ -176,7 +204,7 @@ const Dashboard = () => {
                   goal={goal}
                   progress={goal.progress}
                   claimRewards={claimRewards}
-                  requestData={requestData}
+                  requestData={handleRequestData}
                 />
               ))
             )}

@@ -1,9 +1,12 @@
-import React, { useContext } from 'react';
-import { TransactionContext } from "../context/TransactionContext";
+import { useUser } from '../context/database/userContext.jsx';
+import { useWallet } from '../context/web3/walletContext.jsx';
+import { useGoalfi } from '../context/web3/goalfiContext.jsx';
 
 // Admin component for managing token operations and administrative tasks
 const Admin = () => {
-  const { currentAccount, fetchToken, fetchParticipantsTokens} = useContext(TransactionContext);
+  const { currentAccount } = useWallet();
+  const { fetchToken, fetchParticipantsTokens } = useUser();
+  const { getParticipantAddresses } = useGoalfi();
 
   // Handler to fetch tokens for the current user account
   const handleGetToken = async () => {
@@ -18,7 +21,8 @@ const Admin = () => {
   // Handler to fetch tokens for all participants in a specific goal (goalId: 11)
   const handlefetchAllTokens = async () => {
     try {
-      const tokens = await fetchParticipantsTokens(11);
+      const participantAddresses = await getParticipantAddresses(11);
+      const tokens = await fetchParticipantsTokens(participantAddresses);
       console.log('Fetched tokens:', tokens);
     } catch (error) {
       console.error('Error fetching tokens:', error);

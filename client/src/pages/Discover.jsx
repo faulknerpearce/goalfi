@@ -1,12 +1,13 @@
-import React, { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { ethers } from "ethers";
-import { TransactionContext } from "../context/TransactionContext";
-import GoalCard from "../components/GoalCard";
-import { fetchGoals } from "../utils/fetchGoals";
-import Loader from "../components/Loader";
+import { useGoalfi } from "../context/web3/goalfiContext.jsx";
+import { useWallet } from "../context/web3/walletContext.jsx";
+import GoalCard from "../components/GoalCard.jsx";
+import Loader from "../components/Loader.jsx";
 
 const Discover = () => {
-  const { currentAccount, joinGoal, connectWallet } = useContext(TransactionContext);
+  const { joinGoal, fetchGoals } = useGoalfi();
+  const { currentAccount, connectWallet } = useWallet();
   const [goals, setGoals] = useState([]);
   const [goalsFetched, setGoalsFetched] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -19,6 +20,7 @@ const Discover = () => {
           const provider = new ethers.BrowserProvider(window.ethereum);
           await provider.send("eth_requestAccounts", []);
           const fetchedGoals = await fetchGoals(provider);
+          console.log('Discover page - fetchedGoals:', fetchedGoals);
           setGoals(fetchedGoals);
         } catch (error) {
           console.error("Error fetching goals:", error);
@@ -29,7 +31,11 @@ const Discover = () => {
       };
       fetchData();
     }
-  }, [currentAccount, goalsFetched]);
+  }, [currentAccount, goalsFetched, fetchGoals]);
+
+  const handleConnectWallet = () => {
+    connectWallet();
+  };
 
   return (
     <div className="flex w-full justify-center items-center">
@@ -43,7 +49,7 @@ const Discover = () => {
 
         {!currentAccount ? (
           <button
-            onClick={connectWallet}
+            onClick={handleConnectWallet}
             className="mt-10 text-white px-6 py-3 bg-orange-600 hover:bg-orange-700 rounded-full text-lg">
               Connect Wallet to View Goals
           </button>
