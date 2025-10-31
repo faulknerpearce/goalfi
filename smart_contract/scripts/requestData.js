@@ -1,4 +1,4 @@
-const { getContractInstance } = require("../utils/getContractInstance");
+const { getContractInstance } = require("../utils/getContractInstance.js");
 const dotenv = require("dotenv");
 const readline = require("readline");
 dotenv.config();

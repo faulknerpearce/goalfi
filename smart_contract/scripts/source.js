@@ -23,7 +23,8 @@ for (const userID in accessTokens) {
   const data = apiResponse.data;
   let totalDistance = 0;
 
-  const activities = data.filter(activity => activity.sport_type === activityType && !activity.manual);
+  // const activities = data.filter(activity => activity.sport_type === activityType && !activity.manual);
+  const activities = data.filter(activity => activity.sport_type === activityType);
 
   if (activities) {
     activities.forEach(activity => {
@@ -37,10 +38,10 @@ for (const userID in accessTokens) {
     });
     
     // Push the user ID and the total distance covered by the user in the target goal to the results array.
-    results.push(Number(userID));
+    results.push(userID);
     results.push(totalDistance);
   } else {
-    results.push(Number(userID));
+    results.push(userID);
     results.push(0);
   }
 }
