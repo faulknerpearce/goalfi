@@ -1,6 +1,6 @@
 import { createContext, useContext, useState } from "react";
 import { ethers } from "ethers";
-import { contractABI, contractAddress } from "../providers/goalfi.js";
+import { contractABI, contractAddress } from "../config/contract.js";
 import { FaRunning, FaBiking, FaWalking } from "react-icons/fa";
 
 const { ethereum } = window;

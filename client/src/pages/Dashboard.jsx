@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { ethers } from "ethers";
-import { useGoalfi } from "../context/web3/goalfiContext.jsx";
-import { useWallet } from "../context/web3/walletContext.jsx";
-import { useUser, fetchStravaToken } from "../context/database/userContext.jsx";
+import { useGoalfi } from "../contexts/GoalfiContext.jsx";
+import { useWallet } from "../contexts/WalletContext.jsx";
+import { useUser, fetchStravaToken } from "../contexts/UserContext.jsx";
 import { FaTrophy, FaTimesCircle, FaTasks } from "react-icons/fa";
 
 import UserGoalCard from "../components/UserGoalCard.jsx";

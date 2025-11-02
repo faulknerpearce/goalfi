@@ -2,9 +2,9 @@ import { useState, useEffect } from "react";
 import { HiMenuAlt4 } from "react-icons/hi";
 import { AiOutlineClose } from "react-icons/ai";
 import { Link } from 'react-router-dom';
-import { useGoalfi } from "../context/web3/goalfiContext.jsx";
-import { useWallet } from "../context/web3/walletContext.jsx";
-import { useUser } from "../context/database/userContext.jsx";
+import { useGoalfi } from "../contexts/GoalfiContext.jsx";
+import { useWallet } from "../contexts/WalletContext.jsx";
+import { useUser } from "../contexts/UserContext.jsx";
 import logo from "../../images/logo.png";
 import Modal from "./Modal.jsx";
 

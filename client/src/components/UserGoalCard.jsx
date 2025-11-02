@@ -1,5 +1,3 @@
-import React from 'react';
-
 const UserGoalCard = ({ goal, progress, claimRewards, requestData}) => {
 
   const handleClaimRewards = () => {

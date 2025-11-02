@@ -1,6 +1,6 @@
-import { useUser, fetchStravaToken } from '../context/database/userContext.jsx';
-import { useWallet } from '../context/web3/walletContext.jsx';
-import { useGoalfi } from '../context/web3/goalfiContext.jsx';
+import { useUser, fetchStravaToken } from '../contexts/UserContext.jsx';
+import { useWallet } from '../contexts/WalletContext.jsx';
+import { useGoalfi } from '../contexts/GoalfiContext.jsx';
 
 // Admin component for managing token operations and administrative tasks
 const Admin = () => {

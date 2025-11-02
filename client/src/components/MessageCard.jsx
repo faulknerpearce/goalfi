@@ -1,5 +1,3 @@
-import React from "react";
-
 const MessageCard = ({ color, icon, message }) => (
   <div
     className="flex flex-col justify-center items-center white-glassmorphism p-3 m-2 cursor-pointer hover:shadow-xl"

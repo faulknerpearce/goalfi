@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
-import { useGoalfi } from './goalfiContext.jsx';
-import { useWallet } from './walletContext.jsx';
-import { useUser } from '../database/userContext.jsx';
+import { useGoalfi } from '../contexts/GoalfiContext.jsx';
+import { useWallet } from '../contexts/WalletContext.jsx';
+import { useUser } from '../contexts/UserContext.jsx';
 
 // Component to initialize wallet state with contract and database data
 export const WalletInitializer = ({ children }) => {

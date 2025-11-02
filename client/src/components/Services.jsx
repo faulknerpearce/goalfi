@@ -1,4 +1,3 @@
-import React from "react";
 import { FaRunning, FaBiking, FaWalking } from "react-icons/fa";
 
 const ServiceCard = ({ color, title, icon, subtitle }) => (

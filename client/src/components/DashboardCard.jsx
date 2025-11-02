@@ -1,5 +1,3 @@
-import React from "react";
-
 const DashboardCard = ({ title, value, icon, height, className }) => (
   <div className={`flex flex-row justify-between items-center white-glassmorphism p-3 cursor-pointer hover:shadow-xl rounded-lg border border-gray-700 ${height} ${className}`}>
     <div className="flex flex-col flex-1">

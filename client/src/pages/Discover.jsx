@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { ethers } from "ethers";
-import { useGoalfi } from "../context/web3/goalfiContext.jsx";
-import { useWallet } from "../context/web3/walletContext.jsx";
+import { useGoalfi } from "../contexts/GoalfiContext.jsx";
+import { useWallet } from "../contexts/WalletContext.jsx";
 import GoalCard from "../components/GoalCard.jsx";
 import Loader from "../components/Loader.jsx";
 

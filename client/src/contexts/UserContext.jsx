@@ -1,5 +1,5 @@
 import { createContext, useContext, useState } from "react";
-import { supabase } from "../providers/supabase.js";
+import { supabase } from "../config/supabase.js";
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || import.meta.env.VITE_SUPABASE_SERVICE_ROLE_KEY;
