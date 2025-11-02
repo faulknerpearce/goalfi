@@ -99,32 +99,20 @@ export const WalletProvider = ({ children }) => {
 
   // Effect to check if the wallet is connected and set up event listeners for account changes.
   useEffect(() => {
-    const setupWallet = async () => {
-      // Check if wallet is already connected
-      try {
-        if (!ethereum) return;
-        const accounts = await ethereum.request({ method: "eth_accounts" });
+    // Check if wallet is already connected
+    checkIfWalletIsConnected();
+
+    // Set up account change listener
+    if (ethereum) {
+      ethereum.on('accountsChanged', async (accounts) => {
         if (accounts.length) {
           setCurrentAccount(accounts[0]);
+        } else {
+          setCurrentAccount('');
+          setIsUserCreated(false);
         }
-      } catch (error) {
-        console.error("Error checking initial wallet connection:", error);
-      }
-
-      // Set up account change listener
-      if (ethereum) {
-        ethereum.on('accountsChanged', async (accounts) => {
-          if (accounts.length) {
-            setCurrentAccount(accounts[0]);
-          } else {
-            setCurrentAccount('');
-            setIsUserCreated(false);
-          }
-        });
-      }
-    };
-
-    setupWallet();
+      });
+    }
   }, []);
 
   return (

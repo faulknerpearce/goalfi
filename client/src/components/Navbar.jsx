@@ -82,18 +82,6 @@ const Navbar = () => {
     }
   }, [currentAccount, isCodeFetched]);
 
-  // Effect hook to check Strava authorization status
-  useEffect(() => {
-    const checkAuth = async () => {
-      if (currentAccount) {
-        const authorized = await checkStravaAuthorization(currentAccount);
-        setIsStravaAuthorized(authorized);
-        setIsTokenSaved(authorized); // Sync isTokenSaved with authorization status
-      }
-    };
-    checkAuth();
-  }, [currentAccount, checkStravaAuthorization]);
-
   // Function to show the modal for account creation.
   const handleCreateAccountClick = () => {
     setShowModal(true);

@@ -1,17 +1,17 @@
-import { useUser } from '../context/database/userContext.jsx';
+import { useUser, fetchStravaToken } from '../context/database/userContext.jsx';
 import { useWallet } from '../context/web3/walletContext.jsx';
 import { useGoalfi } from '../context/web3/goalfiContext.jsx';
 
 // Admin component for managing token operations and administrative tasks
 const Admin = () => {
   const { currentAccount } = useWallet();
-  const { fetchToken, fetchParticipantsTokens } = useUser();
+  const { fetchParticipantsTokens } = useUser();
   const { getParticipantAddresses } = useGoalfi();
 
   // Handler to fetch tokens for the current user account
   const handleGetToken = async () => {
     try {
-      const tokens = await fetchToken(currentAccount); 
+      const tokens = await fetchStravaToken(currentAccount); 
       console.log('Fetched tokens:', tokens);
     } catch (error) {
       console.error('Error fetching tokens:', error);

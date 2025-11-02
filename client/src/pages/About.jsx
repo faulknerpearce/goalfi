@@ -1,5 +1,3 @@
-import React, { useContext } from 'react';
-
 // About page component that displays basic information about the application
 const About = () => {
 
